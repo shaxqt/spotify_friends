@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "run-p server",
-    "server": "nodemon -w server.js server.js"
+    "server": "nodemon -w server.js -w routes server.js"
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,12 @@
   },
   "homepage": "https://gitlab.com/shaxqt/spotify-friends-backend#readme",
   "dependencies": {
+    "cookie-parser": "1.3.2",
     "cors": "^2.8.5",
-    "express": "^4.17.1"
-  },
-  "devDependencies": {
+    "express": "^4.17.1",
     "nodemon": "^1.19.2",
-    "npm-run-all": "4.1.5"
+    "npm-run-all": "4.1.5",
+    "querystring": "~0.2.0",
+    "request": "^2.83.0"
   }
 }
