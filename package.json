@@ -1,0 +1,27 @@
+{
+  "name": "spotify-friends-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "run-p server",
+    "server": "nodemon -w server.js server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/shaxqt/spotify-friends-backend.git"
+  },
+  "author": "Philip Loesch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/shaxqt/spotify-friends-backend/issues"
+  },
+  "homepage": "https://gitlab.com/shaxqt/spotify-friends-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.2",
+    "npm-run-all": "4.1.5"
+  }
+}
