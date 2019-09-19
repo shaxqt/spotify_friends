@@ -1,10 +1,13 @@
 const router = require('express').Router()
-const querystring = require('querystring')
 const requestLib = require('request') // "Request" library
-const client_id = process.env.SPOTIFY_CLIENT_ID
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET
-const redirect_uri =
-  process.env.SPOTIFY_REDIRECT || 'http://localhost:3333/callback'
+const {
+  client_id,
+  client_secret,
+  redirect_uri
+} = require('../../config/config')
+
+if (!(client_secret && client_id && redirect_uri))
+  console.log('Warning: check config.js')
 
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?

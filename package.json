@@ -1,10 +1,10 @@
 {
   "name": "spotify-friends-backend",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "start": "run-p server",
-    "server": "nodemon -w server.js -w routes server.js"
+    "start": "run-p server dev",
+    "server": "nodemon -w server/server.js -w server/routes server/server.js",
+    "dev": "parcel client/index.html"
   },
   "repository": {
     "type": "git",
@@ -17,12 +17,14 @@
   },
   "homepage": "https://gitlab.com/shaxqt/spotify-friends-backend#readme",
   "dependencies": {
-    "cookie-parser": "1.3.2",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "mongoose": "^5.7.1",
     "nodemon": "^1.19.2",
     "npm-run-all": "4.1.5",
-    "querystring": "~0.2.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "@babel/core": "7.6.0",
+    "@babel/plugin-transform-runtime": "7.6.0",
+    "parcel-bundler": "1.12.3"
   }
 }
