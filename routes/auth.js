@@ -7,9 +7,9 @@ const redirect_uri =
   process.env.SPOTIFY_REDIRECT || 'http://localhost:3333/callback'
 
 router.get('/login', function(req, res) {
-  const state = generateRandomString(16)
+  /* const state = generateRandomString(16)
   res.cookie(stateKey, state)
-
+ */
   // your application requests authorization
   const scope = 'user-read-private user-read-email'
   res.redirect(
@@ -18,12 +18,16 @@ router.get('/login', function(req, res) {
         response_type: 'code',
         client_id: client_id,
         scope: scope,
-        redirect_uri: redirect_uri,
-        state: state
+        redirect_uri: redirect_uri
+        //state: state
       })
   )
 })
 
+router.get('/callback', function(req, res) {
+  console.log(req.query.token)
+})
+/*
 router.get('/callback', function(req, res) {
   // your application requests refresh and access tokens
   // after checking the state parameter
@@ -121,13 +125,13 @@ router.get('/refresh_token', function(req, res) {
 
 const stateKey = 'spotify_auth_state'
 module.exports = router
-
+*/
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-function generateRandomString(length) {
+/*function generateRandomString(length) {
   let text = ''
   const possible =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -137,3 +141,6 @@ function generateRandomString(length) {
   }
   return text
 }
+ */
+
+module.exports = router
