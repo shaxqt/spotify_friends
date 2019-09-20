@@ -4,6 +4,6 @@ module.exports = {
   client_secret: 'your secret (also from your spotify application)',
   redicret_uri_comment:
     'add the url to your application at developers.spotify.com',
-  redirect_uri: 'http://localhost:3333/callback',
+  host: 'http://localhost:3333',
   mongoDB: 'mongodb://localhost:27017/spotify-friends'
 }
