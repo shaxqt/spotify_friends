@@ -1,9 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import TestPage from './components/pages/TestPage'
-
-function App() {
-  return <TestPage />
-}
+import App from './components/App'
 
 ReactDOM.render(<App />, window.app)

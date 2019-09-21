@@ -3,8 +3,14 @@ const querystring = require('querystring')
 const requestLib = require('request')
 
 const CONFIG = require('../../config/config')
-const { client_secret, client_id } = CONFIG
+const { client_secret, client_id, tokenCookieName } = CONFIG
 const redirect_uri = CONFIG.host + '/auth/callback'
+
+const {
+  getOrCreateUser,
+  createUserSession,
+  verifyUserSession
+} = require('../database')
 
 if (!(client_secret && client_id)) {
   console.log('Warning: check config.js')
@@ -15,8 +21,20 @@ if (!(client_secret && client_id)) {
  * after loggin in and commiting access to his account, he gets redirected back to
  * redirect_uri
  */
-const stateKey = 'spotify_auth_state'
 
+router.post('/verify', function(req, res) {
+  const token = req.body ? req.body.token : null
+  if (token) {
+    verifyUserSession(token)
+      .then(isValid => {
+        return res.send({ success: isValid, token: token })
+      })
+      .catch(error => res.send({ isValid: false, token: '' }))
+  } else {
+    return res.send({ success: false, token: '' })
+  }
+})
+const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
@@ -46,13 +64,15 @@ router.get('/login', function(req, res) {
 router.get('/callback', function(req, res) {
   const code = req.query.code || null
   const state = req.query.state || null
+  const error = req.query.error || null
   const storedState = req.cookies ? req.cookies[stateKey] : null
 
-  if (state === '' || state === null || state !== storedState) {
+  if (error || state === '' || state === null || state !== storedState) {
     console.log(
       'state mismatch',
       'state: ' + state,
       'storedState ' + storedState,
+      'error' + error,
       'cookies ',
       req.cookies
     )
@@ -66,13 +86,10 @@ router.get('/callback', function(req, res) {
       url: 'https://accounts.spotify.com/api/token',
       form: {
         code,
+        client_id,
+        client_secret,
         redirect_uri,
         grant_type: 'authorization_code'
-      },
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(client_id + ':' + client_secret).toString('base64')
       },
       json: true
     }
@@ -81,25 +98,20 @@ router.get('/callback', function(req, res) {
       if (!error && response.statusCode === 200) {
         const { access_token, refresh_token, expires_in } = body
 
-        res.cookie('refresh_token', refresh_token, {
+        /* res.cookie('refresh_token', refresh_token, {
           maxAge: 30 * 24 * 3600 * 1000
-        })
-
-        // hier müsste jetzt halt meine Seite aufgerufen werden
-        // weil man ja erfolgreich eingloggt wurde
-        res.redirect(
-          'http://localhost:1234?' +
-            querystring.stringify({
-              access_token: access_token,
-              expires_in: expires_in,
-              refresh_token: refresh_token
-            })
-        )
-        /*  res.render('template?', {
-          access_token: access_token,
-          expires_in: expires_in,
-          refresh_token: refresh_token
         }) */
+
+        getOrCreateUser(access_token, refresh_token, expires_in)
+          .then(user => {
+            createUserSession(user, access_token, refresh_token, expires_in)
+              .then(token => {
+                res.cookie(tokenCookieName, token)
+                res.redirect('http://localhost:1234')
+              })
+              .catch(error => console.log(error))
+          })
+          .catch(error => console.log(error))
       } else {
         res.send(`res.render('pages/callback', {
           access_token: null,
@@ -110,7 +122,7 @@ router.get('/callback', function(req, res) {
   }
 })
 router.post('/token', function(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*') // ?
+  res.setHeader('Access-Control-Allow-Origin', '*')
   const refreshToken = req.body ? req.body.refresh_token : null
   if (refreshToken) {
     const authOptions = {
@@ -148,41 +160,6 @@ router.post('/token', function(req, res) {
     res.send(JSON.stringify({ access_token: '', expires_in: '' }))
   }
 })
-
-function getCurrPlayingSong(access_token) {
-  const options = {
-    url: 'https://api.spotify.com/v1/me/player/currently-playing',
-    headers: { Authorization: 'Bearer ' + access_token },
-    json: true
-  }
-
-  // use the access token to get curr playing song
-  requestLib.get(options, function(error, response, body) {
-    console.log('ANTWORT VON v1/me/player/currently-playing', body)
-  })
-}
-function getMe(access_token) {
-  const options = {
-    url: 'https://api.spotify.com/v1/me',
-    headers: { Authorization: 'Bearer ' + access_token },
-    json: true
-  }
-  // use the access token to access the Spotify Web API
-  requestLib.get(options, function(error, response, body) {
-    console.log('ANTWORT VON v1/me Request', body)
-  })
-}
-function getTopTracks(access_token) {
-  const options = {
-    url: 'https://api.spotify.com/v1/me/top/tracks',
-    headers: { Authorization: 'Bearer ' + access_token },
-    json: true
-  }
-  // use the access token to access the Spotify Web API
-  requestLib.get(options, function(error, response, body) {
-    console.log('ANTWORT VON v1/me/top/tracks Request', body)
-  })
-}
 
 function generateRandomString(length) {
   let text = ''

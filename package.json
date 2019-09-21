@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "run-p server dev",
-    "server": "nodemon -w server/server.js -w server/routes server/server.js",
+    "server": "nodemon -w server/ server/server.js",
     "dev": "parcel client/*.*"
   },
   "repository": {
@@ -29,6 +29,7 @@
     "querystring": "^0.2.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-pure-lifecycle": "^3.0.0",
     "request": "^2.83.0"
   },
   "devDependencies": {

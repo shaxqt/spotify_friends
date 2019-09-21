@@ -5,5 +5,6 @@ module.exports = {
   redicret_uri_comment:
     'add the url to your application at developers.spotify.com',
   host: 'http://localhost:3333',
-  mongoDB: 'mongodb://localhost:27017/spotify-friends'
+  mongoDB: 'mongodb://localhost:27017/spotifyFriends',
+  tokenCookieName: 'spofiy_friends_token'
 }
