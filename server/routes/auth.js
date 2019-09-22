@@ -3,14 +3,10 @@ const querystring = require('querystring')
 const requestLib = require('request')
 
 const CONFIG = require('../../config/config')
-const { client_secret, client_id, tokenCookieName } = CONFIG
-const redirect_uri = CONFIG.host + '/auth/callback'
+const { client_secret, client_id, tokenCookieName, host, frontend } = CONFIG
+const redirect_uri = host + '/auth/callback'
 
-const {
-  getOrCreateUser,
-  createUserSession,
-  verifyUserSession
-} = require('../database')
+const spotifyApi = require('../spotifyApi')
 
 if (!(client_secret && client_id)) {
   console.log('Warning: check config.js')
@@ -19,7 +15,8 @@ if (!(client_secret && client_id)) {
 router.post('/verify', function(req, res) {
   const token = req.body ? req.body.token : null
   if (token) {
-    verifyUserSession(token)
+    spotifyApi
+      .verifyUserSession(token)
       .then(isValid => res.send({ success: isValid, token: token }))
       .catch(error => res.send({ isValid: false, token: '' }))
   } else {
@@ -68,7 +65,7 @@ router.get('/callback', function(req, res) {
       'cookies ',
       req.cookies
     )
-    res.redirect('http://localhost:1234')
+    res.redirect(frontend)
   } else {
     res.clearCookie(stateKey)
     const authOptions = {
@@ -87,32 +84,26 @@ router.get('/callback', function(req, res) {
       if (!error && response.statusCode === 200) {
         const { access_token, refresh_token, expires_in } = body
 
-        getOrCreateUser(access_token, refresh_token, expires_in)
-          .then(user => {
-            createUserSession(user, access_token, refresh_token, expires_in)
-              .then(token => {
-                res.cookie(tokenCookieName, token, {
-                  maxAge: 30 * 24 * 3600 * 1000
-                })
-                res.redirect('http://localhost:1234')
-              })
-              .catch(error => console.log(error))
-          })
+        spotifyApi
+          .handleUserLogin(access_token, refresh_token, expires_in)
+          .then(token => res.cookie(tokenCookieName, token))
           .catch(error => console.log(error))
+          .finally(() => res.redirect(frontend))
       } else {
-        res.redirect('http://localhost:1234')
+        res.redirect(frontend)
       }
     })
   }
 })
 router.post('/token', function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  const refreshToken = req.body ? req.body.refresh_token : null
-  if (refreshToken) {
+  const refresh_token = req.body ? req.body.refresh_token : null
+  console.log('router.post/token refresh_token:', refresh_token)
+  if (refresh_token) {
     const authOptions = {
       url: 'https://accounts.spotify.com/api/token',
       form: {
-        refresh_token: refreshToken,
+        refresh_token: refresh_token,
         grant_type: 'refresh_token'
       },
       headers: {
@@ -122,11 +113,10 @@ router.post('/token', function(req, res) {
       },
       json: true
     }
-    request.post(authOptions, function(error, response, body) {
+    requestLib.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        const access_token = body.access_token,
-          expires_in = body.expires_in
-
+        const { access_token, expires_in } = body
+        console.log('BODY FROM TOKEN REQUEST', access_token, expires_in)
         res.setHeader('Content-Type', 'application/json')
         res.send(
           JSON.stringify({

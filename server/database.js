@@ -1,20 +1,15 @@
 const User = require('./Models/User')
 const UserSession = require('./Models/UserSession')
-const spotifyGetMe = require('./spotifyApi')
 
-const getOrCreateUser = (access_token, refresh_token, expires_in) => {
+const getOrCreateUser = body => {
   return new Promise((resolve, reject) => {
-    spotifyGetMe(access_token)
-      .then(spotify_response_body => {
-        getUser(spotify_response_body.id)
-          .then(foundUser => resolve(foundUser))
-          .catch(error => {
-            createUser(spotify_response_body)
-              .then(createdUser => resolve(createdUser))
-              .catch(error => reject(error))
-          })
+    getUser(body.id)
+      .then(user => resolve(user))
+      .catch(error => {
+        createUser(body)
+          .then(user => resolve(user))
+          .catch(error => reject(error))
       })
-      .catch(error => reject(error))
   })
 }
 
@@ -50,11 +45,31 @@ const createUserSession = (user, access_token, refresh_token, expires_in) => {
       .catch(error => reject(error))
   })
 }
-const verifyUserSession = token => {
+
+const getUserSession = token => {
   return new Promise((resolve, reject) => {
-    UserSession.findById(token)
-      .then(session => resolve(session !== null && !session.isDeleted))
+    if (token) {
+      UserSession.findById(token)
+        .then(session => resolve(session))
+        .catch(error => reject(error))
+    } else {
+      reject('GetUserSession: no token')
+    }
+  })
+}
+const updateUserSession = (session, newValues) => {
+  console.log('updateUserSession', newValues)
+  return new Promise((resolve, reject) => {
+    console.log(session, newValues)
+    UserSession.findByIdAndUpdate(session._id, newValues)
+      .then(session => resolve(session))
       .catch(error => reject(error))
   })
 }
-module.exports = { getOrCreateUser, createUserSession, verifyUserSession }
+
+module.exports = {
+  getOrCreateUser,
+  createUserSession,
+  getUserSession,
+  updateUserSession
+}

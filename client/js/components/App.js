@@ -3,6 +3,7 @@ import { getCookie, setCookie, eraseCookie } from '../utils/cookies'
 import { verifyToken } from '../api/auth'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
+import TestPage from './pages/TestPage'
 
 const App = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -13,7 +14,6 @@ const App = props => {
     console.log('useEffect', token)
     verifyToken(token)
       .then(data => {
-        console.log('useEffect', data)
         if (data.success) {
           setCookie('spotify_friends_token', data.token, 30)
           setIsLoggedIn(true)
@@ -25,7 +25,7 @@ const App = props => {
       .finally(setIsLoading(false))
   }, [])
 
-  return isLoggedIn ? <HomePage /> : <LoginPage />
+  return isLoggedIn ? <TestPage /> : <LoginPage />
 }
 
 export default App
