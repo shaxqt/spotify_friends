@@ -73,31 +73,6 @@ const spotifyMeGet = (spotify_friends_token, url) => {
       })
     })
   }
-
-  function callSpotifyAPI(token, url) {
-    return new Promise((resolve, reject) => {
-      console.log('callSpotifyAPI' + url)
-      const options = {
-        url: 'https://api.spotify.com' + url,
-        headers: { Authorization: 'Bearer ' + token },
-        json: true
-      }
-      requestLib.get(options, function(error, response, body) {
-        if (!error) {
-          if (!body.error) {
-            console.log('callSpotifyAPI resolve', body)
-            resolve(body)
-          } else {
-            console.log('callSpotifyAPI reject', body.error)
-            reject(body.error)
-          }
-        } else {
-          console.log('callSpotifyAPI reject', error)
-          reject(error)
-        }
-      })
-    })
-  }
 }
 
 const verifyUserSession = token => {
@@ -135,7 +110,30 @@ const handleUserLogin = (token, refresh, expires) => {
       .catch(error => reject(error))
   })
 }
-
+function callSpotifyAPI(token, url) {
+  return new Promise((resolve, reject) => {
+    console.log('callSpotifyAPI' + url)
+    const options = {
+      url: 'https://api.spotify.com' + url,
+      headers: { Authorization: 'Bearer ' + token },
+      json: true
+    }
+    requestLib.get(options, function(error, response, body) {
+      if (!error) {
+        if (!body.error) {
+          console.log('callSpotifyAPI resolve', body)
+          resolve(body)
+        } else {
+          console.log('callSpotifyAPI reject', body.error)
+          reject(body.error)
+        }
+      } else {
+        console.log('callSpotifyAPI reject', error)
+        reject(error)
+      }
+    })
+  })
+}
 module.exports = { handleUserLogin, verifyUserSession, spotifyMeGet }
 /*
 
