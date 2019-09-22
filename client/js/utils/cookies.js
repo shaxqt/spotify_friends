@@ -1,5 +1,3 @@
-const querystring = require('querystring')
-
 const getCookie = name => {
   // Split cookie string and get all individual name=value pairs in an array
   var cookieArr = document.cookie.split(';')
@@ -32,5 +30,8 @@ const setCookie = (name, value, daysToLive) => {
     document.cookie = cookie
   }
 }
+const eraseCookie = name => {
+  document.cookie = name + '=; Max-Age=-99999999;'
+}
 
-module.exports = { setCookie, getCookie }
+module.exports = { setCookie, getCookie, eraseCookie }

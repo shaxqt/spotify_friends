@@ -1,50 +1,31 @@
 import React, { useState, useEffect } from 'react'
-import Button from './form/Button'
-import { setCookie, getCookie } from '../utils/cookies'
+import { getCookie, setCookie, eraseCookie } from '../utils/cookies'
+import { verifyToken } from '../api/auth'
+import LoginPage from './pages/LoginPage'
+import HomePage from './pages/HomePage'
 
-const TestPage = props => {
+const App = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [token, setToken] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const [test, setTest] = useState('')
-  const [cookies, setCookies] = useState('')
 
   useEffect(() => {
-    const token = getCookie('spofiy_friends_token')
-    setToken(token)
-    if (token) {
-      verifyToken(token)
-    } else {
-      setIsLoading(false)
-    }
-  })
-  return (
-    <>
-      <h2>Seite lädt: {isLoading ? 'ja' : 'nein'}</h2>
-      <h2>logged in: {isLoggedIn ? 'ja' : 'nein'}</h2>
-      <h2>token: {token}</h2>
-      <p>{test}</p>
-      <p>{cookies}</p>
-      <Button callback={() => verifyToken(token)} text='verify' />
-      <Button callback={login} text='login' />
-    </>
-  )
-  function verifyToken(token) {
-    fetch('http://localhost:3333/auth/verify', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token: token })
-    })
-      .then(res => res.json())
-      .then(json => {
-        setIsLoading(false)
-        setIsLoggedIn(json.success)
+    const token = getCookie('spotify_friends_token')
+    console.log('useEffect', token)
+    verifyToken(token)
+      .then(data => {
+        console.log('useEffect', data)
+        if (data.success) {
+          setCookie('spotify_friends_token', data.token, 30)
+          setIsLoggedIn(true)
+        } else {
+          eraseCookie('spotify_friends_token')
+        }
       })
-  }
+      .catch(err => console.log(err))
+      .finally(setIsLoading(false))
+  }, [])
 
-  function login() {
-    window.location = 'http://localhost:3333/auth/login'
-  }
+  return isLoggedIn ? <HomePage /> : <LoginPage />
 }
 
-export default TestPage
+export default App

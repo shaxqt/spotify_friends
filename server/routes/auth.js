@@ -16,35 +16,29 @@ if (!(client_secret && client_id)) {
   console.log('Warning: check config.js')
 }
 
+router.post('/verify', function(req, res) {
+  const token = req.body ? req.body.token : null
+  if (token) {
+    verifyUserSession(token)
+      .then(isValid => res.send({ success: isValid, token: token }))
+      .catch(error => res.send({ isValid: false, token: '' }))
+  } else {
+    res.send({ success: false, token: '' })
+  }
+})
+
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?
  * after loggin in and commiting access to his account, he gets redirected back to
  * redirect_uri
  */
-
-router.post('/verify', function(req, res) {
-  const token = req.body ? req.body.token : null
-  if (token) {
-    verifyUserSession(token)
-      .then(isValid => {
-        return res.send({ success: isValid, token: token })
-      })
-      .catch(error => res.send({ isValid: false, token: '' }))
-  } else {
-    return res.send({ success: false, token: '' })
-  }
-})
 const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
   // your application requests authorization
-  const scope = `user-read-private
-                 user-read-email
-                 user-read-currently-playing
-                 user-read-playback-state
-                 user-top-read`
+  const scope = `user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
       querystring.stringify({
@@ -62,9 +56,7 @@ router.get('/login', function(req, res) {
  * extracting the code (from url) to get an access token with another request
  */
 router.get('/callback', function(req, res) {
-  const code = req.query.code || null
-  const state = req.query.state || null
-  const error = req.query.error || null
+  const { code, state, error } = req.query
   const storedState = req.cookies ? req.cookies[stateKey] : null
 
   if (error || state === '' || state === null || state !== storedState) {
@@ -76,10 +68,7 @@ router.get('/callback', function(req, res) {
       'cookies ',
       req.cookies
     )
-    res.send(`res.render('pages/callback', {
-      access_token: null,
-      expires_in: null
-    })`)
+    res.redirect('http://localhost:1234')
   } else {
     res.clearCookie(stateKey)
     const authOptions = {
@@ -98,25 +87,20 @@ router.get('/callback', function(req, res) {
       if (!error && response.statusCode === 200) {
         const { access_token, refresh_token, expires_in } = body
 
-        /* res.cookie('refresh_token', refresh_token, {
-          maxAge: 30 * 24 * 3600 * 1000
-        }) */
-
         getOrCreateUser(access_token, refresh_token, expires_in)
           .then(user => {
             createUserSession(user, access_token, refresh_token, expires_in)
               .then(token => {
-                res.cookie(tokenCookieName, token)
+                res.cookie(tokenCookieName, token, {
+                  maxAge: 30 * 24 * 3600 * 1000
+                })
                 res.redirect('http://localhost:1234')
               })
               .catch(error => console.log(error))
           })
           .catch(error => console.log(error))
       } else {
-        res.send(`res.render('pages/callback', {
-          access_token: null,
-          expires_in: null
-        })`)
+        res.redirect('http://localhost:1234')
       }
     })
   }
