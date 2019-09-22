@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const server = express()
-const { mongoDB } = require('../config/config')
+const { mongoDB } = require('./config/config')
 const mongoose = require('mongoose')
 
 mongoose

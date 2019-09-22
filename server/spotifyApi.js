@@ -1,15 +1,19 @@
 const requestLib = require('request')
-const { host } = require('../config/config')
+const { host } = require('./config/config')
 const database = require('./database')
 
-const spotifyMeGet = (spotify_friends_token, url) => {
-  console.log('called')
+/*
+ * performs a get request to the spotify api
+ * to get user related information.
+ * trys to refresh the spotify token, if its expired
+ */
+const getSpotifyUserInfo = (spotify_friends_token, url) => {
   return new Promise((resolve, reject) => {
     database
       .getUserSession(spotify_friends_token)
       .then(session => {
         // make request with spotify token from UserSession
-        callSpotifyAPI(session.spotify_access_token, url)
+        requestSpotifyUserInfo(session.spotify_access_token, url)
           .then(body => resolve(body))
           .catch(error => {
             if (error.status === 401) {
@@ -17,7 +21,7 @@ const spotifyMeGet = (spotify_friends_token, url) => {
               refreshSpotifyToken(session)
                 .then(session => {
                   // make request again with updated UserSession token
-                  callSpotifyAPI(session.spotify_access_token, url)
+                  requestSpotifyUserInfo(session.spotify_access_token, url)
                     .then(body => resolve(body))
                     .catch(error => reject(error))
                 })
@@ -27,56 +31,14 @@ const spotifyMeGet = (spotify_friends_token, url) => {
       })
       .catch(error => reject(error))
   })
-  function refreshSpotifyToken(session) {
-    return new Promise((resolve, reject) => {
-      const authOptions = {
-        url: host + '/auth/token',
-        body: {
-          refresh_token: session.spotify_refresh_token,
-          grant_type: 'refresh_token'
-        },
-        json: true
-      }
-      requestLib.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          const spotify_access_token = body.access_token
-            ? body.access_token
-            : null
-          const spotify_expires_in = body.expires_in ? body.expires_in : null
-
-          console.log(
-            'refreshSpotifyToken',
-            spotify_expires_in,
-            spotify_access_token
-          )
-          if (spotify_access_token && spotify_expires_in) {
-            database
-              .updateUserSession(session, {
-                spotify_access_token,
-                spotify_expires_in
-              })
-              .then(session => resolve(session))
-              .catch(error => reject(error))
-          } else {
-            reject(
-              'Kein neues token bekommen: ' +
-                spotify_access_token +
-                ' ' +
-                spotify_expires_in
-            )
-          }
-        } else if (error) {
-          reject(error)
-        } else {
-          reject('status code' + response.statusCode)
-        }
-      })
-    })
-  }
 }
-
-const verifyUserSession = token => {
+/*
+ * this function simply return true or false
+ * dependend on the given token (id of a UserSession)
+ */
+const isUserSessionValid = (token, tryHard = false) => {
   return new Promise((resolve, reject) => {
+    console.log('isUserSessionValid', token, 'tryhard: ' + tryHard)
     database
       .getUserSession(token)
       .then(session => {
@@ -85,7 +47,14 @@ const verifyUserSession = token => {
           session.spotify_access_token &&
           session.spotify_refresh_token
         ) {
-          resolve(true)
+          if (tryHard) {
+            // try to use session to get informatin from spotify
+            getSpotifyUserInfo(token, '/v1/me')
+              .then(body => resolve(body.id === session.id))
+              .catch(error => reject(false))
+          } else {
+            resolve(true)
+          }
         } else {
           reject(false)
         }
@@ -93,10 +62,16 @@ const verifyUserSession = token => {
       .catch(error => reject(error))
   })
 }
-
+/*
+ * this function gets user information from spotify,
+ * using the given token.
+ * It gets or create a User related to the given spotify-token.
+ * Spotify tokens will be stored in UserSession and function return "own" token
+ * (id of the UserSession)
+ */
 const handleUserLogin = (token, refresh, expires) => {
   return new Promise((resolve, reject) => {
-    callSpotifyAPI(token, '/v1/me')
+    requestSpotifyUserInfo(token, '/v1/me')
       .then(body => {
         database
           .getOrCreateUser(body)
@@ -110,9 +85,13 @@ const handleUserLogin = (token, refresh, expires) => {
       .catch(error => reject(error))
   })
 }
-function callSpotifyAPI(token, url) {
+/*
+ * this function actually performs the get request to the spotify,
+ * with the given token to the given url
+ */
+function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
-    console.log('callSpotifyAPI' + url)
+    console.log('requestSpotifyUserInfo' + url)
     const options = {
       url: 'https://api.spotify.com' + url,
       headers: { Authorization: 'Bearer ' + token },
@@ -121,41 +100,33 @@ function callSpotifyAPI(token, url) {
     requestLib.get(options, function(error, response, body) {
       if (!error) {
         if (!body.error) {
-          console.log('callSpotifyAPI resolve', body)
+          console.log(
+            'requestSpotifyUserInfo resolve body',
+            body.items ? body.items.length : body.href
+          )
           resolve(body)
         } else {
-          console.log('callSpotifyAPI reject', body.error)
+          console.log('requestSpotifyUserInfo reject body.error', body.error)
           reject(body.error)
         }
       } else {
-        console.log('callSpotifyAPI reject', error)
+        console.log('requestSpotifyUserInfo reject error', error)
         reject(error)
       }
     })
   })
 }
-module.exports = { handleUserLogin, verifyUserSession, spotifyMeGet }
 /*
-
-export function getCurrPlayingSong(access_token) {
-  const options = {
-    url: 'https://api.spotify.com/v1/me/player/currently-playing',
-    headers: { Authorization: 'Bearer ' + access_token },
-    json: true
-  }
-
-  // use the access token to get curr playing song
-  requestLib.get(options, function(error, response, body) {
-    console.log('ANTWORT VON v1/me/player/currently-playing', body)
-  })
-}
+ * this function trys to get a new access_token from spotify,
+ * using the refresh_token from the given session.
+ * updates the session and return it, if successful
  */
-
-function refrshSpotifyToken(session) {
+function refreshSpotifyToken(session) {
   return new Promise((resolve, reject) => {
+    console.log('refreshSpotifyToken for session', session)
     const authOptions = {
       url: host + '/auth/token',
-      form: {
+      body: {
         refresh_token: session.spotify_refresh_token,
         grant_type: 'refresh_token'
       },
@@ -168,18 +139,25 @@ function refrshSpotifyToken(session) {
           : null
         const spotify_expires_in = body.expires_in ? body.expires_in : null
 
-        if (spotify_acess_token && spotify_expires_in) {
+        if (spotify_access_token && spotify_expires_in) {
           database
             .updateUserSession(session, {
               spotify_access_token,
               spotify_expires_in
             })
-            .then(session => resolve(session))
-            .catch(error => reject(error))
+            .then(session => {
+              console.log('refreshSpotifyToken resolve new session', session)
+              resolve(session)
+            })
+            .catch(error => {
+              console.log('refreshSpotifyToken reject, error', error)
+              reject(error)
+            })
         } else {
+          console.log('refreshSpotifyToken no token, body', body)
           reject(
             'Kein neues token bekommen: ' +
-              spotify_acess_token +
+              spotify_access_token +
               ' ' +
               spotify_expires_in
           )
@@ -192,3 +170,4 @@ function refrshSpotifyToken(session) {
     })
   })
 }
+module.exports = { handleUserLogin, isUserSessionValid, getSpotifyUserInfo }

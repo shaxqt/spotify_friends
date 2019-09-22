@@ -2,7 +2,7 @@ const router = require('express').Router()
 const querystring = require('querystring')
 const requestLib = require('request')
 
-const CONFIG = require('../../config/config')
+const CONFIG = require('../config/config')
 const { client_secret, client_id, tokenCookieName, host, frontend } = CONFIG
 const redirect_uri = host + '/auth/callback'
 
@@ -14,11 +14,12 @@ if (!(client_secret && client_id)) {
 
 router.post('/verify', function(req, res) {
   const token = req.body ? req.body.token : null
+  const tryHard = req.body ? req.body.tryHard : false
   if (token) {
     spotifyApi
-      .verifyUserSession(token)
+      .isUserSessionValid(token, tryHard)
       .then(isValid => res.send({ success: isValid, token: token }))
-      .catch(error => res.send({ isValid: false, token: '' }))
+      .catch(error => res.send({ isValid: false, token: '', error: error }))
   } else {
     res.send({ success: false, token: '' })
   }
@@ -55,45 +56,52 @@ router.get('/login', function(req, res) {
 router.get('/callback', function(req, res) {
   const { code, state, error } = req.query
   const storedState = req.cookies ? req.cookies[stateKey] : null
+  const token = req.cookies ? req.cookies[tokenCookieName] : null
 
-  if (error || state === '' || state === null || state !== storedState) {
-    console.log(
-      'state mismatch',
-      'state: ' + state,
-      'storedState ' + storedState,
-      'error' + error,
-      'cookies ',
-      req.cookies
-    )
-    res.redirect(frontend)
-  } else {
-    res.clearCookie(stateKey)
-    const authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        code,
-        client_id,
-        client_secret,
-        redirect_uri,
-        grant_type: 'authorization_code'
-      },
-      json: true
-    }
-
-    requestLib.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-        const { access_token, refresh_token, expires_in } = body
-
-        spotifyApi
-          .handleUserLogin(access_token, refresh_token, expires_in)
-          .then(token => res.cookie(tokenCookieName, token))
-          .catch(error => console.log(error))
-          .finally(() => res.redirect(frontend))
-      } else {
+  // check if user is still logged in, bevor create new UserSession
+  spotifyApi
+    .isUserSessionValid(token, true)
+    .then(isValid => res.redirect(frontend))
+    .catch(meansInvalid => {
+      if (error || state === '' || state === null || state !== storedState) {
+        console.log(
+          'state mismatch',
+          'state: ' + state,
+          'storedState ' + storedState,
+          'error' + error,
+          'cookies ',
+          req.cookies
+        )
         res.redirect(frontend)
+      } else {
+        res.clearCookie(stateKey)
+        const authOptions = {
+          url: 'https://accounts.spotify.com/api/token',
+          form: {
+            code,
+            client_id,
+            client_secret,
+            redirect_uri,
+            grant_type: 'authorization_code'
+          },
+          json: true
+        }
+
+        requestLib.post(authOptions, function(error, response, body) {
+          if (!error && response.statusCode === 200) {
+            const { access_token, refresh_token, expires_in } = body
+
+            spotifyApi
+              .handleUserLogin(access_token, refresh_token, expires_in)
+              .then(token => res.cookie(tokenCookieName, token))
+              .catch(error => console.log(error))
+              .finally(() => res.redirect(frontend))
+          } else {
+            res.redirect(frontend)
+          }
+        })
       }
     })
-  }
 })
 router.post('/token', function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
