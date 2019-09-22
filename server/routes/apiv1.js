@@ -12,7 +12,7 @@ const handleSpotifyRequest = (req, res) => {
       res.send(error)
     })
 }
-router.post('/me/v1', handleSpotifyRequest)
+router.post('/me/', handleSpotifyRequest)
 router.post('/me/top/tracks', handleSpotifyRequest)
 
 module.exports = router
