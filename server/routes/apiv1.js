@@ -14,5 +14,6 @@ const handleSpotifyRequest = (req, res) => {
 }
 router.post('/me/', handleSpotifyRequest)
 router.post('/me/top/tracks', handleSpotifyRequest)
+router.post('/me/player/currently-playing', handleSpotifyRequest)
 
 module.exports = router

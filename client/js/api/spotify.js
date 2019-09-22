@@ -15,5 +15,12 @@ const getTopTracks = (token, callback) => {
     })
     .catch(error => console.log('error'))
 }
+const getCurrSong = (token, callback) => {
+  callSpotifyAPI(token, backendHost + '/me/player/currently-playing')
+    .then(song => {
+      callback(song)
+    })
+    .catch(error => console.log('error'))
+}
 
-export { getTopTracks, getMe }
+export { getTopTracks, getMe, getCurrSong }
