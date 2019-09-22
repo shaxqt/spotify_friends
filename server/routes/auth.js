@@ -12,6 +12,12 @@ if (!(client_secret && client_id)) {
   console.log('Warning: check config.js')
 }
 
+/*
+ * checks if token is valid
+ * token should be given in body as token
+ * optional set tryHard to true, so function trys to use
+ * spotify token to get information from spotify api
+ */
 router.post('/verify', function(req, res) {
   const token = req.body ? req.body.token : null
   const tryHard = req.body ? req.body.tryHard : false
@@ -28,7 +34,7 @@ router.post('/verify', function(req, res) {
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?
  * after loggin in and commiting access to his account, he gets redirected back to
- * redirect_uri
+ * redirect_uri ('/callback)
  */
 const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
@@ -52,6 +58,8 @@ router.get('/login', function(req, res) {
 /*
  * handles the callback from spotify,
  * extracting the code (from url) to get an access token with another request
+ * gets or create a user and creates a UserSession
+ * sets cookie (id to UserSession) to remeber user
  */
 router.get('/callback', function(req, res) {
   const { code, state, error } = req.query
@@ -102,45 +110,6 @@ router.get('/callback', function(req, res) {
         })
       }
     })
-})
-router.post('/token', function(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  const refresh_token = req.body ? req.body.refresh_token : null
-  console.log('router.post/token refresh_token:', refresh_token)
-  if (refresh_token) {
-    const authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        refresh_token: refresh_token,
-        grant_type: 'refresh_token'
-      },
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(client_id + ':' + client_secret).toString('base64')
-      },
-      json: true
-    }
-    requestLib.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-        const { access_token, expires_in } = body
-        console.log('BODY FROM TOKEN REQUEST', access_token, expires_in)
-        res.setHeader('Content-Type', 'application/json')
-        res.send(
-          JSON.stringify({
-            access_token: access_token,
-            expires_in: expires_in
-          })
-        )
-      } else {
-        res.setHeader('Content-Type', 'application/json')
-        res.send(JSON.stringify({ access_token: '', expires_in: '' }))
-      }
-    })
-  } else {
-    res.setHeader('Content-Type', 'application/json')
-    res.send(JSON.stringify({ access_token: '', expires_in: '' }))
-  }
 })
 
 function generateRandomString(length) {

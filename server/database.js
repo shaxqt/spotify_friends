@@ -58,12 +58,22 @@ const getUserSession = token => {
   })
 }
 const updateUserSession = (session, newValues) => {
-  console.log('updateUserSession', newValues)
   return new Promise((resolve, reject) => {
-    console.log(session, newValues)
-    UserSession.findByIdAndUpdate(session._id, newValues)
-      .then(session => resolve(session))
-      .catch(error => reject(error))
+    console.log('updateUserSession, session', session)
+    console.log('updateUserSession, newValues', newValues)
+    UserSession.findByIdAndUpdate(
+      session._id,
+      newValues,
+      { new: true },
+      function(error, session) {
+        if (error) {
+          console.log('updateUserSession reject', error)
+          reject(error)
+        }
+        console.log('updateUserSession resolve', session)
+        resolve(session)
+      }
+    )
   })
 }
 

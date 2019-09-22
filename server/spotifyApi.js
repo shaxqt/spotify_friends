@@ -1,7 +1,7 @@
 const requestLib = require('request')
-const { host } = require('./config/config')
 const database = require('./database')
 
+const { client_secret, client_id } = require('./config/config')
 /*
  * performs a get request to the spotify api
  * to get user related information.
@@ -125,13 +125,19 @@ function refreshSpotifyToken(session) {
   return new Promise((resolve, reject) => {
     console.log('refreshSpotifyToken for session', session)
     const authOptions = {
-      url: host + '/auth/token',
-      body: {
+      url: 'https://accounts.spotify.com/api/token',
+      form: {
         refresh_token: session.spotify_refresh_token,
         grant_type: 'refresh_token'
       },
+      headers: {
+        Authorization:
+          'Basic ' +
+          new Buffer(client_id + ':' + client_secret).toString('base64')
+      },
       json: true
     }
+
     requestLib.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
         const spotify_access_token = body.access_token
