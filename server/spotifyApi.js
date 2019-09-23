@@ -16,16 +16,20 @@ const getSpotifyUserInfo = (spotify_friends_token, url) => {
         requestSpotifyUserInfo(session.spotify_access_token, url)
           .then(body => resolve(body))
           .catch(error => {
-            if (error.status === 401) {
-              // if token expired, try to use refresh token
-              refreshSpotifyToken(session)
-                .then(session => {
-                  // make request again with updated UserSession token
-                  requestSpotifyUserInfo(session.spotify_access_token, url)
-                    .then(body => resolve(body))
-                    .catch(error => reject(error))
-                })
-                .catch(error => reject(error))
+            if (error) {
+              if (error.status === 401) {
+                // if token expired, try to use refresh token
+                refreshSpotifyToken(session)
+                  .then(session => {
+                    // make request again with updated UserSession token
+                    requestSpotifyUserInfo(session.spotify_access_token, url)
+                      .then(body => resolve(body))
+                      .catch(error => reject(error))
+                  })
+                  .catch(error => reject(error))
+              }
+            } else {
+              reject('getSpotifyUserInfo, no error, no body')
             }
           })
       })
@@ -99,15 +103,21 @@ function requestSpotifyUserInfo(token, url) {
     }
     requestLib.get(options, function(error, response, body) {
       if (!error) {
-        if (!body.error) {
-          console.log(
-            'requestSpotifyUserInfo resolve body',
-            body.items ? body.items.length : body.href
-          )
-          resolve(body)
+        if (body) {
+          if (body.errpr) {
+            console.log(
+              'requestSpotifyUserInfo resolve body',
+              body.items ? body.items.length : body.href
+            )
+            resolve(body)
+          } else {
+            console.log('requestSpotifyUserInfo reject body.error', body.error)
+            reject(body.error)
+          }
         } else {
-          console.log('requestSpotifyUserInfo reject body.error', body.error)
-          reject(body.error)
+          // this could maybe happen if request just has no respone,
+          // like get curr playing -> user isnt playing anything
+          reject('requestSpotifyUserInfo no body, no error, response', response)
         }
       } else {
         console.log('requestSpotifyUserInfo reject error', error)
