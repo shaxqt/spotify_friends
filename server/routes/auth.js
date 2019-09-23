@@ -8,29 +8,6 @@ const redirect_uri = host + '/auth/callback'
 
 const spotifyApi = require('../spotifyApi')
 
-if (!(client_secret && client_id)) {
-  console.log('Warning: check config.js')
-}
-
-/*
- * checks if token is valid
- * token should be given in body as token
- * optional set tryHard to true, so function trys to use
- * spotify token to get information from spotify api
- */
-router.post('/verify', function(req, res) {
-  const token = req.body ? req.body.token : null
-  const tryHard = req.body ? req.body.tryHard : false
-  if (token) {
-    spotifyApi
-      .isUserSessionValid(token, tryHard)
-      .then(isValid => res.send({ success: isValid, token: token }))
-      .catch(error => res.send({ isValid: false, token: '', error: error }))
-  } else {
-    res.send({ success: false, token: '' })
-  }
-})
-
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?
  * after loggin in and commiting access to his account, he gets redirected back to
@@ -69,53 +46,60 @@ router.get('/callback', function(req, res) {
   // check if user is still logged in, before create new UserSession
   spotifyApi
     .isUserSessionValid(token, true)
-    .then(isValid => res.redirect(frontend))
-    .catch(meansInvalid => {
-      if (error || state === '' || state === null || state !== storedState) {
+    .then(isValid => {
+      if (isValid) {
         console.log(
-          'state mismatch',
-          'state: ' + state,
-          'storedState ' + storedState,
-          'error' + error,
-          'cookies ',
-          req.cookies
+          '/callback requesting new spotify token, own token invalid:',
+          token
         )
-        res.redirect(frontend)
-      } else {
-        // request a token with given code, client_id and client_secret
-        res.clearCookie(stateKey)
-        const authOptions = {
-          url: 'https://accounts.spotify.com/api/token',
-          form: {
-            code,
-            client_id,
-            client_secret,
-            // doesn't get used to redirect, but is needed to verify
-            redirect_uri,
-            grant_type: 'authorization_code'
-          },
-          json: true
-        }
-
-        requestLib.post(authOptions, function(error, response, body) {
-          if (!error && response.statusCode === 200) {
-            const { access_token, refresh_token, expires_in } = body
-
-            /*
-             * get or create a User, create a UserSession
-             * somehow get token to client and redirect to frontend
-             */
-            spotifyApi
-              .handleUserLogin(access_token, refresh_token, expires_in)
-              .then(token => res.cookie(tokenCookieName, token))
-              .catch(error => console.log(error))
-              .finally(() => res.redirect(frontend))
-          } else {
-            res.redirect(frontend)
+        // check if callback params match given params to spotify
+        if (error || state === '' || state === null || state !== storedState) {
+          console.log(
+            'state mismatch',
+            'state: ' + state,
+            'storedState ' + storedState,
+            'error' + error,
+            'cookies ',
+            req.cookies
+          )
+        } else {
+          // request a token from sporify with given code, client_id and client_secret
+          res.clearCookie(stateKey)
+          const authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            form: {
+              code,
+              client_id,
+              client_secret,
+              // doesn't get used to redirect, but is needed to verify
+              redirect_uri,
+              grant_type: 'authorization_code'
+            },
+            json: true
           }
-        })
+          requestLib.post(authOptions, function(error, response, body) {
+            if (!error && response.statusCode === 200) {
+              const { access_token, refresh_token, expires_in } = body
+              /*
+               * get or create a User, create a UserSession
+               * somehow get token to client and redirect to frontend
+               */
+              spotifyApi
+                .handleUserLogin(access_token, refresh_token, expires_in)
+                .then(token =>
+                  res.cookie(tokenCookieName, token, {
+                    maxAge: 3600 * 60 * 24 * 30
+                  })
+                )
+            }
+          })
+        }
+      } else {
+        console.log('/callback UserSession still valid, no new Session created')
       }
     })
+    .catch(err => console.log('/callback error', error))
+    .finally(() => res.redirect(frontend))
 })
 
 function generateRandomString(length) {

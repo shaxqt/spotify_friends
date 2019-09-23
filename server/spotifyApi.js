@@ -2,97 +2,74 @@ const requestLib = require('request')
 const database = require('./database')
 
 const { client_secret, client_id } = require('./config/config')
-/*
- * performs a get request to the spotify api
- * to get user related information.
- * trys to refresh the spotify token, if its expired
- */
-const getSpotifyUserInfo = (spotify_friends_token, url) => {
+
+const getSpotifyUserInfo = (session, url = '/v1/me') => {
   return new Promise((resolve, reject) => {
-    database
-      .getUserSession(spotify_friends_token)
-      .then(session => {
-        // make request with spotify token from UserSession
-        requestSpotifyUserInfo(session.spotify_access_token, url)
-          .then(body => resolve(body))
-          .catch(error => {
-            if (error) {
-              if (error.status === 401) {
-                // if token expired, try to use refresh token
-                refreshSpotifyToken(session)
-                  .then(session => {
-                    // make request again with updated UserSession token
-                    requestSpotifyUserInfo(session.spotify_access_token, url)
-                      .then(body => resolve(body))
-                      .catch(error => reject(error))
-                  })
-                  .catch(error => reject(error))
-              }
-            } else {
-              reject('getSpotifyUserInfo, no error, no body')
-            }
+    requestSpotifyUserInfo(session.spotify_access_token, url)
+      .then(body => resolve(body))
+      .catch(err => {
+        // refresh token and try again
+        refreshSpotifyToken(session)
+          .then(session => {
+            console.log('getSpotifyUserInfo try again with refreshed token')
+            requestSpotifyUserInfo(session)
+              .then(body => resolve(body))
+              .catch(err => reject(err))
           })
+          .catch(err => reject(err))
       })
-      .catch(error => reject(error))
   })
 }
-/*
- * this function simply return true or false
- * dependend on the given token (id of a UserSession)
- */
+
 const isUserSessionValid = (token, tryHard = false) => {
-  return new Promise((resolve, reject) => {
-    console.log('isUserSessionValid', token, 'tryhard: ' + tryHard)
+  return new Promise((reject, resolve) => {
     database
       .getUserSession(token)
       .then(session => {
-        if (
-          session.userID &&
-          session.spotify_access_token &&
-          session.spotify_refresh_token
-        ) {
-          if (tryHard) {
-            // try to use session to get informatin from spotify
-            getSpotifyUserInfo(token, '/v1/me')
-              .then(body => resolve(body.id === session.id))
-              .catch(error => reject(false))
-          } else {
-            resolve(true)
-          }
+        if (tryHard) {
+          getSpotifyUserInfo(session, '/v1/me')
+            .then(body => {
+              if (body) {
+                resolve(true)
+              } else {
+                resolve(false)
+              }
+            })
+            .catch(err => reject(err))
         } else {
-          reject(false)
+          resolve(true)
         }
       })
-      .catch(error => reject(error))
+      .catch(err => reject(err))
   })
 }
-/*
- * this function gets user information from spotify,
- * using the given token.
- * It gets or create a User related to the given spotify-token.
- * Spotify tokens will be stored in UserSession and function return "own" token
- * (id of the UserSession)
- */
+
 const handleUserLogin = (token, refresh, expires) => {
   return new Promise((resolve, reject) => {
     requestSpotifyUserInfo(token, '/v1/me')
-      .then(body => {
-        database
-          .getOrCreateUser(body)
-          .then(user => {
+      .then(spotifyResponse => {
+        console.log('######### GOT SPOTIFY RESPONSE')
+        if (spotifyResponse) {
+          database.getOrCreateUser(body).then(user => {
             database
               .createUserSession(user, token, refresh, expires)
-              .then(token => resolve(token))
+              .then(session => {
+                console.log('handleUserLogin created session')
+                resolve(session._id)
+              })
           })
-          .catch(error => reject(error))
+        } else {
+          reject('no response body')
+        }
       })
-      .catch(error => reject(error))
+      .catch(err => {
+        console.log('########### BIN IM CATCH')
+        reject(err)
+      })
+      .finally(() => console.log('########## BIN iM FINALLY'))
   })
 }
-/*
- * this function actually performs the get request to the spotify,
- * with the given token to the given url
- */
+
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -100,31 +77,23 @@ function requestSpotifyUserInfo(token, url) {
       headers: { Authorization: 'Bearer ' + token },
       json: true
     }
-    console.log('requestSpotifyUserInfo' + JSON.stringify(options))
+    console.log('requestSpotifyUserInfo')
 
     requestLib.get(options, function(error, response, body) {
-      console.log('requestSpotifyUserInfo error', error)
-      console.log('requestSpotifyUserInfo body', body)
-      console.log('requestSpotifyUserInfo statusCode', response.statusCode)
-
-      if (response.statusCode === 204) {
-        reject('No Content')
+      if (response.statusCode && response.statusCode === 204) {
+        console.log('requestSpotifyUserInfo reject no content')
+        resolve('no content') // not an error
       } else if (error) {
-        console.log('requestSpotifyUserInfo reject error', error)
+        console.log('requestSpotifyUserInfo reject error')
         reject(error)
       } else if (body) {
-        if (body) {
-          // if body has no error (like "unauthorized")
-          if (body.error == null) {
-            console.log('requestSpotifyUserInfo resolve')
-            resolve(body)
-          } else {
-            console.log('requestSpotifyUserInfo reject body.error found')
-            reject(body.error)
-          }
+        if (body.error != null) {
+          // could means token is expired
+          console.log('requestSpotifyUserInfo reject body.error')
+          reject(body.error)
         } else {
-          console.log('requestSpotifyUserInfo reject unhandled case')
-          reject('unhandled case')
+          console.log('requestSpotifyUserInfo resolve body')
+          resolve(body)
         }
       } else {
         console.log('requestSpotifyUserInfo reject unhandled case')
@@ -133,11 +102,7 @@ function requestSpotifyUserInfo(token, url) {
     })
   })
 }
-/*
- * this function trys to get a new access_token from spotify,
- * using the refresh_token from the given session.
- * updates the session and return it, if successful
- */
+
 function refreshSpotifyToken(session) {
   return new Promise((resolve, reject) => {
     console.log('refreshSpotifyToken for session', session)
@@ -169,26 +134,18 @@ function refreshSpotifyToken(session) {
               spotify_expires_in
             })
             .then(session => {
-              console.log('refreshSpotifyToken resolve new session', session)
+              console.log('refreshSpotifyToken resolve newSession')
               resolve(session)
             })
-            .catch(error => {
-              console.log('refreshSpotifyToken reject, error', error)
-              reject(error)
+            .catch(err => {
+              console.log('refreshSpotifyToken reject error')
+              reject(err)
             })
         } else {
-          console.log('refreshSpotifyToken no token, body', body)
-          reject(
-            'Kein neues token bekommen: ' +
-              spotify_access_token +
-              ' ' +
-              spotify_expires_in
-          )
+          reject({ spotify_access_token, spotify_expires_in })
         }
-      } else if (error) {
-        reject(error)
       } else {
-        reject('status code' + response.statusCode)
+        reject({ error: error, statusCode: response.statusCode })
       }
     })
   })
