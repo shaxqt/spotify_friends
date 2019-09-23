@@ -67,6 +67,8 @@ const handleUserLogin = (token, refresh, expires) => {
         reject(err)
       })
       .finally(() => console.log('########## BIN iM FINALLY'))
+
+    // TODO cant get in then() catch() or finally()
   })
 }
 
