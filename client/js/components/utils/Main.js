@@ -11,7 +11,7 @@ const MainStyled = styled.main`
   overflow-y: scroll;
   overflow-x: wrap;
   padding: 20px;
-  background-color: ${({ bgColor }) => bgColor || 'darkorchid'};
+  background-color: ${({ bgColor }) => bgColor || '#eee'};
 `
 
 export default Main
