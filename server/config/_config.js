@@ -9,4 +9,3 @@ module.exports = {
   tokenCookieName: 'spotify_friends_token',
   frontend: 'http://localhost:1234'
 }
-asdas
