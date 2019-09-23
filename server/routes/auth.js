@@ -41,7 +41,7 @@ router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
-  // your application requests authorization
+  // application requests authorization
   const scope = `user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
@@ -57,7 +57,7 @@ router.get('/login', function(req, res) {
 
 /*
  * handles the callback from spotify,
- * extracting the code (from url) to get an access token with another request
+ * extracting the code (from url) to get an access token with another request.
  * gets or create a user and creates a UserSession
  * sets cookie (id to UserSession) to remeber user
  */
@@ -66,7 +66,7 @@ router.get('/callback', function(req, res) {
   const storedState = req.cookies ? req.cookies[stateKey] : null
   const token = req.cookies ? req.cookies[tokenCookieName] : null
 
-  // check if user is still logged in, bevor create new UserSession
+  // check if user is still logged in, before create new UserSession
   spotifyApi
     .isUserSessionValid(token, true)
     .then(isValid => res.redirect(frontend))
@@ -82,6 +82,7 @@ router.get('/callback', function(req, res) {
         )
         res.redirect(frontend)
       } else {
+        // request a token with given code, client_id and client_secret
         res.clearCookie(stateKey)
         const authOptions = {
           url: 'https://accounts.spotify.com/api/token',
@@ -89,6 +90,7 @@ router.get('/callback', function(req, res) {
             code,
             client_id,
             client_secret,
+            // doesn't get used to redirect, but is needed to verify
             redirect_uri,
             grant_type: 'authorization_code'
           },
@@ -99,6 +101,10 @@ router.get('/callback', function(req, res) {
           if (!error && response.statusCode === 200) {
             const { access_token, refresh_token, expires_in } = body
 
+            /*
+             * get or create a User, create a UserSession
+             * somehow get token to client and redirect to frontend
+             */
             spotifyApi
               .handleUserLogin(access_token, refresh_token, expires_in)
               .then(token => res.cookie(tokenCookieName, token))
