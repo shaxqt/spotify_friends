@@ -23,29 +23,29 @@ const TestPage = props => {
   })
   return (
     <>
-      <main>
-        <h2>Seite lädt: {isLoading ? 'ja' : 'nein'}</h2>
-        <h2>logged in: {isLoggedIn ? 'ja' : 'nein'}</h2>
-        <h2>token: {token}</h2>
-        <h3>me</h3>
-        <p>{test}</p>
-        <h3>cookies</h3>
-        <p>{cookies}</p>
-        <h3>song</h3>
-        {renderSong()}
-        <Button callback={() => getMe(token, setTest)} text='getMe' />
-        <Button callback={() => verifyUser(token)} text='verify' />
-        <Button callback={login} text='login' />
+      <h2>Seite lädt: {isLoading ? 'ja' : 'nein'}</h2>
+      <h2>logged in: {isLoggedIn ? 'ja' : 'nein'}</h2>
+      <h2>token: {token}</h2>
+      <h3>me</h3>
+      <p>{test}</p>
+      <h3>cookies</h3>
+      <p>{cookies}</p>
+      <h3>song</h3>
+      {renderSong()}
+      <div>
+        <Button callback={() => getMe(token, setTest)} text="getMe" />
+        <Button callback={() => verifyUser(token)} text="verify" />
+        <Button callback={login} text="login" />
         <Button
           callback={() => getTopTracks(token, setTracks)}
-          text='getTopTracks'
+          text="getTopTracks"
         />
         <Button
           callback={() => getCurrSong(token, setSong)}
-          text='getCurrSong'
+          text="getCurrSong"
         />
         {renderTopTracks()}
-      </main>
+      </div>
     </>
   )
   function verifyUser(token) {

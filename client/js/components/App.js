@@ -4,6 +4,9 @@ import { verifyToken } from '../api/auth'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import TestPage from './pages/TestPage'
+import Main from '../components/utils/Main'
+import Nav from '../components/utils/Nav'
+import Header from '../components/utils/Header'
 
 const App = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -25,7 +28,13 @@ const App = props => {
       .finally(setIsLoading(false))
   }, [])
 
-  return isLoggedIn ? <TestPage /> : <LoginPage />
+  return (
+    <>
+      <Header>Header</Header>
+      <Main>{isLoggedIn ? <TestPage /> : <LoginPage />}</Main>
+      <Nav></Nav>
+    </>
+  )
 }
 
 export default App

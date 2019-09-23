@@ -7,7 +7,9 @@ const Main = ({ bgColor, children }) => {
 const MainStyled = styled.main`
   display: grid;
   grid-gap: 15px;
+  width: 100%;
   overflow-y: scroll;
+  overflow-x: wrap;
   padding: 20px;
   background-color: ${({ bgColor }) => bgColor || 'darkorchid'};
 `

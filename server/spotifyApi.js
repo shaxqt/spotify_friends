@@ -95,33 +95,40 @@ const handleUserLogin = (token, refresh, expires) => {
  */
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
-    console.log('requestSpotifyUserInfo' + url)
     const options = {
       url: 'https://api.spotify.com' + url,
       headers: { Authorization: 'Bearer ' + token },
       json: true
     }
+    console.log('requestSpotifyUserInfo' + JSON.stringify(options))
+
     requestLib.get(options, function(error, response, body) {
-      if (!error) {
+      console.log('requestSpotifyUserInfo error', error)
+      console.log('requestSpotifyUserInfo body', body)
+      console.log('requestSpotifyUserInfo statusCode', response.statusCode)
+
+      if (response.statusCode === 204) {
+        reject('No Content')
+      } else if (error) {
+        console.log('requestSpotifyUserInfo reject error', error)
+        reject(error)
+      } else if (body) {
         if (body) {
-          if (body.errpr) {
-            console.log(
-              'requestSpotifyUserInfo resolve body',
-              body.items ? body.items.length : body.href
-            )
+          // if body has no error (like "unauthorized")
+          if (body.error == null) {
+            console.log('requestSpotifyUserInfo resolve')
             resolve(body)
           } else {
-            console.log('requestSpotifyUserInfo reject body.error', body.error)
+            console.log('requestSpotifyUserInfo reject body.error found')
             reject(body.error)
           }
         } else {
-          // this could maybe happen if request just has no respone,
-          // like get curr playing -> user isnt playing anything
-          reject('requestSpotifyUserInfo no body, no error, response', response)
+          console.log('requestSpotifyUserInfo reject unhandled case')
+          reject('unhandled case')
         }
       } else {
-        console.log('requestSpotifyUserInfo reject error', error)
-        reject(error)
+        console.log('requestSpotifyUserInfo reject unhandled case')
+        reject('unhandled case')
       }
     })
   })

@@ -1,6 +1,9 @@
 import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyle = createGlobalStyle`
+*, *:before, *:after {
+  box-sizing: border-box;
+}
     body {
         padding: 0
     }
@@ -13,24 +16,6 @@ const GlobalStyle = createGlobalStyle`
         left: 0;
         display: grid;
         grid-template-rows: 50px 1fr 50px;
-
-        & > nav {
-            background-color: green;
-            & > ul {
-                display: grid;
-                grid-auto-flow: column;
-                background-color: yellow;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                & > li {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid black;
-                }
-            }
-        }
     }
 `
 
