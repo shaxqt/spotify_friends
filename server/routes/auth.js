@@ -6,7 +6,11 @@ const CONFIG = require('../config/config')
 const { client_secret, client_id, tokenCookieName, host, frontend } = CONFIG
 const redirect_uri = host + '/auth/callback'
 
-const spotifyApi = require('../spotifyApi')
+const {
+  getSessionFromToken,
+  isUserSessionValid,
+  handleUserLogin
+} = require('../spotifyApi')
 
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?
@@ -42,31 +46,35 @@ router.get('/callback', function(req, res) {
   const { code, state, error } = req.query
   const storedState = req.cookies ? req.cookies[stateKey] : null
   const token = req.cookies ? req.cookies[tokenCookieName] : null
-
-  // check if user is still logged in, before create new UserSession
-  spotifyApi
-    .isUserSessionValid(token, true)
-    .then(isValid => {
-      if (isValid) {
-        console.log('/callback UserSession still valid, no new Session created')
-        res.redirect(frontend)
-      } else {
-        console.log(
-          '/callback requesting new spotify token, own token invalid:',
-          token
-        )
-        // check if callback params match given params to spotify
-        if (error || state === '' || state === null || state !== storedState) {
-          console.log(
-            'state mismatch',
-            'state: ' + state,
-            'storedState ' + storedState,
-            'error' + error,
-            'cookies ',
-            req.cookies
-          )
+  // check if callback params match given params to spotify
+  if (error || state === '' || state === null || state !== storedState) {
+    console.log(
+      'state mismatch',
+      'state: ' + state,
+      'storedState ' + storedState,
+      'error' + error,
+      'cookies ',
+      req.cookies
+    )
+    res.redirect(frontend)
+  } else {
+    // check if user is still logged in, before create new UserSession
+    let sessionIsValid = false
+    getSessionFromToken(token)
+      .then(session => {
+        isUserSessionValid(session)
+          .then(isValid => (sessionIsValid = isValid))
+          .catch(err => err)
+      })
+      .catch(err =>
+        console.log('/callback error getting session from token', err)
+      )
+      .finally(() => {
+        if (sessionIsValid) {
+          console.log('/callback UserSession finally: is valid')
           res.redirect(frontend)
         } else {
+          console.log('/callback UserSession finally: is invalid')
           // request a token from sporify with given code, client_id and client_secret
           res.clearCookie(stateKey)
           const authOptions = {
@@ -88,8 +96,8 @@ router.get('/callback', function(req, res) {
                * get or create a User, create a UserSession
                * somehow get token to client and redirect to frontend
                */
-              spotifyApi
-                .handleUserLogin(access_token, refresh_token, expires_in)
+
+              handleUserLogin(access_token, refresh_token, expires_in)
                 .then(token => {
                   res.cookie(tokenCookieName, token, {
                     maxAge: 3600 * 60 * 24 * 30
@@ -103,12 +111,8 @@ router.get('/callback', function(req, res) {
             }
           })
         }
-      }
-    })
-    .catch(err => {
-      res.redirect(frontend)
-      console.log('/callback error', err)
-    })
+      })
+  }
 })
 
 function generateRandomString(length) {

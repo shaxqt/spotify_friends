@@ -33,34 +33,23 @@ const getSessionFromToken = token => {
     }
   })
 }
-const isUserSessionValid = (token, tryHard = false) => {
+/*
+ * checks if spotify tokens in given session are working
+ * does not reject, resolves in true or false
+ */
+const isUserSessionValid = (session, token) => {
   return new Promise((resolve, reject) => {
-    if (token == null) {
-      console.log('isUserSessionValid reject, no token given')
-      reject(false)
-    } else {
-      database
-        .getUserSession(token)
-        .then(session => {
-          if (tryHard) {
-            getSpotifyUserInfo(session, '/v1/me')
-              .then(body => {
-                if (body) {
-                  console.log('isUserSessionValid is VALID, id: ', body.id)
-                  resolve(true)
-                } else {
-                  console.log('isUserSessionValid is INVALID id: ', body.id)
-                  resolve(false)
-                }
-              })
-              .catch(err => resolve(false))
-          } else {
-            console.log('isUserSessionValid is valid')
-            resolve(true)
-          }
-        })
-        .catch(err => resolve(false))
-    }
+    getSpotifyUserInfo(session, '/v1/me')
+      .then(body => {
+        if (body) {
+          console.log('isUserSessionValid is VALID, id: ', body.id)
+          resolve(true)
+        } else {
+          console.log('isUserSessionValid is INVALID id: ', body.id)
+          resolve(false)
+        }
+      })
+      .catch(err => resolve(false))
   })
 }
 
@@ -90,6 +79,17 @@ const handleUserLogin = (token, refresh, expires) => {
   })
 }
 
+const isTokenValid = token => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => {
+        isUserSessionValid(session)
+          .then(isValid => resolve(isValid))
+          .catch(err => reject(err))
+      })
+      .catch(err => reject(err))
+  })
+}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -166,4 +166,11 @@ function refreshSpotifyToken(session) {
     })
   })
 }
-module.exports = { handleUserLogin, isUserSessionValid, getSpotifyUserInfo }
+
+module.exports = {
+  getSpotifyUserInfo,
+  getSessionFromToken,
+  isUserSessionValid,
+  handleUserLogin,
+  isTokenValid
+}
