@@ -13,5 +13,4 @@ const callSpotifyAPI = (token, url) => {
       .catch(err => reject(err))
   })
 }
-
 export { callSpotifyAPI }

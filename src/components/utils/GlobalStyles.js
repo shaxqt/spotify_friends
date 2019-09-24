@@ -7,8 +7,7 @@ const GlobalStyle = createGlobalStyle`
     body {
         padding: 0
     }
-    #app {
-        background-color: blue;
+    #root {
         position: absolute;
         top: 0;
         right: 0;

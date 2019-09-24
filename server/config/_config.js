@@ -7,5 +7,5 @@ module.exports = {
   host: 'http://localhost:3333',
   mongoDB: 'mongodb://localhost:27017/spotifyFriends',
   tokenCookieName: 'spotify_friends_token',
-  frontend: 'http://localhost:1234'
+  frontend: 'http://localhost:3000'
 }

@@ -114,6 +114,27 @@ router.get('/callback', function(req, res) {
       })
   }
 })
+router.post('/verify', function(req, res) {
+  console.log('/verify', req.body)
+  const token = req.body.token
+  getSessionFromToken(token)
+    .then(session => {
+      isUserSessionValid(session)
+        .then(isValid => (sessionIsValid = isValid))
+        .catch(err => err)
+    })
+    .catch(err =>
+      console.log('/callback error getting session from token', err)
+    )
+    .finally(() => {
+      if (sessionIsValid) {
+        console.log('/callback UserSession finally: is valid')
+        res.send({ success: true, token: token })
+      } else {
+        res.send({ success: false, token: '' })
+      }
+    })
+})
 
 function generateRandomString(length) {
   let text = ''

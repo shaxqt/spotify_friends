@@ -3,7 +3,7 @@ const verifyToken = token => {
     if (!token) {
       return reject('no token')
     }
-    fetch('http://localhost:3333/auth/verify', {
+    fetch('http://localhost:3000/auth/verify', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token: token })
@@ -13,5 +13,4 @@ const verifyToken = token => {
       .catch(err => reject(err))
   })
 }
-
 export { verifyToken }
