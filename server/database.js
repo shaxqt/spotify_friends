@@ -13,8 +13,8 @@ const getOrCreateUser = body => {
   })
 }
 const getUser = id => {
-  return new Promise((reolve, reject) => {
-    User.findById(id, function(err, user) {
+  return new Promise((resolve, reject) => {
+    User.findOne({ id: id }, function(err, user) {
       if (err) {
         reject(err)
       } else {

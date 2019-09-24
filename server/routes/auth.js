@@ -47,7 +47,11 @@ router.get('/callback', function(req, res) {
   spotifyApi
     .isUserSessionValid(token, true)
     .then(isValid => {
+      console.log('isValid', isValid)
       if (isValid) {
+        console.log('/callback UserSession still valid, no new Session created')
+        res.redirect(frontend)
+      } else {
         console.log(
           '/callback requesting new spotify token, own token invalid:',
           token
@@ -62,6 +66,7 @@ router.get('/callback', function(req, res) {
             'cookies ',
             req.cookies
           )
+          res.redirect(frontend)
         } else {
           // request a token from sporify with given code, client_id and client_secret
           res.clearCookie(stateKey)
@@ -86,20 +91,25 @@ router.get('/callback', function(req, res) {
                */
               spotifyApi
                 .handleUserLogin(access_token, refresh_token, expires_in)
-                .then(token =>
+                .then(token => {
                   res.cookie(tokenCookieName, token, {
                     maxAge: 3600 * 60 * 24 * 30
                   })
-                )
+                  res.redirect(frontend)
+                })
+                .catch(err => {
+                  res.redirect(frontend)
+                  console.log('/callback error handleUserLogin', err)
+                })
             }
           })
         }
-      } else {
-        console.log('/callback UserSession still valid, no new Session created')
       }
     })
-    .catch(err => console.log('/callback error', error))
-    .finally(() => res.redirect(frontend))
+    .catch(err => {
+      res.redirect(frontend)
+      console.log('/callback error', err)
+    })
 })
 
 function generateRandomString(length) {

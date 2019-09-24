@@ -22,7 +22,7 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
 }
 
 const isUserSessionValid = (token, tryHard = false) => {
-  return new Promise((reject, resolve) => {
+  return new Promise((resolve, reject) => {
     database
       .getUserSession(token)
       .then(session => {
@@ -30,13 +30,16 @@ const isUserSessionValid = (token, tryHard = false) => {
           getSpotifyUserInfo(session, '/v1/me')
             .then(body => {
               if (body) {
+                console.log('isUserSessionValid is valid', body.id)
                 resolve(true)
               } else {
+                console.log('isUserSessionValid is INVALID', body.id)
                 resolve(false)
               }
             })
             .catch(err => reject(err))
         } else {
+          console.log('isUserSessionValid is valid')
           resolve(true)
         }
       })
@@ -48,27 +51,25 @@ const handleUserLogin = (token, refresh, expires) => {
   return new Promise((resolve, reject) => {
     requestSpotifyUserInfo(token, '/v1/me')
       .then(spotifyResponse => {
-        console.log('######### GOT SPOTIFY RESPONSE')
         if (spotifyResponse) {
-          database.getOrCreateUser(body).then(user => {
-            database
-              .createUserSession(user, token, refresh, expires)
-              .then(session => {
-                console.log('handleUserLogin created session')
-                resolve(session._id)
-              })
-          })
+          database
+            .getOrCreateUser(spotifyResponse)
+            .then(user => {
+              database
+                .createUserSession(user, token, refresh, expires)
+                .then(session => {
+                  console.log('handleUserLogin created session')
+                  resolve(session._id)
+                })
+            })
+            .catch(err => reject(err))
         } else {
           reject('no response body')
         }
       })
       .catch(err => {
-        console.log('########### BIN IM CATCH')
         reject(err)
       })
-      .finally(() => console.log('########## BIN iM FINALLY'))
-
-    // TODO cant get in then() catch() or finally()
   })
 }
 
@@ -94,7 +95,7 @@ function requestSpotifyUserInfo(token, url) {
           console.log('requestSpotifyUserInfo reject body.error')
           reject(body.error)
         } else {
-          console.log('requestSpotifyUserInfo resolve body')
+          console.log('requestSpotifyUserInfo resolve body', body.id)
           resolve(body)
         }
       } else {
