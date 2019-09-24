@@ -16,8 +16,14 @@ const getUser = id => {
   return new Promise((resolve, reject) => {
     User.findOne({ id: id }, function(err, user) {
       if (err) {
+        console.log('getUser error (id ' + id + ')', err)
         reject(err)
       } else {
+        console.log(
+          'getUser for id (' + id + ') found: ' + (user == null)
+            ? 'null'
+            : user.jd
+        )
         user == null ? reject('no user') : resolve(user)
       }
     })
@@ -58,21 +64,26 @@ const createUserSession = (user, access_token, refresh_token, expires_in) => {
 }
 const getUserSession = token => {
   return new Promise((resolve, reject) => {
-    UserSession.findById(token, function(err, session) {
+    UserSession.findOne({ _id: token }, function(err, session) {
       if (err) {
         console.log('getUserSession found NO session')
         reject(err)
       } else {
-        console.log('getUserSession found session')
-        session == null ? reject('no user') : resolve(session)
+        if (session == null) {
+          console.log('getUserSession no error but session is null')
+          reject('no user')
+        } else {
+          console.log('getUserSession found session, resolve')
+          resolve(session)
+        }
       }
     })
   })
 }
 const updateUserSession = (session, newValues) => {
   return new Promise((resolve, reject) => {
-    UserSession.findByIdAndUpdate(
-      session._id,
+    UserSession.findOneAndUpdate(
+      { id: session._id },
       newValues,
       { new: true },
       function(err, newSession) {

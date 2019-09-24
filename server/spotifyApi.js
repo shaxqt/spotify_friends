@@ -20,30 +20,47 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
       })
   })
 }
-
+const getSessionFromToken = token => {
+  return new Promise((resolve, reject) => {
+    if (token == null) {
+      console.log('getSessionFromToken no token given')
+      reject('no token given')
+    } else {
+      database
+        .getUserSession(token)
+        .then(session => resolve(session))
+        .catch(err => reject(err))
+    }
+  })
+}
 const isUserSessionValid = (token, tryHard = false) => {
   return new Promise((resolve, reject) => {
-    database
-      .getUserSession(token)
-      .then(session => {
-        if (tryHard) {
-          getSpotifyUserInfo(session, '/v1/me')
-            .then(body => {
-              if (body) {
-                console.log('isUserSessionValid is valid', body.id)
-                resolve(true)
-              } else {
-                console.log('isUserSessionValid is INVALID', body.id)
-                resolve(false)
-              }
-            })
-            .catch(err => reject(err))
-        } else {
-          console.log('isUserSessionValid is valid')
-          resolve(true)
-        }
-      })
-      .catch(err => reject(err))
+    if (token == null) {
+      console.log('isUserSessionValid reject, no token given')
+      reject(false)
+    } else {
+      database
+        .getUserSession(token)
+        .then(session => {
+          if (tryHard) {
+            getSpotifyUserInfo(session, '/v1/me')
+              .then(body => {
+                if (body) {
+                  console.log('isUserSessionValid is VALID, id: ', body.id)
+                  resolve(true)
+                } else {
+                  console.log('isUserSessionValid is INVALID id: ', body.id)
+                  resolve(false)
+                }
+              })
+              .catch(err => resolve(false))
+          } else {
+            console.log('isUserSessionValid is valid')
+            resolve(true)
+          }
+        })
+        .catch(err => resolve(false))
+    }
   })
 }
 
@@ -80,7 +97,7 @@ function requestSpotifyUserInfo(token, url) {
       headers: { Authorization: 'Bearer ' + token },
       json: true
     }
-    console.log('requestSpotifyUserInfo')
+    console.log('requestSpotifyUserInfo url: ' + url)
 
     requestLib.get(options, function(error, response, body) {
       if (response.statusCode && response.statusCode === 204) {
@@ -108,7 +125,7 @@ function requestSpotifyUserInfo(token, url) {
 
 function refreshSpotifyToken(session) {
   return new Promise((resolve, reject) => {
-    console.log('refreshSpotifyToken for session', session)
+    console.log('refreshSpotifyToken for session id: ' + session._id)
     const authOptions = {
       url: 'https://accounts.spotify.com/api/token',
       form: {
@@ -136,18 +153,14 @@ function refreshSpotifyToken(session) {
               spotify_access_token,
               spotify_expires_in
             })
-            .then(session => {
-              console.log('refreshSpotifyToken resolve newSession')
-              resolve(session)
-            })
-            .catch(err => {
-              console.log('refreshSpotifyToken reject error')
-              reject(err)
-            })
+            .then(session => resolve(session))
+            .catch(err => reject(err))
         } else {
+          console.log('refreshSpotifyToken reject, got no new token')
           reject({ spotify_access_token, spotify_expires_in })
         }
       } else {
+        console.log('refreshSpotifyToken reject, error in post')
         reject({ error: error, statusCode: response.statusCode })
       }
     })

@@ -47,7 +47,6 @@ router.get('/callback', function(req, res) {
   spotifyApi
     .isUserSessionValid(token, true)
     .then(isValid => {
-      console.log('isValid', isValid)
       if (isValid) {
         console.log('/callback UserSession still valid, no new Session created')
         res.redirect(frontend)
