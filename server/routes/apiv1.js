@@ -1,10 +1,11 @@
 const router = require('express').Router()
-const { getSpotifyUserInfo } = require('../spotifyApi')
+const { getSpotifyUserInfo, getSessionFromToken } = require('../spotifyApi')
 
 const handleSpotifyRequest = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   const spotify_friends_token = req.body ? req.body.spotify_friends_token : null
-  getSpotifyUserInfo(spotify_friends_token, req.originalUrl)
+  getSessionFromToken(spotify_friends_token)
+    .then(session => getSpotifyUserInfo(session, req.originalUrl))
     .then(spotify_response => {
       res.send(spotify_response)
     })

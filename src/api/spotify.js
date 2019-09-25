@@ -8,12 +8,13 @@ const getMe = (token, callback) => {
     .catch(error => console.log(error))
 }
 
-const getTopTracks = (token, callback) => {
-  callSpotifyAPI(token, backendHost + '/me/top/tracks')
-    .then(tracks => {
-      callback(tracks.items)
-    })
-    .catch(error => console.log('error'))
+const getTopTracks = token => {
+  return new Promise((resolve, reject) => {
+    console.log('getTopTracks', token)
+    callSpotifyAPI(token, backendHost + '/me/top/tracks')
+      .then(tracks => resolve(tracks.items))
+      .catch(error => reject(error))
+  })
 }
 const getCurrSong = (token, callback) => {
   callSpotifyAPI(token, backendHost + '/me/player/currently-playing')
