@@ -10,12 +10,8 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
       .catch(err => {
         // refresh token and try again
         refreshSpotifyToken(session)
-          .then(session => {
-            console.log('getSpotifyUserInfo try again with refreshed token')
-            requestSpotifyUserInfo(session)
-              .then(body => resolve(body))
-              .catch(err => reject(err))
-          })
+          .then(session => requestSpotifyUserInfo(session))
+          .then(body => resolve(body))
           .catch(err => reject(err))
       })
   })
@@ -33,10 +29,7 @@ const getSessionFromToken = token => {
     }
   })
 }
-/*
- * checks if spotify tokens in given session are working
- * does not reject, resolves in true or false
- */
+
 const isUserSessionValid = (session, token) => {
   return new Promise((resolve, reject) => {
     getSpotifyUserInfo(session, '/v1/me')
@@ -60,14 +53,14 @@ const handleUserLogin = (token, refresh, expires) => {
         if (spotifyResponse) {
           database
             .getOrCreateUser(spotifyResponse)
-            .then(user => {
-              database
-                .createUserSession(user, token, refresh, expires)
-                .then(session => {
-                  console.log('handleUserLogin created session')
-                  resolve(session._id)
-                })
+            .then(user =>
+              database.createUserSession(user, token, refresh, expires)
+            )
+            .then(session => {
+              console.log('handleUserLogin created session')
+              resolve(session._id)
             })
+
             .catch(err => reject(err))
         } else {
           reject('no response body')
@@ -79,17 +72,6 @@ const handleUserLogin = (token, refresh, expires) => {
   })
 }
 
-const isTokenValid = token => {
-  return new Promise((resolve, reject) => {
-    getSessionFromToken(token)
-      .then(session => {
-        isUserSessionValid(session)
-          .then(isValid => resolve(isValid))
-          .catch(err => reject(err))
-      })
-      .catch(err => reject(err))
-  })
-}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -171,6 +153,5 @@ module.exports = {
   getSpotifyUserInfo,
   getSessionFromToken,
   isUserSessionValid,
-  handleUserLogin,
-  isTokenValid
+  handleUserLogin
 }
