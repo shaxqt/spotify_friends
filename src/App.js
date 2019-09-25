@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getCookie, setCookie, eraseCookie } from './utils/cookies'
-import { verifyToken } from './api/auth'
+import { getOrVerifyToken } from './api/auth'
 import LoginPage from './components/pages/LoginPage'
 import HomePage from './components/pages/HomePage'
-import TestPage from './components/pages/TestPage'
 import Main from './components/utils/Main'
 import Nav from './components/utils/Nav'
 import Header from './components/utils/Header'
@@ -11,10 +9,19 @@ import GlobalStyles from './components/utils/GlobalStyles'
 
 const App = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    checkToken()
+    getOrVerifyToken()
+      .then(res => {
+        if (res) {
+          setIsLoggedIn(true)
+        } else {
+          setIsLoggedIn(false)
+        }
+      })
+      .catch(err => setIsLoggedIn(false))
+      .finally(() => setIsLoading(false))
   }, [])
 
   return (
@@ -29,22 +36,7 @@ const App = props => {
     return <h3>loading...</h3>
   }
   function renderMainPage() {
-    return isLoggedIn ? <TestPage /> : <LoginPage />
-  }
-
-  function checkToken() {
-    const token = getCookie('spotify_friends_token')
-    verifyToken(token)
-      .then(data => {
-        if (data.success) {
-          setCookie('spotify_friends_token', data.token, 30)
-          setIsLoggedIn(true)
-        } else {
-          eraseCookie('spotify_friends_token')
-        }
-      })
-      .catch(err => console.log(err))
-      .finally(setIsLoading(false))
+    return isLoggedIn ? <HomePage /> : <LoginPage />
   }
 }
 

@@ -22,7 +22,7 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
 }
 const getSessionFromToken = token => {
   return new Promise((resolve, reject) => {
-    if (token == null) {
+    if (token == null || token === '') {
       console.log('getSessionFromToken no token given')
       reject('no token given')
     } else {
