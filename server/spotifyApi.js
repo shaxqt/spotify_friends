@@ -10,7 +10,7 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
       .catch(err => {
         // refresh token and try again
         refreshSpotifyToken(session)
-          .then(session => requestSpotifyUserInfo(session))
+          .then(session => requestSpotifyUserInfo(session, url))
           .then(body => resolve(body))
           .catch(err => reject(err))
       })
@@ -82,24 +82,35 @@ function requestSpotifyUserInfo(token, url) {
     console.log('requestSpotifyUserInfo url: ' + url)
 
     requestLib.get(options, function(error, response, body) {
-      if (response.statusCode && response.statusCode === 204) {
-        console.log('requestSpotifyUserInfo reject no content')
-        resolve('no content') // not an error
-      } else if (error) {
-        console.log('requestSpotifyUserInfo reject error')
+      if (error) {
         reject(error)
-      } else if (body) {
-        if (body.error != null) {
-          // could means token is expired
-          console.log('requestSpotifyUserInfo reject body.error')
-          reject(body.error)
-        } else {
-          console.log('requestSpotifyUserInfo resolve body', body.id)
-          resolve(body)
-        }
       } else {
-        console.log('requestSpotifyUserInfo reject unhandled case')
-        reject('unhandled case')
+        if (response.statusCode && response.statusCode === 204) {
+          console.log('requestSpotifyUserInfo reject no content')
+          resolve('no content') // not an error
+        } else if (error) {
+          console.log('requestSpotifyUserInfo reject error')
+          reject(error)
+        } else if (body) {
+          if (body.error != null) {
+            // could means token is expired
+            console.log('requestSpotifyUserInfo reject body.error')
+            reject(body.error)
+          } else {
+            //log items or body id (spotify username)
+            let log = ''
+            if (body.id) {
+              log = ' body.id = ' + body.id
+            } else if (body.items) {
+              log = ' body.items.length = ' + body.items.length
+            }
+            console.log('requestSpotifyUserInfo resolve' + log)
+            resolve(body)
+          }
+        } else {
+          console.log('requestSpotifyUserInfo reject unhandled case')
+          reject('unhandled case')
+        }
       }
     })
   })
@@ -142,7 +153,11 @@ function refreshSpotifyToken(session) {
           reject({ spotify_access_token, spotify_expires_in })
         }
       } else {
-        console.log('refreshSpotifyToken reject, error in post')
+        console.log(
+          'refreshSpotifyToken reject, error',
+          response.statusCode,
+          body
+        )
         reject({ error: error, statusCode: response.statusCode })
       }
     })

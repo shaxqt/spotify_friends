@@ -6,11 +6,38 @@
  */
 const getOrVerifyToken = () => {
   return new Promise((resolve, reject) => {
-    const currToken = localStorage.getItem('spotify_friends_token')
+    if (window.location.search) {
+      // if user was redirected from spotify, store query and redirect to home
+      localStorage.setItem('spotify_redirect_query', window.location.search)
+      window.location = window.location.origin
+    } else {
+      const spotify_query = localStorage.getItem('spotify_redirect_query')
 
-    const tokenSeperator = window.location.search ? '&token=' : '?token='
-    const query = window.location.search + tokenSeperator + currToken
+      if (spotify_query) {
+        // if spotify query is in local storage -> send to backend to get token
+        localStorage.removeItem('spotify_redirect_query')
+        fetchAuth(spotify_query)
+          .then(success => resolve(success))
+          .catch(err => reject(err))
+      } else {
+        const token = localStorage.getItem('spotify_friends_token')
+        if (token) {
+          // send token to backend to verify
+          fetchAuth('?token=' + token)
+            .then(success => resolve(success))
+            .catch(err => reject(err))
+        } else {
+          // nothing in local storage -> nothing to verify
+          console.log('nothing to check in local storage')
+          resolve(false)
+        }
+      }
+    }
+  })
+}
 
+function fetchAuth(query) {
+  return new Promise((resolve, reject) => {
     fetch('/auth/callback' + query)
       .then(res => res.json())
       .then(json => {
@@ -24,7 +51,7 @@ const getOrVerifyToken = () => {
         }
       })
       .catch(err => reject(err))
-      .finally(() => console.log('finally'))
   })
 }
+
 export { getOrVerifyToken }

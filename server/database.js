@@ -82,8 +82,12 @@ const getUserSession = token => {
 }
 const updateUserSession = (session, newValues) => {
   return new Promise((resolve, reject) => {
+    console.log(
+      'updateUserSession for session ' + session._id + ' new Values ',
+      newValues
+    )
     UserSession.findOneAndUpdate(
-      { id: session._id },
+      { _id: session._id },
       newValues,
       { new: true },
       function(err, newSession) {
@@ -91,8 +95,13 @@ const updateUserSession = (session, newValues) => {
           console.log('updateUserSession error updating UserSession')
           reject(err)
         } else {
-          console.log('updateUserSession updated UserSession')
-          newSession == null ? reject('no user') : resolve(newSession)
+          if (newSession == null) {
+            console.log('updateUserSession reject, no updated Session')
+            reject('got no updated UserSession')
+          } else {
+            console.log('updateUserSession resolve updated')
+            resolve(newSession)
+          }
         }
       }
     )

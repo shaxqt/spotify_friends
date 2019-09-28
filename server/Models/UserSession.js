@@ -11,7 +11,7 @@ const UserSession = new mongoose.Schema({
     type: String
   },
   spotify_expires_in: {
-    type: String
+    type: Number
   },
   timestamp: {
     type: Date,
