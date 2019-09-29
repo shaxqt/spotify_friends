@@ -1,5 +1,6 @@
 const User = require('./Models/User')
 const UserSession = require('./Models/UserSession')
+const Contact = require('./Models/Contact')
 
 const getOrCreateUser = body => {
   return new Promise((resolve, reject) => {
@@ -108,9 +109,28 @@ const updateUserSession = (session, newValues) => {
   })
 }
 
+const getContacts = session => {
+  return Contact.find({ source: session.id, target: session.id })
+}
+const createContact = (session, target) => {
+  return new Promise((resolve, reject) => {
+    const contact = new Contact()
+    contact.source = session.id
+    contact.target = target
+    contact.save(function(err, newContact) {
+      if (err) {
+        reject(err)
+      } else {
+        newContact == null ? reject('no contact') : resolve(newContact)
+      }
+    })
+  })
+}
 module.exports = {
   getOrCreateUser,
   createUserSession,
   getUserSession,
-  updateUserSession
+  updateUserSession,
+  getContacts,
+  createContact
 }

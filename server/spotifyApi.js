@@ -34,7 +34,7 @@ const getSessionFromToken = token => {
   })
 }
 
-const isUserSessionValid = (session, token) => {
+const isUserSessionValid = session => {
   return new Promise((resolve, reject) => {
     getSpotifyUserInfo(session, '/v1/me')
       .then(body => {
@@ -76,6 +76,20 @@ const handleUserLogin = (token, refresh, expires) => {
   })
 }
 
+const getContacts = token => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.getContacts(session))
+      .then(contacts => resolve(contacts))
+      .catch(err => reject(err))
+  })
+}
+const createContact = (token, target) => {
+  getSessionFromToken(token)
+    .then(session => database.createContact(session, target))
+    .then(contact => resolve(contact))
+    .catch(err => reject(err))
+}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -171,5 +185,7 @@ module.exports = {
   getSpotifyUserInfo,
   getSessionFromToken,
   isUserSessionValid,
-  handleUserLogin
+  handleUserLogin,
+  getContacts,
+  createContact
 }
