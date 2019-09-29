@@ -5,15 +5,19 @@ const { client_secret, client_id } = require('./config/config')
 
 const getSpotifyUserInfo = (session, url = '/v1/me') => {
   return new Promise((resolve, reject) => {
-    requestSpotifyUserInfo(session.spotify_access_token, url)
-      .then(body => resolve(body))
-      .catch(err => {
-        // refresh token and try again
-        refreshSpotifyToken(session)
-          .then(session => requestSpotifyUserInfo(session, url))
-          .then(body => resolve(body))
-          .catch(err => reject(err))
-      })
+    // get new token if its expired
+    if (session.spotify_expires_at < Date.now()) {
+      refreshSpotifyToken(session)
+        .then(session =>
+          requestSpotifyUserInfo(session.spotify_access_token, url)
+        )
+        .then(body => resolve(body))
+        .catch(err => reject(err))
+    } else {
+      requestSpotifyUserInfo(session.spotify_access_token, url)
+        .then(body => resolve(body))
+        .catch(err => reject(err))
+    }
   })
 }
 const getSessionFromToken = token => {
@@ -135,16 +139,15 @@ function refreshSpotifyToken(session) {
 
     requestLib.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        const spotify_access_token = body.access_token
-          ? body.access_token
-          : null
-        const spotify_expires_in = body.expires_in ? body.expires_in : null
+        const { expires_in, access_token } = body
 
-        if (spotify_access_token && spotify_expires_in) {
+        if (access_token && expires_in) {
+          console.log('refreshSpotifyToken ', Date.now())
+          console.log('refreshSpotifyToken ', Date.now() + Number(expires_in))
           database
             .updateUserSession(session, {
-              spotify_access_token,
-              spotify_expires_in
+              spotify_access_token: access_token,
+              spotify_expires_at: Date.now() + Number(expires_in * 1000)
             })
             .then(session => resolve(session))
             .catch(err => reject(err))

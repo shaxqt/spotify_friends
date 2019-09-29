@@ -52,7 +52,7 @@ const createUserSession = (user, access_token, refresh_token, expires_in) => {
     session.userID = user.id
     session.spotify_access_token = access_token
     session.spotify_refresh_token = refresh_token
-    session.expires_in = expires_in
+    session.spotify_expires_at = Date.now() + Number(expires_in * 1000)
     session.save(function(err, newSession) {
       if (err) {
         reject(err)

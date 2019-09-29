@@ -10,8 +10,8 @@ const UserSession = new mongoose.Schema({
   spotify_refresh_token: {
     type: String
   },
-  spotify_expires_in: {
-    type: Number
+  spotify_expires_at: {
+    type: Date
   },
   timestamp: {
     type: Date,
