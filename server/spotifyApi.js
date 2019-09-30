@@ -84,11 +84,23 @@ const getContacts = token => {
       .catch(err => reject(err))
   })
 }
-const createContact = (token, target) => {
-  getSessionFromToken(token)
-    .then(session => database.createContact(session, target))
-    .then(contact => resolve(contact))
-    .catch(err => reject(err))
+const getContactRequests = token => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.getContactRequests(session, { status: 0 }))
+      .catch(err => reject(err)) // Kann das weg?
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
+const createContact = (token, target, message) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.createContact(session, target, message))
+      .catch(err => reject(err)) // Kann das weg?
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
 }
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
@@ -187,5 +199,6 @@ module.exports = {
   isUserSessionValid,
   handleUserLogin,
   getContacts,
-  createContact
+  createContact,
+  getContactRequests
 }

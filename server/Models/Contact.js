@@ -13,6 +13,9 @@ const Contact = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  message: {
+    type: String
+  },
   createTime: {
     type: Date,
     default: Date.now()
@@ -20,5 +23,6 @@ const Contact = new mongoose.Schema({
 })
 
 Contact.index({ source: 1, target: 1 }, { unique: true })
+Contact.index({ target: 1, source: 1 }, { unique: true })
 
 module.exports = mongoose.model('Contact', Contact)

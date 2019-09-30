@@ -17,13 +17,13 @@ const getUser = id => {
   return new Promise((resolve, reject) => {
     User.findOne({ id: id }, function(err, user) {
       if (err) {
-        console.log('getUser error (id ' + id + ')', err)
+        console.log('getUser error (userID ' + id + ')', err)
         reject(err)
       } else {
         console.log(
           'getUser for id (' + id + ') found: ' + (user == null)
             ? 'null'
-            : user.jd
+            : user.id
         )
         user == null ? reject('no user') : resolve(user)
       }
@@ -109,21 +109,53 @@ const updateUserSession = (session, newValues) => {
   })
 }
 
-const getContacts = session => {
-  return Contact.find({ source: session.id, target: session.id })
-}
-const createContact = (session, target) => {
+const getContactRequests = session => {
   return new Promise((resolve, reject) => {
-    const contact = new Contact()
-    contact.source = session.id
-    contact.target = target
-    contact.save(function(err, newContact) {
+    const filter = { target: session.userID, status: 0 }
+    Contact.find(filter, function(err, contacts) {
       if (err) {
         reject(err)
       } else {
-        newContact == null ? reject('no contact') : resolve(newContact)
+        console.log('database getContactRequests', contacts)
+        contactsMapDisplayName(contacts)
+          .then(mappedContacts => resolve(mappedContacts))
+          .catch(err => reject(err))
       }
     })
+  })
+}
+const createContact = (session, target, message) => {
+  return new Promise((resolve, reject) => {
+    const contact = new Contact()
+    contact.source = session.userID
+    contact.target = target
+    contact.message = message
+    contact.save(function(err, newContact) {
+      if (err) {
+        console.log('createContact', err)
+        reject(err)
+      } else {
+        newContact == null ? reject('no contact') : resolve(newContact)
+        console.log('createContact', newContact)
+      }
+    })
+  })
+}
+function contactsMapDisplayName(contacts) {
+  return new Promise((resolve, reject) => {
+    // TODO map läuft nach dem resolve erst durch.
+    // neue contacte haben key display_name nicht
+    mappedContacts = contacts.map(contact => {
+      return getUser(contact.source)
+        .then(user => ({
+          message: contact.message,
+          display_name: user.display_name
+        }))
+        .catch(err => reject(err))
+    })
+    Promise.all(mappedContacts)
+      .then(array => resolve(array))
+      .catch(err => reject(err))
   })
 }
 module.exports = {
@@ -131,6 +163,6 @@ module.exports = {
   createUserSession,
   getUserSession,
   updateUserSession,
-  getContacts,
-  createContact
+  createContact,
+  getContactRequests
 }
