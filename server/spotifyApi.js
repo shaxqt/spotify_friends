@@ -34,7 +34,7 @@ const getSessionFromToken = token => {
   })
 }
 
-const isUserSessionValid = (session, token) => {
+const isUserSessionValid = session => {
   return new Promise((resolve, reject) => {
     getSpotifyUserInfo(session, '/v1/me')
       .then(body => {
@@ -76,6 +76,43 @@ const handleUserLogin = (token, refresh, expires) => {
   })
 }
 
+const getContacts = token => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.getContacts(session))
+      .then(contacts => resolve(contacts))
+      .catch(err => reject(err))
+  })
+}
+const getContactRequests = token => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.getContactRequests(session, { status: 0 }))
+      .catch(err => reject(err))
+      .then(contacts => resolve(contacts))
+      .catch(err => reject(err))
+  })
+}
+const createContact = (token, target, message) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.createContact(session, target, message))
+      .catch(err => reject(err)) // Kann das weg?
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
+const updateContactRequest = (token, contact_id, newValue) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session =>
+        database.updateContactRequest(session, contact_id, newValue)
+      )
+      .catch(err => reject(err))
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -171,5 +208,9 @@ module.exports = {
   getSpotifyUserInfo,
   getSessionFromToken,
   isUserSessionValid,
-  handleUserLogin
+  handleUserLogin,
+  getContacts,
+  createContact,
+  getContactRequests,
+  updateContactRequest
 }

@@ -1,17 +1,11 @@
-const callSpotifyAPI = (token, url) => {
+import { postRequest } from './fetch'
+
+const getContacts = token => {
   return new Promise((resolve, reject) => {
-    if (!token) {
-      return reject('no token')
-    }
-    fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ spotify_friends_token: token })
-    })
-      .then(res => res.json())
-      .then(json => resolve(json))
+    postRequest(token, 'http://localhost:3333/user/contacts')
+      .then(json => resolve(JSON.stringify(json)))
       .catch(err => reject(err))
   })
 }
 
-export { callSpotifyAPI }
+export { getContacts }

@@ -1,5 +1,6 @@
 const User = require('./Models/User')
 const UserSession = require('./Models/UserSession')
+const Contact = require('./Models/Contact')
 
 const getOrCreateUser = body => {
   return new Promise((resolve, reject) => {
@@ -16,13 +17,13 @@ const getUser = id => {
   return new Promise((resolve, reject) => {
     User.findOne({ id: id }, function(err, user) {
       if (err) {
-        console.log('getUser error (id ' + id + ')', err)
+        console.log('getUser error (userID ' + id + ')', err)
         reject(err)
       } else {
         console.log(
           'getUser for id (' + id + ') found: ' + (user == null)
             ? 'null'
-            : user.jd
+            : user.id
         )
         user == null ? reject('no user') : resolve(user)
       }
@@ -107,10 +108,96 @@ const updateUserSession = (session, newValues) => {
     )
   })
 }
-
+const updateContactRequest = (session, contact_id, newStatus) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOne({ _id: contact_id }, function(err, contact) {
+      if (err) {
+        reject(err)
+      } else if (contact == null) {
+        reject('no contact found (' + contact_id + ')')
+      } else {
+        // user doing this request has to be target of contact request
+        if (session.userID === contact.target) {
+          contact.status = newStatus
+          contact.save(function(err, updatedContact) {
+            if (err) {
+              reject(err)
+            } else if (updatedContact == null) {
+              reject('no updated contact')
+            } else {
+              resolve(updatedContact)
+            }
+          })
+        } else {
+          reject(
+            'userID: ' +
+              session.userID +
+              ' target: ' +
+              contact.target +
+              ' contact_id:' +
+              contact_id
+          )
+        }
+      }
+    })
+  })
+}
+const getContactRequests = session => {
+  return new Promise((resolve, reject) => {
+    const filter = { target: session.userID, status: 0 }
+    Contact.find(filter, function(err, contacts) {
+      if (err) {
+        reject(err)
+      } else {
+        console.log('database getContactRequests', contacts)
+        contactsMapDisplayName(contacts)
+          .then(mappedContacts => resolve(mappedContacts))
+          .catch(err => reject(err))
+      }
+    })
+  })
+}
+const createContact = (session, target, message) => {
+  return new Promise((resolve, reject) => {
+    const contact = new Contact()
+    contact.source = session.userID
+    contact.target = target
+    contact.message = message
+    contact.save(function(err, newContact) {
+      if (err) {
+        console.log('createContact', err)
+        reject(err)
+      } else {
+        newContact == null ? reject('no contact') : resolve(newContact)
+        console.log('createContact', newContact)
+      }
+    })
+  })
+}
+function contactsMapDisplayName(contacts) {
+  return new Promise((resolve, reject) => {
+    // TODO map läuft nach dem resolve erst durch.
+    // neue contacte haben key display_name nicht
+    mappedContacts = contacts.map(contact => {
+      return getUser(contact.source)
+        .then(user => ({
+          _id: contact._id,
+          message: contact.message,
+          display_name: user.display_name
+        }))
+        .catch(err => reject(err))
+    })
+    Promise.all(mappedContacts)
+      .then(array => resolve(array))
+      .catch(err => reject(err))
+  })
+}
 module.exports = {
   getOrCreateUser,
   createUserSession,
   getUserSession,
-  updateUserSession
+  updateUserSession,
+  createContact,
+  getContactRequests,
+  updateContactRequest
 }

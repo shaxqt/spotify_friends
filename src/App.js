@@ -8,6 +8,7 @@ import Nav from './components/utils/Nav'
 import Header from './components/utils/Header'
 import GlobalStyles from './components/utils/GlobalStyles'
 import { restElement } from '@babel/types'
+import { getContacts } from './api/api'
 
 const App = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -31,7 +32,9 @@ const App = props => {
     <>
       <GlobalStyles />
       <Header>
-        Header<button onClick={showTopTracks}>TRACKS</button>
+        Header
+        <button onClick={showTopTracks}>TRACKS</button>
+        <button onClick={showContacts}>CONTACTS</button>
       </Header>
       <Main>{isLoading ? renderLoadingScreen() : renderMainPage()}</Main>
       <Nav></Nav>
@@ -39,6 +42,11 @@ const App = props => {
   )
   function showTopTracks() {
     getTopTracks(localStorage.getItem('spotify_friends_token'))
+      .then(res => console.log(res))
+      .catch(err => console.log(err))
+  }
+  function showContacts() {
+    getContacts(localStorage.getItem('spotify_friends_token'))
       .then(res => console.log(res))
       .catch(err => console.log(err))
   }

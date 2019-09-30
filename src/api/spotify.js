@@ -1,9 +1,9 @@
-import { callSpotifyAPI } from './api'
+import { postRequest } from './fetch'
 
 const backendHost = 'http://localhost:3333/v1'
 
 const getMe = (token, callback) => {
-  callSpotifyAPI(token, backendHost + '/me')
+  postRequest(token, backendHost + '/me')
     .then(me => callback(JSON.stringify(me)))
     .catch(error => console.log(error))
 }
@@ -11,13 +11,13 @@ const getMe = (token, callback) => {
 const getTopTracks = token => {
   return new Promise((resolve, reject) => {
     console.log('getTopTracks', token)
-    callSpotifyAPI(token, backendHost + '/me/top/tracks')
+    postRequest(token, backendHost + '/me/top/tracks')
       .then(tracks => resolve(tracks.items))
       .catch(error => reject(error))
   })
 }
 const getCurrSong = (token, callback) => {
-  callSpotifyAPI(token, backendHost + '/me/player/currently-playing')
+  postRequest(token, backendHost + '/me/player/currently-playing')
     .then(song => {
       callback(song)
     })
