@@ -5,7 +5,9 @@ const GlobalStyle = createGlobalStyle`
   box-sizing: border-box;
 }
     body {
-        padding: 0
+        padding: 0;
+        background-color: #222;
+
     }
     #root {
         position: absolute;
@@ -13,8 +15,7 @@ const GlobalStyle = createGlobalStyle`
         right: 0;
         bottom: 0;
         left: 0;
-        display: grid;
-        grid-template-rows: 50px 1fr 50px;
+        font-family: 'Roboto', sans-serif;
     }
 `
 

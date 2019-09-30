@@ -113,6 +113,27 @@ const updateContactRequest = (token, contact_id, newValue) => {
       .catch(err => reject(err))
   })
 }
+const getUsersByDisplayName = (token, search) => {
+  return new Promise((resolve, reject) => {
+    let session = null
+    getSessionFromToken(token)
+      .then(sessionFromToken => {
+        session = sessionFromToken
+        return isUserSessionValid(session)
+      })
+      .then(isValid => {
+        if (isValid) {
+          database
+            .getUsersByDisplayName(search, session)
+            .then(users => resolve(users))
+            .catch(err => reject(err))
+        } else {
+          reject('token invalid')
+        }
+      })
+      .catch(err => reject(err))
+  })
+}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -212,5 +233,6 @@ module.exports = {
   getContacts,
   createContact,
   getContactRequests,
-  updateContactRequest
+  updateContactRequest,
+  getUsersByDisplayName
 }

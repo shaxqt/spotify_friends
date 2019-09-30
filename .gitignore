@@ -2,7 +2,7 @@
 
 
 # config including client_secret to spotify app
-**config.js
+server/config/config.js
 
 # dependencies
 /node_modules

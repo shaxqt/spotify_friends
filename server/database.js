@@ -13,6 +13,28 @@ const getOrCreateUser = body => {
       })
   })
 }
+const getUsersByDisplayName = (search, session) => {
+  return new Promise((resolve, reject) => {
+    User.find(
+      {
+        id: { $ne: session.userID },
+        display_name: new RegExp('.*' + search + '.*', 'i')
+      },
+      'display_name href id',
+      function(err, users) {
+        if (err) {
+          reject(err)
+        } else {
+          if (users == null) {
+            reject('no users found (' + search + ')')
+          } else {
+            resolve(users)
+          }
+        }
+      }
+    )
+  })
+}
 const getUser = id => {
   return new Promise((resolve, reject) => {
     User.findOne({ id: id }, function(err, user) {
@@ -199,5 +221,6 @@ module.exports = {
   updateUserSession,
   createContact,
   getContactRequests,
-  updateContactRequest
+  updateContactRequest,
+  getUsersByDisplayName
 }

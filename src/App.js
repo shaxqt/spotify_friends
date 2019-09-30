@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { getOrVerifyToken } from './api/auth'
 import { getTopTracks } from './api/spotify'
 import LoginPage from './components/pages/LoginPage'
-import HomePage from './components/pages/HomePage'
+import ContactPage from './components/pages/ContactPage'
 import Main from './components/utils/Main'
 import Nav from './components/utils/Nav'
 import Header from './components/utils/Header'
 import GlobalStyles from './components/utils/GlobalStyles'
-import { restElement } from '@babel/types'
 import { getContacts } from './api/api'
 
 const App = props => {
@@ -31,13 +30,10 @@ const App = props => {
   return (
     <>
       <GlobalStyles />
-      <Header>
-        Header
-        <button onClick={showTopTracks}>TRACKS</button>
-        <button onClick={showContacts}>CONTACTS</button>
-      </Header>
-      <Main>{isLoading ? renderLoadingScreen() : renderMainPage()}</Main>
-      <Nav></Nav>
+
+      <Main bgColor="#222">
+        {isLoading ? renderLoadingScreen() : renderMainPage()}
+      </Main>
     </>
   )
   function showTopTracks() {
@@ -54,7 +50,7 @@ const App = props => {
     return <h3>loading...</h3>
   }
   function renderMainPage() {
-    return isLoggedIn ? <HomePage /> : <LoginPage />
+    return isLoggedIn ? <ContactPage /> : <LoginPage />
   }
 }
 

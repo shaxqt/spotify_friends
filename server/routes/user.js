@@ -1,9 +1,12 @@
 const router = require('express').Router()
+const sanitize = require('mongo-sanitize')
+
 const {
   getContacts,
   createContact,
   getContactRequests,
-  updateContactRequest
+  updateContactRequest,
+  getUsersByDisplayName
 } = require('../spotifyApi')
 
 /* router.post('/contacts', function(req, res) {
@@ -12,6 +15,15 @@ const {
     .then(friends => res.send(JSON.stringify(friends)))
     .catch(error => res.send(error))
 }) */
+
+router.post('/get_user', function(req, res) {
+  const { spotify_friends_token, query_string } = req.body
+
+  const search = sanitize(query_string)
+  getUsersByDisplayName(spotify_friends_token, search)
+    .then(users => res.send({ success: true, items: users }))
+    .catch(err => res.send({ success: false, error: err }))
+})
 
 router.post('/create_contact', function(req, res) {
   console.log('/create_contact', req.body)

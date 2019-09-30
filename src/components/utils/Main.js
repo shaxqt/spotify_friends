@@ -6,8 +6,10 @@ const Main = ({ bgColor, children }) => {
 }
 const MainStyled = styled.main`
   display: grid;
+  grid-template-rows: min-content;
   grid-gap: 15px;
   width: 100%;
+  height: 100%;
   overflow-y: scroll;
   overflow-x: wrap;
   padding: 20px;
