@@ -2,7 +2,8 @@ const router = require('express').Router()
 const {
   getContacts,
   createContact,
-  getContactRequests
+  getContactRequests,
+  updateContactRequest
 } = require('../spotifyApi')
 
 /* router.post('/contacts', function(req, res) {
@@ -43,4 +44,16 @@ router.post('/get_requests', function(req, res) {
     })
 })
 
+router.post('/accept_request', function(req, res) {
+  const { spotify_friends_token, contact_id } = req.body
+  updateContactRequest(spotify_friends_token, contact_id, 30)
+    .then(contact => res.send({ success: true, items: contact }))
+    .catch(error => res.send({ success: false, error }))
+})
+router.post('/deny_request', function(req, res) {
+  const { spotify_friends_token, contact_id } = req.body
+  updateContactRequest(spotify_friends_token, contact_id, 20)
+    .then(contact => res.send({ success: true, items: contact }))
+    .catch(error => res.send({ success: false, error }))
+})
 module.exports = router

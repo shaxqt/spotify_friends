@@ -88,8 +88,8 @@ const getContactRequests = token => {
   return new Promise((resolve, reject) => {
     getSessionFromToken(token)
       .then(session => database.getContactRequests(session, { status: 0 }))
-      .catch(err => reject(err)) // Kann das weg?
-      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+      .then(contacts => resolve(contacts))
       .catch(err => reject(err))
   })
 }
@@ -98,6 +98,17 @@ const createContact = (token, target, message) => {
     getSessionFromToken(token)
       .then(session => database.createContact(session, target, message))
       .catch(err => reject(err)) // Kann das weg?
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
+const updateContactRequest = (token, contact_id, newValue) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session =>
+        database.updateContactRequest(session, contact_id, newValue)
+      )
+      .catch(err => reject(err))
       .then(contact => resolve(contact))
       .catch(err => reject(err))
   })
@@ -200,5 +211,6 @@ module.exports = {
   handleUserLogin,
   getContacts,
   createContact,
-  getContactRequests
+  getContactRequests,
+  updateContactRequest
 }

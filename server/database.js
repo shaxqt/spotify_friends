@@ -108,7 +108,40 @@ const updateUserSession = (session, newValues) => {
     )
   })
 }
-
+const updateContactRequest = (session, contact_id, newStatus) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOne({ _id: contact_id }, function(err, contact) {
+      if (err) {
+        reject(err)
+      } else if (contact == null) {
+        reject('no contact found (' + contact_id + ')')
+      } else {
+        // user doing this request has to be target of contact request
+        if (session.userID === contact.target) {
+          contact.status = newStatus
+          contact.save(function(err, updatedContact) {
+            if (err) {
+              reject(err)
+            } else if (updatedContact == null) {
+              reject('no updated contact')
+            } else {
+              resolve(updatedContact)
+            }
+          })
+        } else {
+          reject(
+            'userID: ' +
+              session.userID +
+              ' target: ' +
+              contact.target +
+              ' contact_id:' +
+              contact_id
+          )
+        }
+      }
+    })
+  })
+}
 const getContactRequests = session => {
   return new Promise((resolve, reject) => {
     const filter = { target: session.userID, status: 0 }
@@ -148,6 +181,7 @@ function contactsMapDisplayName(contacts) {
     mappedContacts = contacts.map(contact => {
       return getUser(contact.source)
         .then(user => ({
+          _id: contact._id,
           message: contact.message,
           display_name: user.display_name
         }))
@@ -164,5 +198,6 @@ module.exports = {
   getUserSession,
   updateUserSession,
   createContact,
-  getContactRequests
+  getContactRequests,
+  updateContactRequest
 }
