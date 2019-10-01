@@ -7,7 +7,7 @@ const GlobalStyle = createGlobalStyle`
     body {
         padding: 0;
         background-color: #222;
-
+        color: #eee;
     }
     #root {
         position: absolute;
@@ -16,6 +16,10 @@ const GlobalStyle = createGlobalStyle`
         bottom: 0;
         left: 0;
         font-family: 'Roboto', sans-serif;
+        color: #eee;
+    }
+    h1, h2, h3, h4, h5, p {
+        margin: 0;
     }
 `
 

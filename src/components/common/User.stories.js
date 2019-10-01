@@ -2,12 +2,16 @@ import React from 'react'
 import { action } from '@storybook/addon-actions'
 import { storiesOf } from '@storybook/react'
 import { withKnobs, text } from '@storybook/addon-knobs/react'
-import Button from './Button'
+import User from './User'
 import Wrapper from '../form/FormWrapper'
 
-storiesOf('Button', module)
+storiesOf('User', module)
   .addDecorator(withKnobs)
   .addDecorator(Wrapper)
   .add('default', () => (
-    <Button onClick={action('clicked')} text={text('text', 'search')} />
+    <User
+      name={text('name', 'Philp Loesch')}
+      id={text('id', 'shaxqt')}
+      onClick={action('clicked')}
+    />
   ))

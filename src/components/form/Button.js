@@ -4,7 +4,7 @@ import styled from 'styled-components'
 export default function Button({ text, onClick, type = 'submit' }) {
   return (
     <ButtonStyled type={type} onClick={onClick}>
-      <UnderlineStyled onHover>{text}</UnderlineStyled>
+      <UnderlineStyled>{text}</UnderlineStyled>
     </ButtonStyled>
   )
 }

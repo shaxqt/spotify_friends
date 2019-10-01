@@ -6,21 +6,7 @@ import Form from './Form'
 import Button from './Button'
 import Input from './Input'
 import GlobalStyles from '../utils/GlobalStyles'
-function Wrapper(storyFn) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#222',
-        padding: '20px'
-      }}
-    >
-      {storyFn()}
-    </div>
-  )
-}
+import Wrapper from '../form/FormWrapper'
 
 storiesOf('Form', module)
   .addDecorator(withKnobs)
@@ -28,12 +14,14 @@ storiesOf('Form', module)
   .add('default', () => (
     <>
       <GlobalStyles />
-      <Form
-        paddingTop={text('paddingTop', '200px')}
-        onSubmit={action('submit')}
-      >
+      <Form paddingTop={text('paddingTop', '0px')} onSubmit={action('submit')}>
         <Input label="search"></Input>
         <Button text="search" />
       </Form>
     </>
+  ))
+  .add('noch was', () => (
+    <Form>
+      <Input text="test"></Input>
+    </Form>
   ))

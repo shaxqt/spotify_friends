@@ -4,8 +4,11 @@ import Button from '../form/Button'
 const LoginPage = props => {
   return (
     <Button
-      callback={() => (window.location = 'http://localhost:3333/auth/login')}
-      text='login'
+      onClick={() => {
+        console.log('moin')
+        window.location = '/auth/login'
+      }}
+      text="login"
     />
   )
 }

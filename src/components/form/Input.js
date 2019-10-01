@@ -27,7 +27,6 @@ const IconInputStyled = styled.div`
   border-radius: 15px;
   padding: 8px 14px;
   background-color: #333;
-  color: #eee;
   &:focus-within {
     background-color: #555;
   }
@@ -48,5 +47,4 @@ const InputStyled = styled.input`
 const LabelStyled = styled.label`
   display: grid;
   grid-gap: 5px;
-  color: #eee;
 `

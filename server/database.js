@@ -28,7 +28,10 @@ const getUsersByDisplayName = (search, session) => {
           if (users == null) {
             reject('no users found (' + search + ')')
           } else {
-            resolve(users)
+            //map contact-status to users
+            userMapContactData(session, users)
+              .then(userContact => resolve(userContact))
+              .catch(err => reject(err))
           }
         }
       }
@@ -194,6 +197,55 @@ const createContact = (session, target, message) => {
         console.log('createContact', newContact)
       }
     })
+  })
+}
+function userGetContact(user, session) {
+  return new Promise((resolve, reject) => {
+    Contact.findOne(
+      {
+        $or: [{ source: session.userID }, { target: session.userID }],
+        $or: [{ source: user.id }, { target: user.id }]
+      },
+      function(err, contact) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(contact)
+        }
+      }
+    )
+  })
+}
+function userMapContactData(session, users) {
+  return new Promise((resolve, reject) => {
+    console.log('userMapContactData users:', users)
+    // TODO map läuft nach dem resolve erst durch.
+    // neue contacte haben key display_name nicht
+    mappedContacts = users.map(user => {
+      return userGetContact(user, session)
+        .then(contact => {
+          if (contact) {
+            const mapped = {
+              id: user.id,
+              display_name: user.display_name,
+              target: contact.target,
+              source: contact.source,
+              status: contact.status
+            }
+            console.log('mapped Object', mapped)
+            return mapped
+          } else {
+            return user
+          }
+        })
+        .catch(err => reject(err))
+    })
+    Promise.all(mappedContacts)
+      .then(array => {
+        console.log('userMapContactData mapped:', array)
+        resolve(array)
+      })
+      .catch(err => reject(err))
   })
 }
 function contactsMapDisplayName(contacts) {
