@@ -1,5 +1,5 @@
 import React from 'react'
-import GlobalStyle from '../utils/GlobalStyles'
+import GlobalStyle from './GlobalStyles'
 
 export default function Wrapper(storyFn) {
   return (
@@ -11,7 +11,7 @@ export default function Wrapper(storyFn) {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#222',
-          padding: '50px'
+          padding: '20px'
         }}
       >
         {storyFn()}

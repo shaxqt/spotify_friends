@@ -108,7 +108,7 @@ export default function ContactPage(props) {
       return (
         <User
           key={userFound.id}
-          user={userFound}
+          display_name={userFound.display_name}
           isAddButtonActive={userFound.isAddButtonActive}
           isRetractButtonActive={userFound.isRetractButtonActive}
           contactInfo={userFound.contactInfo}
