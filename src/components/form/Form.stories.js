@@ -6,22 +6,19 @@ import Form from './Form'
 import Button from './Button'
 import Input from './Input'
 import GlobalStyles from '../utils/GlobalStyles'
-import Wrapper from '../form/FormWrapper'
+import Wrapper from '../utils/StoryWrapper'
+import { withInfo } from '@storybook/addon-info'
 
 storiesOf('Form', module)
+  .addDecorator(withInfo)
   .addDecorator(withKnobs)
   .addDecorator(Wrapper)
   .add('default', () => (
     <>
       <GlobalStyles />
       <Form paddingTop={text('paddingTop', '0px')} onSubmit={action('submit')}>
-        <Input label="search"></Input>
+        <Input inputIcon="fa fa-search" placeholder="search"></Input>
         <Button text="search" />
       </Form>
     </>
-  ))
-  .add('noch was', () => (
-    <Form>
-      <Input text="test"></Input>
-    </Form>
   ))

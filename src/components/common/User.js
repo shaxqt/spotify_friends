@@ -1,9 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
+import PropTypes from 'prop-types'
+
+User.propTypes = {
+  display_name: PropTypes.string,
+  onClick: PropTypes.func,
+  isAddButtonActive: PropTypes.bool,
+  isRetractButtonActive: PropTypes.bool,
+  contactInfo: PropTypes.string
+}
 
 export default function User({
-  user,
+  display_name,
   onClick,
   isAddButtonActive,
   isRetractButtonActive,
@@ -12,11 +21,12 @@ export default function User({
   return (
     <UserStyled isAddButtonActive={isAddButtonActive}>
       <GridStyled
+        gap="10px"
         templateColumns="1fr 35px"
         templateRows="35px 1fr"
         alignItems="center"
       >
-        <h2>{user.display_name}</h2>
+        <h2>{display_name}</h2>
         {renderButton()}
       </GridStyled>
       <small>{contactInfo && contactInfo}</small>
