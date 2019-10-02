@@ -2,19 +2,19 @@ import React from 'react'
 import { action } from '@storybook/addon-actions'
 import { storiesOf } from '@storybook/react'
 import { withKnobs, text } from '@storybook/addon-knobs/react'
-import Button from './Button'
+import ContactRequest from './ContactRequest'
 import Wrapper from '../utils/StoryWrapper'
 import { withInfo } from '@storybook/addon-info'
 
-storiesOf('Button', module)
+storiesOf('ContactRequest', module)
   .addDecorator(withInfo)
   .addDecorator(withKnobs)
   .addDecorator(Wrapper)
   .add('default', () => (
-    <Button
-      onClick={action('clicked')}
-      text={text('text', 'search')}
-      bgColor={text('bgColor', 'rgb(30, 215, 97)')}
-      color={text('color', '#eee')}
+    <ContactRequest
+      display_name={text('display_name', 'Philip Loesch')}
+      contactInfo={text('contactInfo', '')}
+      onAccept={action('accepted')}
+      onDeny={action('denied')}
     />
   ))

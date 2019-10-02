@@ -5,20 +5,28 @@ import PropTypes from 'prop-types'
 Button.propTypes = {
   text: PropTypes.string,
   onClick: PropTypes.func,
-  type: PropTypes.string
+  type: PropTypes.string,
+  bgColor: PropTypes.string,
+  color: PropTypes.string
 }
 
-export default function Button({ text, onClick, type = 'submit' }) {
+export default function Button({
+  text,
+  onClick,
+  type = 'submit',
+  bgColor = 'rgb(30, 215, 97)',
+  color = '#eee'
+}) {
   return (
-    <ButtonStyled type={type} onClick={onClick}>
+    <ButtonStyled type={type} onClick={onClick} bgColor={bgColor} color={color}>
       <UnderlineStyled>{text}</UnderlineStyled>
     </ButtonStyled>
   )
 }
 
 const ButtonStyled = styled.button`
-  background-color: rgb(30, 215, 97);
-  color: #eee;
+  background-color: ${({ bgColor }) => bgColor};
+  color: ${({ color }) => color};
   outline: none;
   border: none;
   border-radius: 15px;
@@ -34,7 +42,7 @@ const UnderlineStyled = styled.span`
     left: 0;
     right: 0;
     display: block;
-    border-bottom: solid 1px white;
+    border-bottom: solid 1px ${({ color }) => color};
     transform: scaleX(0);
     transition: transform 150ms ease-in-out;
   }

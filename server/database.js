@@ -40,6 +40,7 @@ const getUsersByDisplayName = (search, session) => {
 }
 const getUser = id => {
   return new Promise((resolve, reject) => {
+    console.log('getUser start for id ' + id)
     User.findOne({ id: id }, function(err, user) {
       if (err) {
         console.log('getUser error (userID ' + id + ')', err)
@@ -266,17 +267,30 @@ function contactsMapDisplayName(contacts) {
   return new Promise((resolve, reject) => {
     // TODO map läuft nach dem resolve erst durch.
     // neue contacte haben key display_name nicht
+    console.log('contactsMapDisplayName contacts:', contacts)
     mappedContacts = contacts.map(contact => {
       return getUser(contact.source)
-        .then(user => ({
-          _id: contact._id,
-          message: contact.message,
-          display_name: user.display_name
-        }))
+        .then(user => {
+          if (user == null) {
+            reject('no user found for contact.source: ' + contact.source)
+          } else {
+            return {
+              _id: contact._id,
+              message: contact.message,
+              display_name: user.display_name,
+              target: contact.target,
+              source: contact.source,
+              status: contact.status
+            }
+          }
+        })
         .catch(err => reject(err))
     })
     Promise.all(mappedContacts)
-      .then(array => resolve(array))
+      .then(array => {
+        console.log('contactsMapDisplayName resolve:', array)
+        resolve(array)
+      })
       .catch(err => reject(err))
   })
 }

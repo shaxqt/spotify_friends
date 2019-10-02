@@ -59,8 +59,4 @@ const UserStyled = styled.section`
       isAddButtonActive ? 'rgb(30, 215, 97)' : '#777'};
     font-size: 35px;
   }
-  & button {
-    height: 35px;
-    width: 35px;
-  }
 `

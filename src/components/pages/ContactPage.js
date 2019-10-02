@@ -3,13 +3,19 @@ import Input from '../form/Input'
 import Button from '../form/Button'
 import Form from '../form/Form'
 import User from '../common/User'
+import ContactRequest from '../common/ContactRequest'
 import GridStyled from '../utils/GridStyled'
 import { postRequest } from '../../api/fetch'
 
 export default function ContactPage(props) {
   const [search, setSearch] = useState('')
   const [searchResults, setSearchResults] = useState([])
+  const [contactRequests, setContactRequests] = useState([])
   const [searchInfo, setSearchInfo] = useState('')
+
+  useEffect(() => {
+    getContactRequests()
+  })
 
   return (
     <>
@@ -27,11 +33,40 @@ export default function ContactPage(props) {
       <GridStyled gap="15px">
         {searchResults.length > 0 && renderSearchResults(searchResults)}
       </GridStyled>
+      <GridStyled gap="15px">{renderContactRequests()}</GridStyled>
     </>
   )
 
   function handleOnChange(event) {
     setSearch(event.currentTarget.value)
+  }
+  function getContactRequests() {
+    postRequest({}, 'http://localhost:3333/user/get_requests')
+      .then(res => {
+        if (res.success) {
+          setContactRequests(res.items)
+        }
+      })
+      .catch(err => console.log(err))
+  }
+  function renderContactRequests() {
+    return contactRequests.map(request => {
+      const onAcceptRequest = () => console.log('accepted')
+      const onDenyRequest = () => console.log('denied')
+
+      return (
+        <ContactRequest
+          key={request.source}
+          display_name={request.display_name}
+          onAccept={onAcceptRequest}
+          onDeny={onDenyRequest}
+          contactInfo={getContactInfoRequest()}
+        />
+      )
+    })
+  }
+  function getContactInfoRequest(contact) {
+    return 'not implemented yet'
   }
   function searchUser() {
     const url = 'http://localhost:3333/user/get_user'
