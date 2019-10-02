@@ -6,7 +6,8 @@ const {
   createContact,
   getContactRequests,
   updateContactRequest,
-  getUsersByDisplayName
+  getUsersByDisplayName,
+  retractContact
 } = require('../spotifyApi')
 
 /* router.post('/contacts', function(req, res) {
@@ -35,6 +36,20 @@ router.post('/create_contact', function(req, res) {
       res.send({ success: true, items: contact })
     })
 
+    .catch(error => {
+      console.log('/create_contact fehler')
+      res.send({ success: false, error })
+    })
+})
+router.post('/retract_contact', function(req, res) {
+  console.log('/retract_contact', req.body)
+  const { spotify_friends_token, target, message } = req.body
+
+  retractContact(spotify_friends_token, target)
+    .then(() => {
+      console.log('/retract_contact success')
+      res.send({ success: true })
+    })
     .catch(error => {
       console.log('/create_contact fehler')
       res.send({ success: false, error })

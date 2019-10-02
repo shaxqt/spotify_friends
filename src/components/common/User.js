@@ -2,25 +2,38 @@ import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
 
-export default function User({ user, onClick, isButtonActive, contactInfo }) {
+export default function User({
+  user,
+  onClick,
+  isAddButtonActive,
+  isRetractButtonActive,
+  contactInfo
+}) {
   return (
-    <UserStyled>
-      <GridStyled templateColumns="1fr 35px" alignItems="center">
+    <UserStyled isAddButtonActive={isAddButtonActive}>
+      <GridStyled
+        templateColumns="1fr 35px"
+        templateRows="35px 1fr"
+        alignItems="center"
+      >
         <h2>{user.display_name}</h2>
-        {isButtonActive ? (
-          <i onClick={handleOnClick} className="fa fa-plus-circle"></i>
-        ) : (
-          <i></i>
-        )}
+        {renderButton()}
       </GridStyled>
       <small>{contactInfo && contactInfo}</small>
     </UserStyled>
   )
+  function renderButton() {
+    if (isAddButtonActive) {
+      return <i onClick={handleOnClick} className="fa fa-user-plus"></i>
+    } else if (isRetractButtonActive) {
+      return <i onClick={handleOnClick} className="fa fa-user-times"></i>
+    } else {
+      return <i></i>
+    }
+  }
   function handleOnClick(event) {
     event.preventDefault()
-    if (isButtonActive) {
-      onClick()
-    }
+    onClick()
   }
 }
 
@@ -32,7 +45,8 @@ const UserStyled = styled.section`
     margin: 0;
   }
   & i {
-    color: rgb(30, 215, 97);
+    color: ${({ isAddButtonActive }) =>
+      isAddButtonActive ? 'rgb(30, 215, 97)' : '#777'};
     font-size: 35px;
   }
   & button {

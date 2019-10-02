@@ -1,21 +1,38 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export default function({ label, onChange, value, type = 'text' }) {
-  return (
-    <LabelStyled>
-      {label}
+export default function({
+  label,
+  placeholder,
+  onChange,
+  value,
+  type = 'text',
+  inputIcon
+}) {
+  if (label) {
+    return (
+      <LabelStyled>
+        {label}
+        {renderInput()}
+      </LabelStyled>
+    )
+  } else {
+    return renderInput()
+  }
+  function renderInput() {
+    return (
       <IconInputStyled>
-        <i className="fa fa-search"></i>
+        <i className={inputIcon}></i>
         <InputStyled
           spellCheck="false"
+          placeholder={placeholder}
           onChange={onChange}
           value={value}
           type={type}
         />
       </IconInputStyled>
-    </LabelStyled>
-  )
+    )
+  }
 }
 
 const IconInputStyled = styled.div`
@@ -28,7 +45,7 @@ const IconInputStyled = styled.div`
   padding: 8px 14px;
   background-color: #333;
   &:focus-within {
-    background-color: #555;
+    background-color: #666;
   }
   & > i {
     color: #555;

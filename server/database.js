@@ -199,6 +199,20 @@ const createContact = (session, target, message) => {
     })
   })
 }
+const removeContact = (session, target) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOneAndRemove(
+      { source: session.userID, target: target },
+      function(err, contact) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(contact)
+        }
+      }
+    )
+  })
+}
 function userGetContact(user, session) {
   return new Promise((resolve, reject) => {
     Contact.findOne(
@@ -274,5 +288,6 @@ module.exports = {
   createContact,
   getContactRequests,
   updateContactRequest,
-  getUsersByDisplayName
+  getUsersByDisplayName,
+  removeContact
 }

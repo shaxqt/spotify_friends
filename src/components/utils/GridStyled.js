@@ -6,6 +6,8 @@ export default styled.div`
 
    ${({ templateColumns }) =>
      templateColumns && 'grid-template-columns: ' + templateColumns + ';'}
+     ${({ templateRows }) =>
+       templateRows && 'grid-template-rows: ' + templateRows + ';'}
    ${({ autoFlow }) => autoFlow && 'grid-auto-flow: ' + autoFlow + ';'}
     ${({ stretchHeight }) => stretchHeight && 'height: 100%;'}
     ${({ justifyItems }) =>

@@ -93,6 +93,15 @@ const getContactRequests = token => {
       .catch(err => reject(err))
   })
 }
+const retractContact = (token, target) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.removeContact(session, target))
+      .catch(err => reject(err))
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
 const createContact = (token, target, message) => {
   return new Promise((resolve, reject) => {
     getSessionFromToken(token)
@@ -234,5 +243,6 @@ module.exports = {
   createContact,
   getContactRequests,
   updateContactRequest,
-  getUsersByDisplayName
+  getUsersByDisplayName,
+  retractContact
 }

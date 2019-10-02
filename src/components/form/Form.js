@@ -10,6 +10,7 @@ export default function Form({ onSubmit, children, paddingTop }) {
 
   function handleSubmit(event) {
     event.preventDefault()
+    event.stopPropagation()
     onSubmit()
   }
 }
