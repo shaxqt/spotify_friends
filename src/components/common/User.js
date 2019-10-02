@@ -1,6 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
+import PropTypes from 'prop-types'
+
+User.propTypes = {
+  display_name: PropTypes.string,
+  onClick: PropTypes.func,
+  isAddButtonActive: PropTypes.bool,
+  isRetractButtonActive: PropTypes.bool,
+  contactInfo: PropTypes.string
+}
 
 export default function User({
   display_name,

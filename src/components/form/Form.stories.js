@@ -7,8 +7,10 @@ import Button from './Button'
 import Input from './Input'
 import GlobalStyles from '../utils/GlobalStyles'
 import Wrapper from '../utils/StoryWrapper'
+import { withInfo } from '@storybook/addon-info'
 
 storiesOf('Form', module)
+  .addDecorator(withInfo)
   .addDecorator(withKnobs)
   .addDecorator(Wrapper)
   .add('default', () => (

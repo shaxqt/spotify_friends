@@ -1,7 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
-export default function({
+Input.propTypes = {
+  label: PropTypes.string,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.any,
+  type: PropTypes.string,
+  inputIcon: PropTypes.string
+}
+export default function Input({
   label,
   placeholder,
   onChange,

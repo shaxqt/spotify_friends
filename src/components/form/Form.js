@@ -1,5 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
+
+Form.propTypes = {
+  onSubmit: PropTypes.func,
+  paddingTop: PropTypes.string
+}
 
 export default function Form({ onSubmit, children, paddingTop }) {
   return (
