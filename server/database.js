@@ -13,6 +13,31 @@ const getOrCreateUser = body => {
       })
   })
 }
+const getUsersByDisplayName = (search, session) => {
+  return new Promise((resolve, reject) => {
+    User.find(
+      {
+        id: { $ne: session.userID },
+        display_name: new RegExp('.*' + search + '.*', 'i')
+      },
+      'display_name href id',
+      function(err, users) {
+        if (err) {
+          reject(err)
+        } else {
+          if (users == null) {
+            reject('no users found (' + search + ')')
+          } else {
+            //map contact-status to users
+            userMapContactData(session, users)
+              .then(userContact => resolve(userContact))
+              .catch(err => reject(err))
+          }
+        }
+      }
+    )
+  })
+}
 const getUser = id => {
   return new Promise((resolve, reject) => {
     User.findOne({ id: id }, function(err, user) {
@@ -174,6 +199,69 @@ const createContact = (session, target, message) => {
     })
   })
 }
+const removeContact = (session, target) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOneAndRemove(
+      { source: session.userID, target: target },
+      function(err, contact) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(contact)
+        }
+      }
+    )
+  })
+}
+function userGetContact(user, session) {
+  return new Promise((resolve, reject) => {
+    Contact.findOne(
+      {
+        $or: [{ source: session.userID }, { target: session.userID }],
+        $or: [{ source: user.id }, { target: user.id }]
+      },
+      function(err, contact) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(contact)
+        }
+      }
+    )
+  })
+}
+function userMapContactData(session, users) {
+  return new Promise((resolve, reject) => {
+    console.log('userMapContactData users:', users)
+    // TODO map läuft nach dem resolve erst durch.
+    // neue contacte haben key display_name nicht
+    mappedContacts = users.map(user => {
+      return userGetContact(user, session)
+        .then(contact => {
+          if (contact) {
+            const mapped = {
+              id: user.id,
+              display_name: user.display_name,
+              target: contact.target,
+              source: contact.source,
+              status: contact.status
+            }
+            console.log('mapped Object', mapped)
+            return mapped
+          } else {
+            return user
+          }
+        })
+        .catch(err => reject(err))
+    })
+    Promise.all(mappedContacts)
+      .then(array => {
+        console.log('userMapContactData mapped:', array)
+        resolve(array)
+      })
+      .catch(err => reject(err))
+  })
+}
 function contactsMapDisplayName(contacts) {
   return new Promise((resolve, reject) => {
     // TODO map läuft nach dem resolve erst durch.
@@ -199,5 +287,7 @@ module.exports = {
   updateUserSession,
   createContact,
   getContactRequests,
-  updateContactRequest
+  updateContactRequest,
+  getUsersByDisplayName,
+  removeContact
 }

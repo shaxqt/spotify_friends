@@ -93,6 +93,15 @@ const getContactRequests = token => {
       .catch(err => reject(err))
   })
 }
+const retractContact = (token, target) => {
+  return new Promise((resolve, reject) => {
+    getSessionFromToken(token)
+      .then(session => database.removeContact(session, target))
+      .catch(err => reject(err))
+      .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
 const createContact = (token, target, message) => {
   return new Promise((resolve, reject) => {
     getSessionFromToken(token)
@@ -110,6 +119,27 @@ const updateContactRequest = (token, contact_id, newValue) => {
       )
       .catch(err => reject(err))
       .then(contact => resolve(contact))
+      .catch(err => reject(err))
+  })
+}
+const getUsersByDisplayName = (token, search) => {
+  return new Promise((resolve, reject) => {
+    let session = null
+    getSessionFromToken(token)
+      .then(sessionFromToken => {
+        session = sessionFromToken
+        return isUserSessionValid(session)
+      })
+      .then(isValid => {
+        if (isValid) {
+          database
+            .getUsersByDisplayName(search, session)
+            .then(users => resolve(users))
+            .catch(err => reject(err))
+        } else {
+          reject('token invalid')
+        }
+      })
       .catch(err => reject(err))
   })
 }
@@ -212,5 +242,7 @@ module.exports = {
   getContacts,
   createContact,
   getContactRequests,
-  updateContactRequest
+  updateContactRequest,
+  getUsersByDisplayName,
+  retractContact
 }
