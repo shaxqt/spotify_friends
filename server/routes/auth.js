@@ -2,7 +2,7 @@ const router = require('express').Router()
 const querystring = require('querystring')
 const requestLib = require('request')
 
-const { redirect_uri, client_secret, client_id } = require('../config/config')
+const { client_secret, client_id } = require('../config/config')
 
 const {
   getSessionFromToken,
@@ -10,6 +10,7 @@ const {
   handleUserLogin
 } = require('../spotifyApi')
 
+let redirect_uri = ''
 /*
  *  this function redirects the user to https://accounts.spotify.com/authorize?
  * after loggin in and commiting access to his account, he gets redirected back to
@@ -19,6 +20,8 @@ const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
+
+  redirect_uri = req.protocol + '://' + req.hostname + ':3000'
 
   // application requests authorization
   const scope = `user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
@@ -38,6 +41,7 @@ router.get('/callback', function(req, res) {
   const { code, state, error, token } = req.query
   const storedState = req.cookies ? req.cookies[stateKey] : null
 
+  console.log('/CALLBACK ', redirect_uri)
   if (code == null && state == null && storedState == null && token == null) {
     // if all parameters to check are empty
     console.log('/callback Bad Request query:', req.query)

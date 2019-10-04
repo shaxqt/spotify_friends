@@ -111,12 +111,10 @@ const createContact = (token, target, message) => {
       .catch(err => reject(err))
   })
 }
-const updateContactRequest = (token, contact_id, newValue) => {
+const updateContactRequest = (token, source, newValue) => {
   return new Promise((resolve, reject) => {
     getSessionFromToken(token)
-      .then(session =>
-        database.updateContactRequest(session, contact_id, newValue)
-      )
+      .then(session => database.updateContactRequest(session, source, newValue))
       .catch(err => reject(err))
       .then(contact => resolve(contact))
       .catch(err => reject(err))

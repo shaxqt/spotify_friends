@@ -49,15 +49,14 @@ const IconInputStyled = styled.div`
   grid-gap: 10px;
   grid-template-columns: 20px auto;
   align-items: center;
-
   border-radius: 15px;
-  padding: 8px 14px;
-  background-color: #333;
+  padding: 10px 20px;
+  background-color: #444;
   &:focus-within {
     background-color: #666;
   }
   & > i {
-    color: #555;
+    color: #888;
   }
   &:focus-within > i {
     color: rgb(30, 215, 97);
@@ -69,6 +68,9 @@ const InputStyled = styled.input`
   font-size: 1rem;
   background: none;
   color: #eee;
+  &::placeholder {
+    color: #888;
+  }
 `
 const LabelStyled = styled.label`
   display: grid;

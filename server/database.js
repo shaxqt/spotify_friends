@@ -40,6 +40,7 @@ const getUsersByDisplayName = (search, session) => {
 }
 const getUser = id => {
   return new Promise((resolve, reject) => {
+    console.log('getUser start for id ' + id)
     User.findOne({ id: id }, function(err, user) {
       if (err) {
         console.log('getUser error (userID ' + id + ')', err)
@@ -133,13 +134,22 @@ const updateUserSession = (session, newValues) => {
     )
   })
 }
-const updateContactRequest = (session, contact_id, newStatus) => {
+const updateContactRequest = (session, source, newStatus) => {
   return new Promise((resolve, reject) => {
-    Contact.findOne({ _id: contact_id }, function(err, contact) {
+    Contact.findOne({ source: source, target: session.userID }, function(
+      err,
+      contact
+    ) {
       if (err) {
         reject(err)
       } else if (contact == null) {
-        reject('no contact found (' + contact_id + ')')
+        reject(
+          'no contact found (source:' +
+            source +
+            ', target: ' +
+            session.userID +
+            ')'
+        )
       } else {
         // user doing this request has to be target of contact request
         if (session.userID === contact.target) {
@@ -155,12 +165,12 @@ const updateContactRequest = (session, contact_id, newStatus) => {
           })
         } else {
           reject(
-            'userID: ' +
+            'session is not target. session.userID: ' +
               session.userID +
-              ' target: ' +
+              ' contact.target: ' +
               contact.target +
-              ' contact_id:' +
-              contact_id
+              ' contact.source:' +
+              contact.source
           )
         }
       }
@@ -266,17 +276,30 @@ function contactsMapDisplayName(contacts) {
   return new Promise((resolve, reject) => {
     // TODO map läuft nach dem resolve erst durch.
     // neue contacte haben key display_name nicht
+    console.log('contactsMapDisplayName contacts:', contacts)
     mappedContacts = contacts.map(contact => {
       return getUser(contact.source)
-        .then(user => ({
-          _id: contact._id,
-          message: contact.message,
-          display_name: user.display_name
-        }))
+        .then(user => {
+          if (user == null) {
+            reject('no user found for contact.source: ' + contact.source)
+          } else {
+            return {
+              _id: contact._id,
+              message: contact.message,
+              display_name: user.display_name,
+              target: contact.target,
+              source: contact.source,
+              status: contact.status
+            }
+          }
+        })
         .catch(err => reject(err))
     })
     Promise.all(mappedContacts)
-      .then(array => resolve(array))
+      .then(array => {
+        console.log('contactsMapDisplayName resolve:', array)
+        resolve(array)
+      })
       .catch(err => reject(err))
   })
 }

@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
 import Input from '../form/Input'
 import Button from '../form/Button'
 import Form from '../form/Form'
 import User from '../common/User'
+import ContactRequest from '../common/ContactRequest'
 import GridStyled from '../utils/GridStyled'
 import { postRequest } from '../../api/fetch'
+import { findRemove, findReplace } from '../../utils/utils'
 
 export default function ContactPage(props) {
   const [search, setSearch] = useState('')
   const [searchResults, setSearchResults] = useState([])
+  const [contactRequests, setContactRequests] = useState([])
   const [searchInfo, setSearchInfo] = useState('')
+
+  useEffect(() => {
+    getContactRequests()
+  }, [searchResults])
 
   return (
     <>
@@ -18,23 +26,71 @@ export default function ContactPage(props) {
           placeholder="search"
           value={search}
           inputIcon="fa fa-search"
-          onChange={handleOnChange}
+          onChange={e => setSearch(e.currentTarget.value)}
         ></Input>
         <Button text="search" />
       </Form>
-      {searchInfo && <small>{searchInfo}</small>}
 
-      <GridStyled gap="15px">
-        {searchResults.length > 0 && renderSearchResults(searchResults)}
-      </GridStyled>
+      <GridStyled gap="20px">{renderSearchResults(searchResults)}</GridStyled>
+      <GridStyled gap="20px">{renderContactRequests()}</GridStyled>
     </>
   )
+  function renderSearchResults(searchResults) {
+    if (searchInfo) {
+      const searchResult = searchResults.map(userFound => {
+        return (
+          <User
+            key={userFound.id}
+            display_name={userFound.display_name}
+            isAddButtonActive={userFound.isAddButtonActive}
+            isRetractButtonActive={userFound.isRetractButtonActive}
+            contactInfo={userFound.contactInfo}
+            onClick={getCreateOrRetractContactRequest(
+              userFound,
+              userFound.isAddButtonActive
+            )}
+          />
+        )
+      })
+      const header =
+        searchResult.length === 1
+          ? '1 user found'
+          : searchResult.length + ' users found'
+      return (
+        <>
+          <SectionHeaderStyled>{header}</SectionHeaderStyled>
+          {searchResult}
+        </>
+      )
+    }
+  }
 
-  function handleOnChange(event) {
-    setSearch(event.currentTarget.value)
+  function renderContactRequests() {
+    if (contactRequests.length > 0) {
+      const requests = contactRequests.map(request => {
+        return (
+          <ContactRequest
+            key={request.source}
+            display_name={request.display_name}
+            onAccept={getAcceptOrDenyContactRequest(request)}
+            onDeny={getAcceptOrDenyContactRequest(request, false)}
+          />
+        )
+      })
+      const header =
+        contactRequests.length === 1
+          ? '1 contact request'
+          : contactRequests.length + ' contact requests'
+      return (
+        <>
+          <SectionHeaderStyled>{header}</SectionHeaderStyled>
+          {requests}
+        </>
+      )
+    }
   }
   function searchUser() {
-    const url = 'http://localhost:3333/user/get_user'
+    const url = '/user/get_user'
     const body = { query_string: search }
     postRequest(body, url)
       .then(res => {
@@ -66,6 +122,62 @@ export default function ContactPage(props) {
       })
       .catch(err => console.log(err))
   }
+
+  function getContactRequests() {
+    postRequest({}, '/user/get_requests')
+      .then(res => {
+        if (res.success) {
+          setContactRequests(res.items)
+        }
+      })
+      .catch(err => console.log(err))
+  }
+  function getCreateOrRetractContactRequest(user, create = true) {
+    const url = create ? '/user/create_contact' : '/user/retract_contact'
+    const newContactInfo = create ? 'request sent' : 'request retracted'
+    return () => {
+      postRequest({ target: user.id }, url)
+        .then(res => {
+          if (res.success) {
+            setSearchResults(
+              findReplace(searchResults, user, {
+                ...user,
+                contactInfo: newContactInfo,
+                isAddButtonActive: !create,
+                isRetractButtonActive: create
+              })
+            )
+          }
+        })
+        .catch(err => err)
+    }
+  }
+  function getAcceptOrDenyContactRequest(request, accept = true) {
+    const url = accept ? '/user/accept_request' : '/user/deny_request'
+    const body = { source: request.source }
+    return () => {
+      postRequest(body, url)
+        .then(res => {
+          if (res.success) {
+            setContactRequests(findRemove(contactRequests, request))
+            if (searchResults.length > 0) {
+              const handledContact = searchResults.find(
+                userFound => userFound.id === request.source
+              )
+              if (handledContact) {
+                setSearchResults(
+                  findReplace(searchResults, handledContact, {
+                    ...handledContact,
+                    contactInfo: 'request accepted'
+                  })
+                )
+              }
+            }
+          }
+        })
+        .catch(err => err)
+    }
+  }
   function getContactInfo(user) {
     let contactInfo = '',
       isAddButtonActive = false,
@@ -76,7 +188,7 @@ export default function ContactPage(props) {
         isRetractButtonActive = true
         isAddButtonActive = false
       } else if (user.source === user.id) {
-        contactInfo = 'you should have a contact request from this user'
+        contactInfo = 'you should have a contact request'
         isAddButtonActive = false
       } else {
         contactInfo = ''
@@ -87,7 +199,7 @@ export default function ContactPage(props) {
         contactInfo = 'contact already requestet'
         isAddButtonActive = false
       } else if (user.source === user.id) {
-        contactInfo = 'you denied this a request from this contact'
+        contactInfo = 'you denied the request'
         isAddButtonActive = false
       } else {
         contactInfo = ''
@@ -102,52 +214,9 @@ export default function ContactPage(props) {
     }
     return { contactInfo, isAddButtonActive, isRetractButtonActive }
   }
-  function renderSearchResults(searchResults) {
-    return searchResults.map(userFound => {
-      const onUserInteract = getUserInteract(userFound)
-      return (
-        <User
-          key={userFound.id}
-          display_name={userFound.display_name}
-          isAddButtonActive={userFound.isAddButtonActive}
-          isRetractButtonActive={userFound.isRetractButtonActive}
-          contactInfo={userFound.contactInfo}
-          onClick={onUserInteract}
-        />
-      )
-    })
-  }
-  function getUserInteract(user) {
-    if (user.isAddButtonActive) {
-      return () =>
-        postContactRequest('http://localhost:3333/user/create_contact', user, {
-          contactInfo: 'request sent',
-          isAddButtonActive: false,
-          isRetractButtonActive: true
-        })
-    } else if (user.isRetractButtonActive) {
-      return () =>
-        postContactRequest('http://localhost:3333/user/retract_contact', user, {
-          contactInfo: 'request retract',
-          isAddButtonActive: true,
-          isRetractButtonActive: false
-        })
-    }
-  }
-  function postContactRequest(url, user, newValsOnSuccess) {
-    const body = { target: user.id }
-    postRequest(body, url)
-      .then(res => {
-        if (res.success) {
-          const index = searchResults.indexOf(user)
-          const newResult = [
-            ...searchResults.slice(0, index),
-            { ...user, ...newValsOnSuccess },
-            ...searchResults.slice(index + 1)
-          ]
-          setSearchResults(newResult)
-        }
-      })
-      .catch(err => err)
-  }
 }
+
+const SectionHeaderStyled = styled.h2`
+  padding-top: 30px;
+  text-align: center;
+`

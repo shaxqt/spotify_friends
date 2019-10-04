@@ -2,9 +2,10 @@ import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
 import PropTypes from 'prop-types'
+import { redirectTo } from '@reach/router'
 
 User.propTypes = {
-  display_name: PropTypes.string,
+  display_name: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   isAddButtonActive: PropTypes.bool,
   isRetractButtonActive: PropTypes.bool,
@@ -21,15 +22,17 @@ export default function User({
   return (
     <UserStyled isAddButtonActive={isAddButtonActive}>
       <GridStyled
+        stretchHeight
         gap="10px"
-        templateColumns="1fr 35px"
-        templateRows="35px 1fr"
+        templateColumns="1fr 50px"
         alignItems="center"
       >
-        <h2>{display_name}</h2>
+        <div style={{ minHeight: '50px' }}>
+          <h2>{display_name}</h2>
+          <small>{contactInfo && contactInfo}</small>
+        </div>
         {renderButton()}
       </GridStyled>
-      <small>{contactInfo && contactInfo}</small>
     </UserStyled>
   )
   function renderButton() {
@@ -48,7 +51,7 @@ export default function User({
 }
 
 const UserStyled = styled.section`
-  padding: 10px;
+  padding: 15px;
   border-radius: 15px;
   background-color: #333;
   & h2 {
@@ -57,10 +60,6 @@ const UserStyled = styled.section`
   & i {
     color: ${({ isAddButtonActive }) =>
       isAddButtonActive ? 'rgb(30, 215, 97)' : '#777'};
-    font-size: 35px;
-  }
-  & button {
-    height: 35px;
-    width: 35px;
+    font-size: 40px;
   }
 `

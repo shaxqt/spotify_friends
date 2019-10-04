@@ -2,12 +2,13 @@ const mongoose = require('mongoose')
 
 const Contact = new mongoose.Schema({
   source: {
-    type: String,
-    unique: false
+    type: String
   },
   target: {
-    type: String,
-    unique: false
+    type: String
+  },
+  combinedID: {
+    type: String
   },
   status: {
     type: Number,
@@ -22,7 +23,15 @@ const Contact = new mongoose.Schema({
   }
 })
 
-Contact.index({ source: 1, target: 1 }, { unique: true })
-Contact.index({ target: 1, source: 1 }, { unique: true })
+// make sure target and source are unique in any order
+Contact.pre('save', function(next) {
+  this.combinedID =
+    this.target > this.source
+      ? this.target + this.source
+      : this.source + this.target
+  next()
+})
+
+Contact.index({ combinedID: 1 }, { unique: true })
 
 module.exports = mongoose.model('Contact', Contact)
