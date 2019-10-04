@@ -134,13 +134,22 @@ const updateUserSession = (session, newValues) => {
     )
   })
 }
-const updateContactRequest = (session, contact_id, newStatus) => {
+const updateContactRequest = (session, source, newStatus) => {
   return new Promise((resolve, reject) => {
-    Contact.findOne({ _id: contact_id }, function(err, contact) {
+    Contact.findOne({ source: source, target: session.userID }, function(
+      err,
+      contact
+    ) {
       if (err) {
         reject(err)
       } else if (contact == null) {
-        reject('no contact found (' + contact_id + ')')
+        reject(
+          'no contact found (source:' +
+            source +
+            ', target: ' +
+            session.userID +
+            ')'
+        )
       } else {
         // user doing this request has to be target of contact request
         if (session.userID === contact.target) {
@@ -156,12 +165,12 @@ const updateContactRequest = (session, contact_id, newStatus) => {
           })
         } else {
           reject(
-            'userID: ' +
+            'session is not target. session.userID: ' +
               session.userID +
-              ' target: ' +
+              ' contact.target: ' +
               contact.target +
-              ' contact_id:' +
-              contact_id
+              ' contact.source:' +
+              contact.source
           )
         }
       }

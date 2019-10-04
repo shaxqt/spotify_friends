@@ -72,14 +72,14 @@ router.post('/get_requests', function(req, res) {
 })
 
 router.post('/accept_request', function(req, res) {
-  const { spotify_friends_token, contact_id } = req.body
-  updateContactRequest(spotify_friends_token, contact_id, 30)
+  const { spotify_friends_token, source } = req.body
+  updateContactRequest(spotify_friends_token, source, 20)
     .then(contact => res.send({ success: true, items: contact }))
     .catch(error => res.send({ success: false, error }))
 })
 router.post('/deny_request', function(req, res) {
-  const { spotify_friends_token, contact_id } = req.body
-  updateContactRequest(spotify_friends_token, contact_id, 20)
+  const { spotify_friends_token, source } = req.body
+  updateContactRequest(spotify_friends_token, source, 10)
     .then(contact => res.send({ success: true, items: contact }))
     .catch(error => res.send({ success: false, error }))
 })

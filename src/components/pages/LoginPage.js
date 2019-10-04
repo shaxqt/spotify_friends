@@ -5,8 +5,16 @@ const LoginPage = props => {
   return (
     <Button
       onClick={() => {
-        console.log('moin')
-        window.location = '/auth/login'
+        console.log(window.location.port)
+        console.log(window.location.host)
+        console.log(window.location.hostname)
+        console.log(window.location.pathname)
+        console.log(window.location.origin)
+        window.location =
+          window.location.protocol +
+          '//' +
+          window.location.hostname +
+          ':3333/auth/login'
       }}
       text="login"
     />

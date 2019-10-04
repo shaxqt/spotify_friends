@@ -6,7 +6,6 @@ Button.propTypes = {
   text: PropTypes.string,
   onClick: PropTypes.func,
   type: PropTypes.string,
-  bgColor: PropTypes.string,
   color: PropTypes.string
 }
 
@@ -14,23 +13,22 @@ export default function Button({
   text,
   onClick,
   type = 'submit',
-  bgColor = 'rgb(30, 215, 97)',
-  color = '#eee'
+  color = 'rgb(30, 215, 97)'
 }) {
   return (
-    <ButtonStyled type={type} onClick={onClick} bgColor={bgColor} color={color}>
+    <ButtonStyled type={type} onClick={onClick} color={color}>
       <UnderlineStyled>{text}</UnderlineStyled>
     </ButtonStyled>
   )
 }
 
 const ButtonStyled = styled.button`
-  background-color: ${({ bgColor }) => bgColor};
+  border: 1px solid ${({ color }) => color};
   color: ${({ color }) => color};
+  background-color: transparent;
   outline: none;
-  border: none;
   border-radius: 15px;
-  padding: 8px 14px;
+  padding: 10px 20px;
   font-size: 1rem;
 `
 

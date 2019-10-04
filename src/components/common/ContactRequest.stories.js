@@ -13,7 +13,6 @@ storiesOf('ContactRequest', module)
   .add('default', () => (
     <ContactRequest
       display_name={text('display_name', 'Philip Loesch')}
-      contactInfo={text('contactInfo', '')}
       onAccept={action('accepted')}
       onDeny={action('denied')}
     />

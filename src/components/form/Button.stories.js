@@ -14,7 +14,13 @@ storiesOf('Button', module)
     <Button
       onClick={action('clicked')}
       text={text('text', 'search')}
-      bgColor={text('bgColor', 'rgb(30, 215, 97)')}
-      color={text('color', '#eee')}
+      color={text('color', 'rgb(30, 215, 97)')}
+    />
+  ))
+  .add('in red', () => (
+    <Button
+      onClick={action('clicked')}
+      text={text('text', 'deny')}
+      color={text('color', 'red')}
     />
   ))

@@ -6,26 +6,18 @@ import Button from '../form/Button'
 
 ContactRequest.propTypes = {
   display_name: PropTypes.string,
-  onClick: PropTypes.func,
-  isAddButtonActive: PropTypes.bool,
-  isRetractButtonActive: PropTypes.bool,
-  contactInfo: PropTypes.string
+  onAccept: PropTypes.func.isRequired,
+  onDeny: PropTypes.func.isRequired
 }
 
-export default function ContactRequest({
-  display_name,
-  contactInfo,
-  onAccept,
-  onDeny
-}) {
+export default function ContactRequest({ display_name, onAccept, onDeny }) {
   return (
     <ContactRequestStyled>
-      <GridStyled gap="15px">
+      <GridStyled gap="20px">
         <h2>{display_name}</h2>
-        {contactInfo && <small>{contactInfo}</small>}
-        <GridStyled gap="10px" templateColumns="1fr 1fr">
-          <Button onClick={handleOnAccept} bgColor="red" text="deny"></Button>
-          <Button onClick={handleOnDeny} text="accept"></Button>
+        <GridStyled gap="30px" templateColumns="1fr 1fr">
+          <Button onClick={handleOnDeny} color="red" text="deny"></Button>
+          <Button onClick={handleOnAccept} text="accept"></Button>
         </GridStyled>
       </GridStyled>
     </ContactRequestStyled>
@@ -42,7 +34,7 @@ export default function ContactRequest({
 }
 
 const ContactRequestStyled = styled.section`
-  padding: 10px;
+  padding: 15px;
   border-radius: 15px;
   background-color: #333;
   & h2 {
