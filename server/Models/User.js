@@ -22,11 +22,11 @@ const User = new mongoose.Schema({
   href: {
     type: String
   },
-
   isDeleted: {
     type: Boolean,
     default: false
-  }
+  },
+  currSong: { type: Object }
 })
 
 module.exports = mongoose.model('User', User)

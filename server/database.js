@@ -2,6 +2,17 @@ const User = require('./Models/User')
 const UserSession = require('./Models/UserSession')
 const Contact = require('./Models/Contact')
 
+const getAllUserSessions = userID => {
+  return new Promise((resolve, reject) => {
+    UserSession.find({ userID }, function(err, sessions) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(sessions)
+      }
+    })
+  })
+}
 const getOrCreateUser = body => {
   return new Promise((resolve, reject) => {
     getUser(body.id)
@@ -177,6 +188,29 @@ const updateContactRequest = (session, source, newStatus) => {
     })
   })
 }
+const getContacts = session => {
+  return new Promise((resolve, reject) => {
+    console.log('database getContacts called')
+    Contact.find(
+      {
+        status: 20,
+        $or: [{ source: session.userID }, { target: session.userID }]
+      },
+      function(err, contacts) {
+        if (err) {
+          console.log('database getContacts reject mongo error')
+          reject(err)
+        } else {
+          console.log('database getContacts contacts', contacts)
+          contactsMapDisplayName(contacts, session)
+            .then(mappedContacts => resolve(mappedContacts))
+            .catch(err => reject(err))
+        }
+      }
+    )
+  })
+}
+
 const getContactRequests = session => {
   return new Promise((resolve, reject) => {
     const filter = { target: session.userID, status: 0 }
@@ -185,7 +219,7 @@ const getContactRequests = session => {
         reject(err)
       } else {
         console.log('database getContactRequests', contacts)
-        contactsMapDisplayName(contacts)
+        contactsMapDisplayName(contacts, session)
           .then(mappedContacts => resolve(mappedContacts))
           .catch(err => reject(err))
       }
@@ -272,19 +306,31 @@ function userMapContactData(session, users) {
       .catch(err => reject(err))
   })
 }
-function contactsMapDisplayName(contacts) {
+const updateCurrSong = async (id, currSong) => {
+  const savedUser = await User.findOneAndUpdate({ id }, { currSong })
+  return savedUser.currSong
+}
+const getCurrSong = async id => {
+  const user = await User.findOne({ id })
+  return user.currSong
+}
+function contactsMapDisplayName(contacts, session) {
   return new Promise((resolve, reject) => {
     // TODO map läuft nach dem resolve erst durch.
     // neue contacte haben key display_name nicht
     console.log('contactsMapDisplayName contacts:', contacts)
     mappedContacts = contacts.map(contact => {
-      return getUser(contact.source)
+      // always map name of that user who was not sending the request
+      const userNameToMap =
+        session.userID === contact.source ? contact.target : contact.source
+      return getUser(userNameToMap)
         .then(user => {
           if (user == null) {
-            reject('no user found for contact.source: ' + contact.source)
+            reject('no user found for contact.source: ' + userNameToMap)
           } else {
             return {
               _id: contact._id,
+              id: user.id,
               message: contact.message,
               display_name: user.display_name,
               target: contact.target,
@@ -312,5 +358,9 @@ module.exports = {
   getContactRequests,
   updateContactRequest,
   getUsersByDisplayName,
-  removeContact
+  removeContact,
+  getContacts,
+  getAllUserSessions,
+  updateCurrSong,
+  getCurrSong
 }
