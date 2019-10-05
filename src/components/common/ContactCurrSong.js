@@ -1,19 +1,16 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
 import FixedStyled from '../utils/FixedStyled'
 
-export default function Card({ contact, onPlay }) {
-  useEffect(() => {
-    console.log(contact)
-  })
+export default function Card({ contact, onPlay, onHeaderClick }) {
   return (
     <ContactCurrSongStyled>
       <BackgroundImageStyled img={getImage()} />
       <ContentStyled>
         <GridStyled stretchHeight alignContent="space-between">
           <GridStyled gap="10px">
-            <h2>{contact.currSong && contact.currSong.name}</h2>
+            <h2 onClick={onHeaderClick}>{renderTitle()}</h2>
             <p>
               <strong>{contact.currSong && contact.currSong.album}</strong>
             </p>
@@ -36,6 +33,12 @@ export default function Card({ contact, onPlay }) {
     </ContactCurrSongStyled>
   )
 
+  function renderTitle() {
+    if (contact.currSong && contact.currSong.name) {
+      return contact.currSong.name
+    }
+    return 'no song information ☹️'
+  }
   function renderArtists() {
     if (contact.currSong && Array.isArray(contact.currSong.artists)) {
       return contact.currSong.artists.join(', ')
@@ -50,7 +53,6 @@ export default function Card({ contact, onPlay }) {
 
 const BackgroundImageStyled = styled(FixedStyled)`
   background-image: ${porps => porps.img && `url(${porps.img})`};
-  background-color: red;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

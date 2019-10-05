@@ -237,10 +237,8 @@ async function putSpotifyUserInfo(token, url, body) {
   }
   requestLib.put(options, function(error, response, body) {
     if (error) {
-      console.log(response.statusCode, error)
       return error
     } else {
-      console.log('no error', response.statusCode, body)
       return body
     }
   })

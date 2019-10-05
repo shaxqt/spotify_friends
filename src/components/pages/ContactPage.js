@@ -17,7 +17,7 @@ export default function ContactPage(props) {
   const [searchInfo, setSearchInfo] = useState('')
 
   useEffect(() => {
-    getContactRequests()
+    //getContactRequests()
   }, [searchResults])
 
   return (

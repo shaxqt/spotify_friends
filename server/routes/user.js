@@ -14,6 +14,7 @@ const {
 
 router.post('/contacts', function(req, res) {
   const spotify_friends_token = req.body ? req.body.spotify_friends_token : null
+  console.log('/contacts', spotify_friends_token)
   getContacts(spotify_friends_token)
     .then(friends => res.send({ success: true, items: friends }))
     .catch(error => res.send({ success: false, error }))
@@ -21,7 +22,7 @@ router.post('/contacts', function(req, res) {
 router.post('/start_playback', async function(req, res) {
   try {
     const { spotify_friends_token, context_uri, position_ms, offset } = req.body
-
+    console.log('/start_playback', spotify_friends_token)
     response = await startPlayback(spotify_friends_token, {
       context_uri,
       position_ms,
@@ -35,6 +36,7 @@ router.post('/start_playback', async function(req, res) {
 router.post('/curr_song', async function(req, res) {
   try {
     const { spotify_friends_token, userID } = req.body
+    console.log('/curr_song', spotify_friends_token, userID)
     const currSong = await getCurrentSong(spotify_friends_token, userID)
     if (currSong != null) {
       res.send({ success: true, items: currSong })
@@ -47,7 +49,7 @@ router.post('/curr_song', async function(req, res) {
 })
 router.post('/get_user', function(req, res) {
   const { spotify_friends_token, query_string } = req.body
-
+  console.log('/get_user', spotify_friends_token)
   const search = sanitize(query_string)
   getUsersByDisplayName(spotify_friends_token, search)
     .then(users => res.send({ success: true, items: users }))
@@ -55,8 +57,8 @@ router.post('/get_user', function(req, res) {
 })
 
 router.post('/create_contact', function(req, res) {
-  console.log('/create_contact', req.body)
   const { spotify_friends_token, target, message } = req.body
+  console.log('/create_contact', spotify_friends_token)
 
   createContact(spotify_friends_token, target, message)
     .then(contact => {
@@ -70,7 +72,7 @@ router.post('/create_contact', function(req, res) {
     })
 })
 router.post('/retract_contact', function(req, res) {
-  console.log('/retract_contact', req.body)
+  console.log('/retract_contact', spotify_friends_token)
   const { spotify_friends_token, target, message } = req.body
 
   retractContact(spotify_friends_token, target)
@@ -84,8 +86,8 @@ router.post('/retract_contact', function(req, res) {
     })
 })
 router.post('/get_requests', function(req, res) {
-  console.log('/get_requests', req.body)
   const { spotify_friends_token } = req.body
+  console.log('/get_requests', spotify_friends_token)
 
   getContactRequests(spotify_friends_token)
     .then(requests => {
@@ -101,12 +103,14 @@ router.post('/get_requests', function(req, res) {
 
 router.post('/accept_request', function(req, res) {
   const { spotify_friends_token, source } = req.body
+  console.log('/accept_request', spotify_friends_token)
   updateContactRequest(spotify_friends_token, source, 20)
     .then(contact => res.send({ success: true, items: contact }))
     .catch(error => res.send({ success: false, error }))
 })
 router.post('/deny_request', function(req, res) {
   const { spotify_friends_token, source } = req.body
+  console.log('/deny_request', spotify_friends_token)
   updateContactRequest(spotify_friends_token, source, 10)
     .then(contact => res.send({ success: true, items: contact }))
     .catch(error => res.send({ success: false, error }))

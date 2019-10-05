@@ -16,14 +16,49 @@ const HomePage = props => {
       <GridStyled gap="20px">{renderContacts()}</GridStyled>
     </Main>
   )
+
   function renderContacts() {
     return contacts.map(contact => (
       <ContactCurrSong
         key={contact.id}
         contact={contact}
+        onHeaderClick={() => updateContactsSong(contact)}
         onPlay={getHandleOnPlay(contact)}
       />
     ))
+  }
+
+  async function getContacts() {
+    let mappedContacts = []
+    const res = await postRequest({}, '/user/contacts')
+    if (res.success && res.items) {
+      for (const contact of res.items) {
+        mappedContacts = [...mappedContacts, await contactMapCurrSong(contact)]
+      }
+    }
+    setContacts(mappedContacts)
+  }
+
+  async function updateContactsSong(contact) {
+    const updated = await contactMapCurrSong(contact)
+    if (updated) {
+      setContacts(findReplace(contacts, contact, updated))
+    }
+  }
+  async function contactMapCurrSong(contact) {
+    try {
+      const currSong = await postRequest(
+        { userID: contact.id },
+        '/user/curr_song'
+      )
+      if (currSong.success) {
+        return { ...contact, currSong: currSong.items }
+      } else {
+        return contact
+      }
+    } catch (err) {
+      console.log(err)
+    }
   }
   function getHandleOnPlay(contact) {
     return _ => {
@@ -52,33 +87,6 @@ const HomePage = props => {
         }
         postRequest(body, '/user/start_playback').then(res => console.log(res))
       }
-    }
-  }
-  function getContacts() {
-    postRequest({}, '/user/contacts').then(res => {
-      if (res.success) {
-        res.items.forEach(contact => getCurrSong(contact))
-      }
-    })
-  }
-  async function getCurrSong(contact) {
-    try {
-      const currSong = await postRequest(
-        { userID: contact.id },
-        '/user/curr_song'
-      )
-      if (currSong.success) {
-        const mappedContact = { ...contact, currSong: currSong.items }
-        setContacts(findReplace(contacts, contact, mappedContact))
-        if (mappedContact.currSong && mappedContact.currSong.next_fetch_in_ms) {
-          setTimeout(
-            () => getCurrSong(mappedContact),
-            mappedContact.currSong.next_fetch_in_ms
-          )
-        }
-      }
-    } catch (err) {
-      console.log(err)
     }
   }
 }
