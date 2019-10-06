@@ -3,6 +3,21 @@ const database = require('./database')
 
 const { client_secret, client_id } = require('./config/config')
 
+const startPlayback = async (token, body) => {
+  try {
+    session = await getSessionFromToken(token)
+    if (session) {
+      const res = await putSpotifyUserInfo(
+        session.spotify_access_token,
+        '/v1/me/player/play',
+        body
+      )
+      return res
+    }
+  } catch (err) {
+    return err
+  }
+}
 const getSpotifyUserInfo = (session, url = '/v1/me') => {
   return new Promise((resolve, reject) => {
     // get new token if its expired
@@ -19,6 +34,77 @@ const getSpotifyUserInfo = (session, url = '/v1/me') => {
         .catch(err => reject(err))
     }
   })
+}
+const getCurrentSong = async (token, userID) => {
+  try {
+    const session = await getValidUserSession(token, userID)
+    if (session == null) {
+      return 'no session for userID ' + userID
+    } else {
+      const currSong = await requestSpotifyUserInfo(
+        session.spotify_access_token,
+        '/v1/me/player/currently-playing'
+      )
+      if (currSong.item) {
+        // save to db and return curr song
+        const savedSong = await database.updateCurrSong(userID, currSong)
+        const mapped = mapCurrSong(savedSong)
+        return mapped
+      } else {
+        // update currSong in DB
+        const savedSong = await database.getCurrSong(userID)
+        const mapped = mapCurrSong(savedSong, false)
+        return mapped
+      }
+    }
+  } catch (err) {
+    console.log(err)
+    return err
+  }
+}
+function mapCurrSong(currSong, isPlaying) {
+  if (
+    currSong &&
+    currSong.item &&
+    currSong.item.album &&
+    currSong.item.artists
+  ) {
+    const mapped = {
+      next_fetch_in_ms: currSong.item.duration_ms - currSong.progress_ms,
+      album_type: currSong.item.album.album_type,
+      album: currSong.item.album.name,
+      images: currSong.item.album.images,
+      artists: currSong.item.artists.map(artist => artist.name),
+      is_local: currSong.item.is_local,
+      name: currSong.item.name,
+      currently_playing_type: currSong.currently_playing_type,
+      is_playing: isPlaying !== undefined ? isPlaying : currSong.is_playing,
+      timestamp: currSong.timestamp,
+      position_ms: currSong.progress_ms,
+      context_uri: currSong.context.uri,
+      context_type: currSong.context.type,
+      uri: currSong.item.uri
+    }
+    return mapped
+  } else {
+    return null
+  }
+}
+const getValidUserSession = async (token, userID) => {
+  try {
+    session = await getSessionFromToken(token)
+    if (session) {
+      const sessions = await database.getAllUserSessions(userID)
+      sessions.sort((a, b) => b.timestamp - a.timestamp)
+      for (const session of sessions) {
+        if (await isUserSessionValid(session)) {
+          return session
+        }
+      }
+    }
+  } catch (err) {
+    return err
+  }
 }
 const getSessionFromToken = token => {
   return new Promise((resolve, reject) => {
@@ -39,10 +125,10 @@ const isUserSessionValid = session => {
     getSpotifyUserInfo(session, '/v1/me')
       .then(body => {
         if (body) {
-          console.log('isUserSessionValid is VALID, id: ', body.id)
+          console.log('session ' + session._id + ' is valid')
           resolve(true)
         } else {
-          console.log('isUserSessionValid is INVALID id: ', body.id)
+          console.log('session ' + session._id + ' is invalid')
           resolve(false)
         }
       })
@@ -80,6 +166,7 @@ const getContacts = token => {
   return new Promise((resolve, reject) => {
     getSessionFromToken(token)
       .then(session => database.getContacts(session))
+      .catch(err => reject(err))
       .then(contacts => resolve(contacts))
       .catch(err => reject(err))
   })
@@ -141,6 +228,23 @@ const getUsersByDisplayName = (token, search) => {
       .catch(err => reject(err))
   })
 }
+async function putSpotifyUserInfo(token, url, body) {
+  const options = {
+    url: 'https://api.spotify.com' + url,
+    headers: { Authorization: 'Bearer ' + token },
+    json: true,
+    body: body
+  }
+  requestLib.put(options, function(error, response, body) {
+    if (error) {
+      console.log(response.statusCode, error)
+      return error
+    } else {
+      console.log('no error', response.statusCode, body)
+      return body
+    }
+  })
+}
 function requestSpotifyUserInfo(token, url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -155,7 +259,7 @@ function requestSpotifyUserInfo(token, url) {
         reject(error)
       } else {
         if (response.statusCode && response.statusCode === 204) {
-          console.log('requestSpotifyUserInfo reject no content')
+          console.log('requestSpotifyUserInfo resolve no content (204)')
           resolve('no content') // not an error
         } else if (error) {
           console.log('requestSpotifyUserInfo reject error')
@@ -242,5 +346,7 @@ module.exports = {
   getContactRequests,
   updateContactRequest,
   getUsersByDisplayName,
-  retractContact
+  retractContact,
+  getCurrentSong,
+  startPlayback
 }

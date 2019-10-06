@@ -24,7 +24,7 @@ router.get('/login', function(req, res) {
   redirect_uri = req.protocol + '://' + req.hostname + ':3000'
 
   // application requests authorization
-  const scope = `user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
+  const scope = `app-remote-control streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
       querystring.stringify({

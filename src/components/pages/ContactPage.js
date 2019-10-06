@@ -8,6 +8,7 @@ import ContactRequest from '../common/ContactRequest'
 import GridStyled from '../utils/GridStyled'
 import { postRequest } from '../../api/fetch'
 import { findRemove, findReplace } from '../../utils/utils'
+import Main from '../utils/Main'
 
 export default function ContactPage(props) {
   const [search, setSearch] = useState('')
@@ -20,7 +21,7 @@ export default function ContactPage(props) {
   }, [searchResults])
 
   return (
-    <>
+    <Main>
       <Form paddingTop="200px" onSubmit={searchUser}>
         <Input
           placeholder="search"
@@ -33,7 +34,7 @@ export default function ContactPage(props) {
 
       <GridStyled gap="20px">{renderSearchResults(searchResults)}</GridStyled>
       <GridStyled gap="20px">{renderContactRequests()}</GridStyled>
-    </>
+    </Main>
   )
   function renderSearchResults(searchResults) {
     if (searchInfo) {
