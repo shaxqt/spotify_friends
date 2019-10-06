@@ -2,7 +2,7 @@ const router = require('express').Router()
 const querystring = require('querystring')
 const { getSessionIfValid, handleUserLogin } = require('../auth_utils')
 const { client_secret, client_id } = require('../config/config')
-const { postRequest } = require('../request_utils')
+const { postSpotifyRequest } = require('../request_utils')
 
 let redirect_uri = ''
 
@@ -50,18 +50,14 @@ router.get('/callback', async function(req, res) {
       } else {
         // get new token from spotify
         res.clearCookie(stateKey)
-        const authOptions = {
-          url: 'https://accounts.spotify.com/api/token',
-          form: {
-            code,
-            client_id,
-            client_secret,
-            redirect_uri,
-            grant_type: 'authorization_code'
-          },
-          json: true
-        }
-        body = await postRequest(authOptions)
+
+        body = await postSpotifyRequest('/api/token', {
+          code,
+          client_id,
+          client_secret,
+          redirect_uri,
+          grant_type: 'authorization_code'
+        })
         if (body) {
           const { access_token, refresh_token } = body
           // get or create a user and cerate a session

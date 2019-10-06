@@ -2,7 +2,7 @@ const sanitize = require('mongo-sanitize')
 const UserSession = require('./Models/UserSession')
 const User = require('./Models/User')
 const { client_secret, client_id } = require('./config/config')
-const { postRequest, getRequest } = require('./request_utils')
+const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
 
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
@@ -23,7 +23,7 @@ const getSessionIfValid = async (token, checkSpotifyToken = false) => {
 }
 const handleUserLogin = async (access_token, refresh_token) => {
   try {
-    body = await requestSpotifyUserInfo(access_token)
+    body = await getSpotifyRequest(access_token)
     if (body && body.id) {
       let user = await User.findOne({ id: sanitize(body.id) }).exec()
       if (!user) {
@@ -47,58 +47,50 @@ const handleUserLogin = async (access_token, refresh_token) => {
     }
     return null
   } catch (err) {
-    console.log('handleUserLogin', err)
+    console.log('handleUserLogin err:', err)
     return null
   }
 }
 const verifySpotifyToken = async session => {
   try {
-    const body = await requestSpotifyUserInfo(session.spotify_access_token)
+    const body = await getSpotifyRequest(session.spotify_access_token)
     if (body && body.id === session.userID) {
       return session
     } else {
-      console.log('verifySpotifyToken requesting new token')
       updatedSession = await refreshSpotifyToken(session)
-      console.log('verifySpotifyToken got new token ' + updatedSession != null)
 
       return updatedSession != null ? updatedSession : null
     }
   } catch (err) {
-    console.log('verifySpotifyToken', err)
+    console.log('verifySpotifyToken err:', err)
     return null
   }
 }
-
-const requestSpotifyUserInfo = async token => {
+async function getValidSessionForUser(userID) {
   try {
-    const options = {
-      url: 'https://api.spotify.com/v1/me',
-      headers: { Authorization: 'Bearer ' + token },
-      json: true
+    sessions = await UserSession.find({ userID }).exec()
+    sessions.sort((a, b) => b.timestamp - a.timestamp)
+    for (const session of sessions) {
+      const validSession = await verifySpotifyToken(session)
+      if (validSession != null) return validSession
     }
-    const body = await getRequest(options)
-    return body != null ? body : null
-  } catch (err) {
-    console.log('requestSpotifyUserInfo', err)
+  } catch {
+    console.log('getValidSessionForUser err:', err)
     return null
   }
 }
 const refreshSpotifyToken = async session => {
   try {
-    const authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        refresh_token: session.spotify_refresh_token,
-        grant_type: 'refresh_token'
-      },
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(client_id + ':' + client_secret).toString('base64')
-      },
-      json: true
+    const form = {
+      refresh_token: session.spotify_refresh_token,
+      grant_type: 'refresh_token'
     }
-    const body = await postRequest(authOptions)
+    const headers = {
+      Authorization:
+        'Basic ' +
+        new Buffer(client_id + ':' + client_secret).toString('base64')
+    }
+    const body = await postSpotifyRequest('/api/token', form, headers)
     if (body && body.access_token) {
       session.spotify_access_token = body.access_token
       const updatedSession = await session.save()
@@ -106,9 +98,9 @@ const refreshSpotifyToken = async session => {
     }
     return null
   } catch (err) {
-    console.log('refreshSpotifyToken', err)
+    console.log('refreshSpotifyToken err:', err)
     return null
   }
 }
 
-module.exports = { getSessionIfValid, handleUserLogin }
+module.exports = { getSessionIfValid, handleUserLogin, getValidSessionForUser }

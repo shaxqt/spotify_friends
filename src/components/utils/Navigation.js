@@ -23,7 +23,6 @@ export default function Navigtaion({ slideIndex, onClick }) {
         justifyContent="center"
         as="button"
         onClick={() => {
-          console.log('hi', index, slideIndex)
           onClick(index)
         }}
       >

@@ -2,47 +2,74 @@ const router = require('express').Router()
 const sanitize = require('mongo-sanitize')
 
 const {
-  getContacts,
   createContact,
   getContactRequests,
   updateContactRequest,
   getUsersByDisplayName,
-  retractContact,
-  getCurrentSong,
-  startPlayback
+  retractContact
 } = require('../spotifyApi')
 
-router.post('/contacts', function(req, res) {
-  const spotify_friends_token = req.body ? req.body.spotify_friends_token : null
-  console.log('/contacts', spotify_friends_token)
-  getContacts(spotify_friends_token)
-    .then(friends => res.send({ success: true, items: friends }))
-    .catch(error => res.send({ success: false, error }))
+const { getCurrentSong } = require('../spotify_utils')
+const { getSessionIfValid } = require('../auth_utils')
+const { getContacts } = require('../db_utils')
+const { putSpotifyRequest } = require('../request_utils')
+
+router.post('/contacts', async function(req, res) {
+  try {
+    const token = req.body ? req.body.spotify_friends_token : null
+    const session = await getSessionIfValid(token)
+    if (session) {
+      const contacts = await getContacts(session)
+      if (contacts) {
+        return res.send({ success: true, items: contacts })
+      } else {
+        return res.send({ success: false, error: 'no contacts' })
+      }
+    }
+    return res.send({
+      succes: false,
+      error: 'no valid session for token ' + token
+    })
+  } catch (error) {
+    res.send({ success: false, error })
+  }
 })
+
 router.post('/start_playback', async function(req, res) {
   try {
-    const { spotify_friends_token, context_uri, position_ms, offset } = req.body
-    console.log('/start_playback', spotify_friends_token)
-    response = await startPlayback(spotify_friends_token, {
-      context_uri,
-      position_ms,
-      offset
-    })
-    res.send({ success: true, response })
-  } catch (err) {
-    res.send({ success: false, err })
+    const token = req.body ? req.body.spotify_friends_token : null
+    const session = await getSessionIfValid(token)
+    if (session) {
+      const { context_uri, position_ms, offset } = req.body
+      response = await putSpotifyRequest(
+        session.spotify_access_token,
+        '/v1/me/player/play',
+        {
+          context_uri,
+          position_ms,
+          offset
+        }
+      )
+      return res.send({ success: true, response })
+    }
+    return res.send({ success: false, error: 'invalid session' })
+  } catch (error) {
+    res.send({ success: false, error })
   }
 })
 router.post('/curr_song', async function(req, res) {
   try {
-    const { spotify_friends_token, userID } = req.body
-    console.log('/curr_song', spotify_friends_token, userID)
-    const currSong = await getCurrentSong(spotify_friends_token, userID)
-    if (currSong != null) {
-      res.send({ success: true, items: currSong })
-    } else {
-      res.send({ success: false, error: 'no current song' })
+    const token = req.body ? req.body.spotify_friends_token : null
+    const session = await getSessionIfValid(token)
+    if (session) {
+      const currSong = await getCurrentSong(req.body.userID)
+      if (currSong != null) {
+        return res.send({ success: true, items: currSong })
+      } else {
+        return res.send({ success: false, error: 'no current song' })
+      }
     }
+    return res.send({ succes: false, error: 'no valid session' })
   } catch (error) {
     res.send({ success: false, error })
   }
