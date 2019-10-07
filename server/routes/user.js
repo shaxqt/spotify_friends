@@ -10,35 +10,30 @@ const {
 } = require('../spotifyApi')
 
 const { getCurrentSong } = require('../spotify_utils')
-const { getSessionIfValid } = require('../auth_utils')
+const { getSessionIfValid, getValidSessionForUser } = require('../auth_utils')
 const { getContacts } = require('../db_utils')
 const { putSpotifyRequest } = require('../request_utils')
 
-router.post('/contacts', async function(req, res) {
+router.get('/contacts', async function(req, res) {
   try {
     const token = req.body ? req.body.spotify_friends_token : null
     const session = await getSessionIfValid(token)
     if (session) {
       const contacts = await getContacts(session)
-      if (contacts) {
-        return res.send({ success: true, items: contacts })
-      } else {
-        return res.send({ success: false, error: 'no contacts' })
-      }
+      return contacts
+        ? res.send({ success: true, items: contacts })
+        : res.send({ success: false, error: 'no contacts' })
     }
-    return res.send({
-      succes: false,
-      error: 'no valid session for token ' + token
-    })
+    return res.send({ succes: false, error: 'token not valid ' + token })
   } catch (error) {
     res.send({ success: false, error })
   }
 })
 
-router.post('/start_playback', async function(req, res) {
+router.put('/start_playback', async function(req, res) {
   try {
     const token = req.body ? req.body.spotify_friends_token : null
-    const session = await getSessionIfValid(token)
+    const session = await getSessionIfValid(token, true)
     if (session) {
       const { context_uri, position_ms, offset } = req.body
       response = await putSpotifyRequest(
@@ -52,7 +47,7 @@ router.post('/start_playback', async function(req, res) {
       )
       return res.send({ success: true, response })
     }
-    return res.send({ success: false, error: 'invalid session' })
+    return res.send({ success: false, error: 'token not valid ' + token })
   } catch (error) {
     res.send({ success: false, error })
   }
@@ -63,13 +58,11 @@ router.post('/curr_song', async function(req, res) {
     const session = await getSessionIfValid(token)
     if (session) {
       const currSong = await getCurrentSong(req.body.userID)
-      if (currSong != null) {
-        return res.send({ success: true, items: currSong })
-      } else {
-        return res.send({ success: false, error: 'no current song' })
-      }
+      return currSong
+        ? res.send({ success: true, items: currSong })
+        : res.send({ success: false, error: 'no current song' })
     }
-    return res.send({ succes: false, error: 'no valid session' })
+    return res.send({ succes: false, error: 'token not valid ' + token })
   } catch (error) {
     res.send({ success: false, error })
   }
