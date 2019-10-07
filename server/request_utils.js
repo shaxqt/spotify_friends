@@ -10,8 +10,11 @@ const putSpotifyRequest = (spotify_token, url, body) => {
     }
     requestLib.put(authOptions, function(error, res, body) {
       console.log('putSpotifyRequest', authOptions.url, res.statusCode)
-      if (!error && (res.statusCode == 200 || res.statusCode == 401)) {
-        resolve(body)
+      if (!error) {
+        if (res.statusCode == 204) resolve('command sent')
+        else {
+          resolve(body)
+        }
       } else {
         reject(error)
       }

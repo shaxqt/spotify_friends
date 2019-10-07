@@ -11,10 +11,11 @@ router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
-  redirect_uri = req.protocol + '://' + req.hostname + ':3000'
+  //redirect_uri = req.protocol + '://' + req.hostname + ':3000'
+  redirect_uri = 'http://localhost:3000'
 
   // application requests authorization
-  const scope = `app-remote-control streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
+  const scope = `streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
   res.redirect(
     'https://accounts.spotify.com/authorize?' +
       querystring.stringify({

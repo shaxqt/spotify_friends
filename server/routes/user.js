@@ -2,7 +2,6 @@ const router = require('express').Router()
 const sanitize = require('mongo-sanitize')
 
 const {
-  createContact,
   getContactRequests,
   updateContactRequest,
   getUsersByDisplayName,
@@ -10,11 +9,16 @@ const {
 } = require('../spotifyApi')
 
 const { getCurrentSong } = require('../spotify_utils')
-const { getSessionIfValid, getValidSessionForUser } = require('../auth_utils')
-const { getContacts } = require('../db_utils')
+const { getSessionIfValid } = require('../auth_utils')
+const {
+  getContacts,
+  createContact,
+  deleteContact,
+  updateContactStatus
+} = require('../db_utils')
 const { putSpotifyRequest } = require('../request_utils')
 
-router.get('/contacts', async function(req, res) {
+router.post('/contacts', async function(req, res) {
   try {
     const token = req.body ? req.body.spotify_friends_token : null
     const session = await getSessionIfValid(token)
@@ -76,63 +80,102 @@ router.post('/get_user', function(req, res) {
     .catch(error => res.send({ success: false, error }))
 })
 
-router.post('/create_contact', function(req, res) {
-  const { spotify_friends_token, target, message } = req.body
-  console.log('/create_contact', spotify_friends_token)
-
-  createContact(spotify_friends_token, target, message)
-    .then(contact => {
-      console.log('/create_contact success')
-      res.send({ success: true, items: contact })
+router.post('/create_contact', async function(req, res) {
+  try {
+    const { spotify_friends_token, target, message } = req.body
+    const session = await getSessionIfValid(spotify_friends_token)
+    if (session) {
+      const contact = await createContact(session, target)
+      return conact
+        ? res.send({ success: true, items: contact })
+        : res.send({ success: false, error: 'could not save conacts to db' })
+    }
+    return res.send({
+      success: false,
+      error: 'token not valid ' + spotify_friends_token
     })
-
-    .catch(error => {
-      console.log('/create_contact fehler')
-      res.send({ success: false, error })
-    })
-})
-router.post('/retract_contact', function(req, res) {
-  console.log('/retract_contact', spotify_friends_token)
-  const { spotify_friends_token, target, message } = req.body
-
-  retractContact(spotify_friends_token, target)
-    .then(() => {
-      console.log('/retract_contact success')
-      res.send({ success: true })
-    })
-    .catch(error => {
-      console.log('/create_contact fehler')
-      res.send({ success: false, error })
-    })
-})
-router.post('/get_requests', function(req, res) {
-  const { spotify_friends_token } = req.body
-  console.log('/get_requests', spotify_friends_token)
-
-  getContactRequests(spotify_friends_token)
-    .then(requests => {
-      console.log('/get_requests success')
-      res.send({ success: true, items: requests })
-    })
-
-    .catch(error => {
-      console.log('/get_requests fehler')
-      res.send({ success: false, error })
-    })
+  } catch (err) {
+    console.log('/create_contact', err)
+    return res.send({ success: false, error: err })
+  }
 })
 
-router.post('/accept_request', function(req, res) {
-  const { spotify_friends_token, source } = req.body
-  console.log('/accept_request', spotify_friends_token)
-  updateContactRequest(spotify_friends_token, source, 20)
-    .then(contact => res.send({ success: true, items: contact }))
-    .catch(error => res.send({ success: false, error }))
+router.post('/retract_contact', async function(req, res) {
+  try {
+    const { spotify_friends_token, target, message } = req.body
+    console.log(spotify_friends_token)
+    const session = await getSessionIfValid(spotify_friends_token)
+    if (session) {
+      const success = await deleteContact(session, target)
+      return res.send({ success })
+    }
+    return res.send({
+      success: false,
+      error: 'no valid token ' + spotify_friends_token
+    })
+  } catch (err) {
+    console.log('/retract', err)
+    return res.send({ success: false, error: err })
+  }
 })
-router.post('/deny_request', function(req, res) {
-  const { spotify_friends_token, source } = req.body
-  console.log('/deny_request', spotify_friends_token)
-  updateContactRequest(spotify_friends_token, source, 10)
-    .then(contact => res.send({ success: true, items: contact }))
-    .catch(error => res.send({ success: false, error }))
+router.post('/get_requests', async function(req, res) {
+  try {
+    const { spotify_friends_token } = req.body
+    const session = await getSessionIfValid(spotify_friends_token)
+    if (session) {
+      const requests = await Contact.find({
+        target: session.userID,
+        status: 0
+      }).exec()
+      console.log(requests)
+      return res.send({ success: true, items: requests })
+    }
+    return res.send({
+      success: false,
+      error: 'token not valid ' + spotify_friends_token
+    })
+  } catch (error) {
+    res.send({ success: false, error })
+  }
 })
+
+router.post('/accept_request', async function(req, res) {
+  try {
+    const { spotify_friends_token, source } = req.body
+    const session = await getSessionIfValid(spotify_friends_token)
+    if (session) {
+      const contact = await updateContactStatus(session, source, 20)
+      return contact
+        ? res.send({ success: true, items: contact })
+        : res.send({ success: false, error: 'coulnd not update contact' })
+    }
+    return res.send({
+      success: false,
+      error: 'token not valid ' + spotify_friends_token
+    })
+  } catch (error) {
+    console.log('/accept_request', error)
+    res.send({ success: false, error })
+  }
+})
+router.post('/deny_request', async function(req, res) {
+  try {
+    const { spotify_friends_token, source } = req.body
+    const session = await getSessionIfValid(spotify_friends_token)
+    if (session) {
+      const contact = await updateContactStatus(session, source, 10)
+      return contact
+        ? res.send({ success: true, items: contact })
+        : res.send({ success: false, error: 'coulnd not update contact' })
+    }
+    return res.send({
+      success: false,
+      error: 'token not valid ' + spotify_friends_token
+    })
+  } catch (error) {
+    console.log('/deny_request', error)
+    res.send({ success: false, error })
+  }
+})
+
 module.exports = router

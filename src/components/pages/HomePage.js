@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Main from '../utils/Main'
 import ContactCurrSong from '../common/ContactCurrSong'
-import { postRequest } from '../../api/fetch'
+import { postRequest, putRequest } from '../../api/fetch'
 import { findReplace } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
 
@@ -9,6 +9,8 @@ const HomePage = props => {
   const [contacts, setContacts] = useState([])
   useEffect(() => {
     getContacts()
+    const blub = document.querySelectorAll('div')
+    console.log(blub)
   }, [])
 
   return (
@@ -30,7 +32,7 @@ const HomePage = props => {
 
   async function getContacts() {
     let mappedContacts = []
-    const res = await postRequest({}, '/user/contacts')
+    const res = await postRequest('/user/contacts')
     if (res.success && res.items) {
       for (const contact of res.items) {
         mappedContacts = [...mappedContacts, await contactMapCurrSong(contact)]
@@ -47,10 +49,9 @@ const HomePage = props => {
   }
   async function contactMapCurrSong(contact) {
     try {
-      const currSong = await postRequest(
-        { userID: contact.id },
-        '/user/curr_song'
-      )
+      const currSong = await postRequest('/user/curr_song', {
+        userID: contact.id
+      })
       if (currSong.success) {
         return { ...contact, currSong: currSong.items }
       } else {
@@ -85,7 +86,7 @@ const HomePage = props => {
           body.offset = { uri }
           body.position_ms = position_ms
         }
-        postRequest(body, '/user/start_playback').then(res => console.log(res))
+        putRequest('/user/start_playback', body).then(res => console.log(res))
       }
     }
   }

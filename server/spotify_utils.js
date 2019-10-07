@@ -12,7 +12,7 @@ const getCurrentSong = async userID => {
         user.currSong.next_fetch_spotify == null ||
         user.currSong.next_fetch_spotify < Date.now()
       ) {
-        console.log('getting new song ')
+        console.log('getting new song user: ' + userID)
 
         const validSession = await getValidSessionForUser(userID)
         if (validSession) {
@@ -31,7 +31,7 @@ const getCurrentSong = async userID => {
           }
         }
       }
-      console.log('getCurrentSong returning song from db')
+      console.log('getCurrentSong returning song from db user: ' + userID)
       return mapCurrSong(user.currSong)
     }
   } catch (err) {

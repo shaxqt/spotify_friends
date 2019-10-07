@@ -15,6 +15,38 @@ const getContacts = async session => {
     return null
   }
 }
+
+const deleteContact = (session, target) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOneAndDelete(
+      {
+        source: session.userID,
+        target: target
+      },
+      function(err, contact) {
+        if (err) {
+          resolve(false)
+        } else {
+          resolve(true)
+        }
+      }
+    )
+  })
+}
+
+const createContact = async (session, target) => {
+  try {
+    const contact = new Contact()
+    contact.source = session.userID
+    contact.target = target
+    contact.message = message ? message : ''
+    const newContact = await contact.save()
+    return newContact != null ? newContact : null
+  } catch (err) {
+    console.log('createContact', err)
+    return null
+  }
+}
 async function contactMapUserInfo(contact, userID) {
   try {
     // contact points to two users, map user who is not sending the request
@@ -53,4 +85,25 @@ function findContacts(userID) {
   })
 }
 
-module.exports = { getContacts }
+const updateContactStatus = (session, source, status) => {
+  return new Promise((resolve, reject) => {
+    Contact.findOneAndUpdate(
+      { source: source, target: session.userID },
+      { status },
+      function(err, contact) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(contact)
+        }
+      }
+    )
+  })
+}
+
+module.exports = {
+  getContacts,
+  createContact,
+  deleteContact,
+  updateContactStatus
+}
