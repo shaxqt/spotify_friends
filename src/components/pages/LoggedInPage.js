@@ -15,9 +15,12 @@ export default function LoggedInPage(props) {
         index={slideIndex}
       >
         <ContactPage />
-        <HomePage />
+        <HomePage onNoContacts={setContactPageActive} />
       </SwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>
   )
+  function setContactPageActive() {
+    setSlideIndex(0)
+  }
 }

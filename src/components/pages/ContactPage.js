@@ -93,7 +93,7 @@ export default function ContactPage(props) {
   function searchUser() {
     const url = '/user/get_user'
     const body = { query_string: search }
-    postRequest(body, url)
+    postRequest(url, body)
       .then(res => {
         if (res.success) {
           setSearchResults(
@@ -125,7 +125,7 @@ export default function ContactPage(props) {
   }
 
   function getContactRequests() {
-    postRequest({}, '/user/get_requests')
+    postRequest('/user/get_requests')
       .then(res => {
         if (res.success) {
           setContactRequests(res.items)
@@ -137,7 +137,7 @@ export default function ContactPage(props) {
     const url = create ? '/user/create_contact' : '/user/retract_contact'
     const newContactInfo = create ? 'request sent' : 'request retracted'
     return () => {
-      postRequest({ target: user.id }, url)
+      postRequest(url, { target: user.id })
         .then(res => {
           if (res.success) {
             setSearchResults(
@@ -157,7 +157,7 @@ export default function ContactPage(props) {
     const url = accept ? '/user/accept_request' : '/user/deny_request'
     const body = { source: request.source }
     return () => {
-      postRequest(body, url)
+      postRequest(url, body)
         .then(res => {
           if (res.success) {
             setContactRequests(findRemove(contactRequests, request))

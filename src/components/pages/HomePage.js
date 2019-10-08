@@ -5,12 +5,14 @@ import { postRequest, putRequest } from '../../api/fetch'
 import { findReplace } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
 
-const HomePage = props => {
+const HomePage = ({ onNoContacts }) => {
   const [contacts, setContacts] = useState([])
   useEffect(() => {
-    getContacts()
-    const blub = document.querySelectorAll('div')
-    console.log(blub)
+    getContacts().then(contacts => {
+      if (Array.isArray(contacts) && contacts.length < 0) {
+        onNoContacts()
+      }
+    })
   }, [])
 
   return (
@@ -20,14 +22,17 @@ const HomePage = props => {
   )
 
   function renderContacts() {
-    return contacts.map(contact => (
-      <ContactCurrSong
-        key={contact.id}
-        contact={contact}
-        onHeaderClick={() => updateContactsSong(contact)}
-        onPlay={getHandleOnPlay(contact)}
-      />
-    ))
+    if (contacts.length > 0) {
+      return contacts.map(contact => (
+        <ContactCurrSong
+          key={contact.id}
+          contact={contact}
+          onHeaderClick={() => updateContactsSong(contact)}
+          onPlay={getHandleOnPlay(contact)}
+        />
+      ))
+    }
+    return <p>render sample card here</p>
   }
 
   async function getContacts() {
@@ -91,5 +96,4 @@ const HomePage = props => {
     }
   }
 }
-
 export default HomePage
