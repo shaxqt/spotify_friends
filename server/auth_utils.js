@@ -23,7 +23,7 @@ const getSessionIfValid = async (token, checkSpotifyToken = false) => {
 }
 const handleUserLogin = async (access_token, refresh_token) => {
   try {
-    body = await getSpotifyRequest(access_token)
+    const body = await getSpotifyRequest(access_token)
     if (body && body.id) {
       let user = await User.findOne({ id: sanitize(body.id) }).exec()
       if (!user) {

@@ -26,8 +26,6 @@ export default function UserSearchResults({
     const sendContactRequest = user.isAddButtonActive
     try {
       await createOrRetractContactRequest(user, sendContactRequest)
-      console.log(typeof onHandleSearchResult)
-      console.log(user, sendContactRequest)
       onHandleSearchResult(user, sendContactRequest)
     } catch (err) {
       console.log(err)
