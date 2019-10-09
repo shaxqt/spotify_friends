@@ -1,28 +1,27 @@
 import React from 'react'
 import Main from '../utils/Main'
-import ContactCurrSong from '../common/ContactCurrSong'
+import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
 import GridStyled from '../utils/GridStyled'
 
-const HomePage = ({ contacts }) => {
+export default function FriendsPage({ friends }) {
   return (
     <Main>
-      <GridStyled gap="20px">{renderContacts()}</GridStyled>
+      <GridStyled gap="20px">
+        {friends.length > 0 ? (
+          friends.map(friend => (
+            <FriendsCurrSong
+              key={friend.id}
+              contact={friend}
+              onPlay={getHandleOnPlay(friend)}
+            />
+          ))
+        ) : (
+          <p>no friends ☹️</p>
+        )}
+      </GridStyled>
     </Main>
   )
-
-  function renderContacts() {
-    if (contacts.length > 0) {
-      return contacts.map(contact => (
-        <ContactCurrSong
-          key={contact.id}
-          contact={contact}
-          onPlay={getHandleOnPlay(contact)}
-        />
-      ))
-    }
-    return <p>render sample card here</p>
-  }
 
   function getHandleOnPlay(contact) {
     return _ => {
@@ -54,4 +53,3 @@ const HomePage = ({ contacts }) => {
     }
   }
 }
-export default HomePage

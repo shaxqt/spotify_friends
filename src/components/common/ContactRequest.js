@@ -5,12 +5,21 @@ import PropTypes from 'prop-types'
 import Button from '../form/Button'
 
 ContactRequest.propTypes = {
-  display_name: PropTypes.string,
+  display_name: PropTypes.string.isRequired,
   onAccept: PropTypes.func.isRequired,
   onDeny: PropTypes.func.isRequired
 }
 
 export default function ContactRequest({ display_name, onAccept, onDeny }) {
+  const handleOnAccept = event => {
+    event.preventDefault()
+    onAccept()
+  }
+  const handleOnDeny = event => {
+    event.preventDefault()
+    onDeny()
+  }
+
   return (
     <ContactRequestStyled>
       <GridStyled gap="20px">
@@ -22,15 +31,6 @@ export default function ContactRequest({ display_name, onAccept, onDeny }) {
       </GridStyled>
     </ContactRequestStyled>
   )
-
-  function handleOnAccept(event) {
-    event.preventDefault()
-    onAccept()
-  }
-  function handleOnDeny(event) {
-    event.preventDefault()
-    onDeny()
-  }
 }
 
 const ContactRequestStyled = styled.section`

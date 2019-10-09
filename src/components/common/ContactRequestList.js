@@ -1,10 +1,21 @@
 import React from 'react'
 import SectionHeaderStyled from '../utils/SectionHeaderStyled'
-import ContactRequest from '../common/ContactRequest'
+import ContactRequest from './ContactRequest'
 import { acceptOrDenyContactRequest } from '../../api/api'
 import GridStyled from '../utils/GridStyled'
 
-export default ({ contactRequests, onHandleContactRequest }) => {
+export default function ContactRequestList({
+  contactRequests,
+  onHandleContactRequest
+}) {
+  const handleRequestInteract = async (request, accept = true) => {
+    try {
+      await acceptOrDenyContactRequest(request, accept)
+      onHandleContactRequest(request, accept)
+    } catch (err) {
+      console.log(err)
+    }
+  }
   return (
     <GridStyled gap="20px">
       {contactRequests.length > 0 && (
@@ -15,18 +26,10 @@ export default ({ contactRequests, onHandleContactRequest }) => {
           <ContactRequest
             key={request.source}
             display_name={request.display_name}
-            onAccept={handleRequestInteract(request)}
-            onDeny={handleRequestInteract(request, false)}
+            onAccept={_ => handleRequestInteract(request)}
+            onDeny={_ => handleRequestInteract(request, false)}
           />
         ))}
     </GridStyled>
   )
-  async function handleRequestInteract(request, accept = true) {
-    try {
-      acceptOrDenyContactRequest(request, accept)
-      onHandleContactRequest(request)
-    } catch (err) {
-      console.log(err)
-    }
-  }
 }

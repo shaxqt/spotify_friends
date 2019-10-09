@@ -4,11 +4,11 @@ import Button from '../form/Button'
 import Form from '../form/Form'
 import { findRemove, findReplace } from '../../utils/utils'
 import Main from '../utils/Main'
-import { searchUser } from '../../api/api'
-import UserSearchResult from '../common/UserSearchResults'
-import UserRequests from '../common/UserRequests'
+import { searchUser, getContactRequests } from '../../api/api'
+import UserSearchResults from '../common/UserSearchResults'
+import ContactRequestList from '../common/ContactRequestList'
 
-export default function ContactPage(props) {
+export default function ContactPage({ onRequestAccepted }) {
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState('')
@@ -20,6 +20,9 @@ export default function ContactPage(props) {
     },
     [query]
   )
+  useEffect(_ => {
+    getContactRequests().then(setContactRequests)
+  }, [])
 
   return (
     <Main>
@@ -32,12 +35,12 @@ export default function ContactPage(props) {
         <Button text="search" />
       </Form>
 
-      <UserSearchResult
-        searchResult={searchResults}
+      <UserSearchResults
+        searchResults={searchResults}
         onHandleSearchResult={updateSearchResult}
         query={query}
       />
-      <UserRequests
+      <ContactRequestList
         contactRequests={contactRequests}
         onHandleContactRequest={onHandleContactRequest}
       />
@@ -46,7 +49,6 @@ export default function ContactPage(props) {
 
   function updateSearchResult(user, create) {
     const newContactInfo = create ? 'request sent' : 'request retracted'
-    console.log(user, create)
     setSearchResults(
       findReplace(searchResults, user, {
         ...user,
@@ -56,7 +58,7 @@ export default function ContactPage(props) {
       })
     )
   }
-  function onHandleContactRequest(request) {
+  function onHandleContactRequest(request, accept = true) {
     // remove from contact-requests
     setContactRequests(findRemove(contactRequests, request))
     // update message shown in searc-results
@@ -68,10 +70,11 @@ export default function ContactPage(props) {
         setSearchResults(
           findReplace(searchResults, handledContact, {
             ...handledContact,
-            contactInfo: 'request accepted'
+            contactInfo: accept ? 'request accepted' : 'request denied'
           })
         )
       }
     }
+    accept && onRequestAccepted() // updates friends page
   }
 }

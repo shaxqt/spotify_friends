@@ -5,7 +5,7 @@ const putRequest = (url, body) => {
   return request('PUT', body, url)
 }
 
-const request = (method = 'GET', body, url) => {
+function request(method = 'GET', body, url) {
   return new Promise((resolve, reject) => {
     const token = localStorage.getItem('spotify_friends_token')
     if (!token) {

@@ -82,7 +82,6 @@ router.post('/deny_request', async function(req, res) {
 
 async function handleRequest(req, res, accept = true) {
   withValidSession(req, res, async session => {
-    throw 9
     const { source } = req.body
     const contact = await acceptOrDenyContact(session, source, accept)
     return contact

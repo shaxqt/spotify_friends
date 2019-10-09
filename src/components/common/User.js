@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
 import PropTypes from 'prop-types'
-import { redirectTo } from '@reach/router'
 
 User.propTypes = {
   display_name: PropTypes.string.isRequired,
@@ -19,6 +18,13 @@ export default function User({
   isRetractButtonActive,
   contactInfo
 }) {
+  const buttonClassName = isAddButtonActive
+    ? 'fa fa-user-plus'
+    : 'fa fa-user-times'
+  const handleOnClick = event => {
+    event.preventDefault()
+    onClick()
+  }
   return (
     <UserStyled isAddButtonActive={isAddButtonActive}>
       <GridStyled
@@ -27,27 +33,16 @@ export default function User({
         templateColumns="1fr 50px"
         alignItems="center"
       >
-        <div style={{ minHeight: '50px' }}>
+        <div>
           <h2>{display_name}</h2>
           <small>{contactInfo && contactInfo}</small>
         </div>
-        {renderButton()}
+        {(isAddButtonActive || isRetractButtonActive) && (
+          <i onClick={handleOnClick} className={buttonClassName}></i>
+        )}
       </GridStyled>
     </UserStyled>
   )
-  function renderButton() {
-    if (isAddButtonActive) {
-      return <i onClick={handleOnClick} className="fa fa-user-plus"></i>
-    } else if (isRetractButtonActive) {
-      return <i onClick={handleOnClick} className="fa fa-user-times"></i>
-    } else {
-      return <i></i>
-    }
-  }
-  function handleOnClick(event) {
-    event.preventDefault()
-    onClick()
-  }
 }
 
 const UserStyled = styled.section`

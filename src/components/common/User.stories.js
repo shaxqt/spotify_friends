@@ -1,15 +1,10 @@
 import React from 'react'
 import { action } from '@storybook/addon-actions'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, text, boolean } from '@storybook/addon-knobs/react'
+import { text, boolean } from '@storybook/addon-knobs/react'
 import User from './User'
-import Wrapper from '../utils/StoryWrapper'
-import { withInfo } from '@storybook/addon-info'
 
 storiesOf('User', module)
-  .addDecorator(withInfo)
-  .addDecorator(withKnobs)
-  .addDecorator(Wrapper)
   .add('default', () => (
     <User
       display_name={text('display_name', 'Philip Loesch')}

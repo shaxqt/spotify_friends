@@ -31,7 +31,7 @@ export const createOrRetractContactRequest = (user, create = true) => {
     try {
       const url = create ? '/user/create_contact' : '/user/retract_contact'
       const res = await postRequest(url, { target: user.id })
-      if (res.succes) {
+      if (res.success) {
         resolve(res)
       } else {
         reject(res)
@@ -41,19 +41,54 @@ export const createOrRetractContactRequest = (user, create = true) => {
     }
   })
 }
+export const getContactRequests = _ => {
+  return new Promise(async (resolve, reject) => {
+    const res = await postRequest('/user/get_requests')
+    console.log(res)
+    if (res.success) {
+      resolve(res.items)
+    } else {
+      reject(res)
+    }
+  })
+}
 export const acceptOrDenyContactRequest = (request, accept = true) => {
   return new Promise(async (resolve, reject) => {
     const url = accept ? '/user/accept_request' : '/user/deny_request'
     const body = { source: request.source }
     const res = await postRequest(url, body)
-    if (res.succes) {
+    if (res.success) {
       resolve(res)
     } else {
       reject(res)
     }
   })
 }
-
+export const getFriends = _ => {
+  return new Promise(async (resolve, reject) => {
+    const res = await postRequest('/user/contacts')
+    if (res.success) {
+      const contacts = res.items
+      contactsSortByTimestamp(contacts)
+      resolve(contacts)
+    } else {
+      reject(res)
+    }
+  })
+}
+function contactsSortByTimestamp(contacts) {
+  contacts.sort((a, b) => {
+    if (a.currSong) {
+      if (b.currSong) {
+        return a.currSong.timestamp - b.currSong.timestamp
+      } else {
+        return -1
+      }
+    } else {
+      return 1
+    }
+  })
+}
 function getContactInfo(user) {
   let contactInfo = '',
     isAddButtonActive = false,
