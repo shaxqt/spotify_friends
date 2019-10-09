@@ -6,11 +6,7 @@ const LoginPage = props => {
     <Main>
       <Button
         onClick={() => {
-          window.location =
-            window.location.protocol +
-            '//' +
-            window.location.hostname +
-            ':3333/auth/login'
+          window.location = 'http://localhost:3333/auth/login'
         }}
         text="login"
       />

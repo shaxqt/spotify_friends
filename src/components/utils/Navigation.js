@@ -8,10 +8,6 @@ export default function Navigtaion({ slideIndex, onClick }) {
     <i className="fa fa-users"></i>
     /*<i className="fa fa-cogs"></i>*/
   ]
-  useEffect(() => {
-    console.log('useEffect', slideIndex)
-  }, [slideIndex])
-
   return (
     <NavStyled autoFlow="column" as="nav">
       {withNavButtonsStyled(buttons)}
@@ -27,7 +23,6 @@ export default function Navigtaion({ slideIndex, onClick }) {
         justifyContent="center"
         as="button"
         onClick={() => {
-          console.log('hi', index, slideIndex)
           onClick(index)
         }}
       >

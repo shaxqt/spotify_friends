@@ -1,13 +1,15 @@
 import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyle = createGlobalStyle`
-*, *:before, *:after {
-  box-sizing: border-box;
-}
+    *, *::before, *::after {
+    box-sizing: border-box;
+    }
     body {
+        margin: 0;
         padding: 0;
         background-color: #222;
         color: #eee;
+        font-family: 'Roboto', sans-serif;
     }
     #root {
         position: absolute;
@@ -15,13 +17,9 @@ const GlobalStyle = createGlobalStyle`
         right: 0;
         bottom: 0;
         left: 0;
-        font-family: 'Roboto', sans-serif;
-        color: #eee;
+        -color: #eee;
         display: grid;
         grid-auto-rows: auto 45px;
-    }
-    h1, h2, h3, h4, h5, p {
-        margin: 0;
     }
 `
 

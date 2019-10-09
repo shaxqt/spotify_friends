@@ -21,5 +21,4 @@ server.use(cookieParser())
 server.set('json spaces', 2)
 
 server.use('/auth', require('./routes/auth'))
-server.use('/v1', require('./routes/api'))
 server.use('/user', require('./routes/user'))

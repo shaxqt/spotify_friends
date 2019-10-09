@@ -44,7 +44,8 @@ const UnderlineStyled = styled.span`
     transform: scaleX(0);
     transition: transform 150ms ease-in-out;
   }
-  &:hover:after {
+  &:hover:after,
+  *:focus > &:after {
     transform: scaleX(1);
   }
 `
