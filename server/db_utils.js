@@ -86,12 +86,10 @@ const userUpdateDisplayName = async (session, display_name) => {
   if (!display_name || display_name.length < 3) {
     throw 'display_name to short'
   }
-
   const user = await User.findOneAndUpdate(
     { id: session.userID },
     { display_name }
   ).exec()
-  console.log(user)
   return user ? user : null
 }
 
