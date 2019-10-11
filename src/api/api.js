@@ -56,7 +56,6 @@ export const createOrRetractContactRequest = (user, create = true) => {
 export const getContactRequests = _ => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_requests')
-    console.log(res)
     if (res.success) {
       resolve(res.items)
     } else {

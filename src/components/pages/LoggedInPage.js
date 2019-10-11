@@ -31,7 +31,7 @@ export default function LoggedInPage(props) {
       >
         <ContactPage onRequestAccepted={refreshContacts} />
         <FriendsPage friends={friends} isLoading={loadingFriends} />
-        <SettingsPage />
+        <SettingsPage slideIndex={slideIndex} />
       </SwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>

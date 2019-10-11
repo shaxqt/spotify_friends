@@ -4,7 +4,7 @@ import { getCurrentUser, updateDisplayName } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
 
-export default function SettingsPage() {
+export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(_ => {
@@ -16,7 +16,6 @@ export default function SettingsPage() {
   const onSubmitDisplayName = async display_name => {
     try {
       const newDisplayName = await updateDisplayName(display_name)
-      console.log('got new displayname from db: ' + newDisplayName)
       setCurrentUser({ ...currentUser, display_name: newDisplayName })
     } catch (err) {
       console.log(err)
@@ -32,6 +31,7 @@ export default function SettingsPage() {
               label="display name"
               value={currentUser.display_name}
               onSubmit={onSubmitDisplayName}
+              isEditable={slideIndex === 2}
             />
             <small>
               your username: <strong>{currentUser.id}</strong>

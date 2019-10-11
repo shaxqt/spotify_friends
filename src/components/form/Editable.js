@@ -11,7 +11,13 @@ Editable.propTypes = {
 Editable.defaultProps = {
   type: 'text'
 }
-export default function Editable({ value, onSubmit, label, type = 'text' }) {
+export default function Editable({
+  value,
+  onSubmit,
+  label,
+  isEditable,
+  type = 'text'
+}) {
   const [localValue, setLocalValue] = useState(value)
   const [isEditMode, setIsEditMode] = useState(false)
   const textInput = useRef()
@@ -21,9 +27,17 @@ export default function Editable({ value, onSubmit, label, type = 'text' }) {
       if (isEditMode) {
         textInput.current.focus()
         textInput.current.select()
+      } else {
+        textInput.current.setSelectionRange(0, 0)
       }
     },
     [isEditMode]
+  )
+  useEffect(
+    _ => {
+      if (!isEditable) handleCancel()
+    },
+    [isEditable]
   )
 
   const handleInputChange = event => setLocalValue(event.target.value)
@@ -81,6 +95,9 @@ const EditableStyled = styled.div`
     font-size: 25px;
     margin-left: 15px;
   }
+  &:focus-within {
+    background-color: #666;
+  }
   input {
     flex-grow: 1;
     color: #fff;
@@ -91,9 +108,7 @@ const EditableStyled = styled.div`
     font-size: 1rem;
     background-color: transparent;
     caret-color: rgb(30, 215, 97);
-    &:focus {
-      ${({ isEditMode }) =>
-        isEditMode && 'border-bottom: 1px solid rgb(30, 215, 97);'}
-    }
+    ${({ isEditMode }) =>
+      isEditMode && 'border-bottom: 1px solid rgb(30, 215, 97);'}
   }
 `
