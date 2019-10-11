@@ -8,7 +8,9 @@ const {
   createContact,
   deleteContact,
   acceptOrDenyContact,
-  searchUsersByDisplayName
+  searchUsersByDisplayName,
+  userUpdateDisplayName,
+  getMe
 } = require('../db_utils')
 
 router.post('/contacts', async function(req, res) {
@@ -73,6 +75,24 @@ router.post('/get_requests', async function(req, res) {
   })
 })
 
+router.post('/get_me', async function(req, res) {
+  withValidSession(req, res, async session => {
+    const me = await getMe(session)
+    return me
+      ? res.send({ success: true, item: me })
+      : res.send({ success: false })
+  })
+})
+router.post('/update_display_name', async function(req, res) {
+  withValidSession(req, res, async session => {
+    const { display_name } = req.body
+    const user = await userUpdateDisplayName(session, display_name)
+    return user
+      ? res.send({ success: true, display_name })
+      : res.send({ success: false })
+  })
+})
+
 router.post('/accept_request', async function(req, res) {
   await handleRequest(req, res, true)
 })
@@ -94,11 +114,7 @@ async function withValidSession(req, res, callback) {
     const { spotify_friends_token } = req.body
     const session = await getSessionIfValid(spotify_friends_token)
     if (session) {
-      /*  try { */
       await callback(session)
-      /* } catch (error) {
-        res.send({ success: false, error })
-      } */
     } else {
       res.send({
         success: false,

@@ -5,8 +5,8 @@ import GridStyled from './GridStyled'
 export default function Navigtaion({ slideIndex, onClick }) {
   const buttons = [
     <i className="fa fa-search"></i>,
-    <i className="fa fa-users"></i>
-    /*<i className="fa fa-cogs"></i>*/
+    <i className="fa fa-users"></i>,
+    <i className="fa fa-cogs"></i>
   ]
   return (
     <NavStyled autoFlow="column" as="nav">

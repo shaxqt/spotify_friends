@@ -4,25 +4,28 @@ import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
 import GridStyled from '../utils/GridStyled'
 
-export default function FriendsPage({ friends }) {
+export default function FriendsPage({ friends, isLoading }) {
   return (
     <Main>
       <GridStyled gap="20px">
-        {friends.length > 0 ? (
-          friends.map(friend => (
-            <FriendsCurrSong
-              key={friend.id}
-              contact={friend}
-              onPlay={getHandleOnPlay(friend)}
-            />
-          ))
-        ) : (
-          <p>no friends ☹️</p>
-        )}
+        {isLoading ? <p>loading friends...</p> : renderFriends()}
       </GridStyled>
     </Main>
   )
 
+  function renderFriends() {
+    return friends.length > 0 ? (
+      friends.map(friend => (
+        <FriendsCurrSong
+          key={friend.id}
+          contact={friend}
+          onPlay={getHandleOnPlay(friend)}
+        />
+      ))
+    ) : (
+      <p>no friends ☹️</p>
+    )
+  }
   function getHandleOnPlay(contact) {
     return _ => {
       if (contact.currSong) {

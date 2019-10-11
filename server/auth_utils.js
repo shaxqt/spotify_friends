@@ -28,13 +28,14 @@ const handleUserLogin = async (access_token, refresh_token) => {
       let user = await User.findOne({ id: sanitize(body.id) }).exec()
       if (!user) {
         user = new User()
+        user.id = body.id
         user.email = body.email
         user.href = body.href
-        user.id = body.id
+        user.display_name = body.display_name
       }
       if (user) {
+        // update product on user login (premium / free account)
         user.product = body.product
-        user.display_name = body.display_name
         user = await user.save()
 
         session = new UserSession()

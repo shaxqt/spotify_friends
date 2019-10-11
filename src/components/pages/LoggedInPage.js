@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react'
 import SwipeableViews from 'react-swipeable-views'
 import ContactPage from './ContactPage'
 import FriendsPage from './FriendsPage'
+import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
 
 export default function LoggedInPage(props) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
+  const [loadingFriends, setLoadingFriends] = useState(true)
 
   useEffect(_ => {
-    getFriends().then(setFriends)
+    getFriends().then(friends => {
+      setFriends(friends)
+      setLoadingFriends(false)
+    })
   }, [])
 
   const refreshContacts = _ => {
@@ -25,7 +30,8 @@ export default function LoggedInPage(props) {
         index={slideIndex}
       >
         <ContactPage onRequestAccepted={refreshContacts} />
-        <FriendsPage friends={friends} />
+        <FriendsPage friends={friends} isLoading={loadingFriends} />
+        <SettingsPage slideIndex={slideIndex} />
       </SwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>

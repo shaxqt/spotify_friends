@@ -8,7 +8,10 @@ Button.propTypes = {
   type: PropTypes.string,
   color: PropTypes.string
 }
-
+Button.defaultProps = {
+  type: 'submit',
+  color: 'rgb(30, 215, 97)'
+}
 export default function Button({
   text,
   onClick,

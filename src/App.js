@@ -30,7 +30,7 @@ const App = props => {
   )
 
   function renderLoadingScreen() {
-    return <h3>loading...</h3>
+    return <h3>checking token...</h3>
   }
   function renderMainPage() {
     return isLoggedIn ? <LoggedInPage /> : <LoginPage />

@@ -21,6 +21,13 @@ const getRequests = async session => {
   }
 }
 
+const getMe = async session => {
+  const user = await User.findOne({ id: session.userID }).exec()
+  if (user) {
+    return { id: user.id, display_name: user.display_name, email: user.email }
+  }
+  return null
+}
 const searchUsersByDisplayName = async (session, query) => {
   try {
     let mappedUsers = []
@@ -80,6 +87,19 @@ const acceptOrDenyContact = (session, source, accept) => {
     )
   })
 }
+const userUpdateDisplayName = async (session, display_name) => {
+  display_name = sanitize(display_name)
+
+  if (!display_name || display_name.length < 3) {
+    throw 'display_name to short'
+  }
+  const user = await User.findOneAndUpdate(
+    { id: session.userID },
+    { display_name }
+  ).exec()
+  return user ? user : null
+}
+
 function getContactFromUsers(userID_1, userID_2) {
   return new Promise((resolve, reject) => {
     Contact.findOne(
@@ -195,5 +215,7 @@ module.exports = {
   deleteContact,
   acceptOrDenyContact,
   searchUsersByDisplayName,
-  getRequests
+  getRequests,
+  userUpdateDisplayName,
+  getMe
 }

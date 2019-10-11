@@ -10,6 +10,9 @@ Input.propTypes = {
   type: PropTypes.string,
   inputIcon: PropTypes.string
 }
+Input.defaultProps = {
+  type: 'text'
+}
 export default function Input({
   label,
   placeholder,
