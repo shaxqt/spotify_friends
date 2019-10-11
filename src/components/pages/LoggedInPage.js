@@ -9,9 +9,13 @@ import { getFriends } from '../../api/api'
 export default function LoggedInPage(props) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
+  const [loadingFriends, setLoadingFriends] = useState(true)
 
   useEffect(_ => {
-    getFriends().then(setFriends)
+    getFriends().then(friends => {
+      setFriends(friends)
+      setLoadingFriends(false)
+    })
   }, [])
 
   const refreshContacts = _ => {
@@ -26,7 +30,7 @@ export default function LoggedInPage(props) {
         index={slideIndex}
       >
         <ContactPage onRequestAccepted={refreshContacts} />
-        <FriendsPage friends={friends} />
+        <FriendsPage friends={friends} isLoading={loadingFriends} />
         <SettingsPage />
       </SwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />

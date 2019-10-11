@@ -1,5 +1,17 @@
 const { postRequest } = require('./fetch')
 
+export const getCurrentUser = _ => {
+  return new Promise(async (resolve, reject) => {
+    const res = await postRequest('/user/get_me')
+    res.success ? resolve(res.item) : reject(res)
+  })
+}
+export const updateDisplayName = display_name => {
+  return new Promise(async (resolve, reject) => {
+    const res = await postRequest('/user/update_display_name', { display_name })
+    res.success ? resolve(res.display_name) : reject(res)
+  })
+}
 export const searchUser = query => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_user', {

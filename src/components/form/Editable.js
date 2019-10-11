@@ -1,58 +1,75 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
-export default function Editable({ value, onSubmit, type = 'text' }) {
+Editable.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  type: PropTypes.string
+}
+Editable.defaultProps = {
+  type: 'text'
+}
+export default function Editable({ value, onSubmit, label, type = 'text' }) {
   const [localValue, setLocalValue] = useState(value)
   const [isEditMode, setIsEditMode] = useState(false)
   const textInput = useRef()
 
-  const focusTextInput = _ => {
-    textInput.current.focus()
-    textInput.current.select()
-  }
-  const onChange = e => setLocalValue(e.target.value)
-
   useEffect(
-    _ => (isEditMode && focusTextInput() /*: setLocalValue(value)) */),
+    _ => {
+      if (isEditMode) {
+        textInput.current.focus()
+        textInput.current.select()
+      }
+    },
     [isEditMode]
   )
-  const handleSubmit = event => {
-    event.preventDefault()
-    onSubmit(localValue)
+
+  const handleInputChange = event => setLocalValue(event.target.value)
+  const handleSubmit = e => {
+    e.preventDefault()
     setIsEditMode(false)
+    onSubmit(localValue)
   }
-  const handleCancel = _ => {
+  const handleCancel = e => {
     setLocalValue(value)
     setIsEditMode(false)
   }
-
   return (
     <form onSubmit={handleSubmit}>
-      <EditableStyled isEditMode={isEditMode}>
-        <input
-          spellCheck="false"
-          readOnly={!isEditMode}
-          ref={textInput}
-          value={localValue}
-          onChange={onChange}
-          type={type}
-        />
-        {isEditMode ? (
-          <div>
-            {localValue !== value && (
-              <i className="fa fa-check" onClick={handleSubmit}></i>
-            )}
-            <i className="fa fa-times" onClick={handleCancel}></i>
-          </div>
-        ) : (
-          <>
-            <i className="fa fa-edit" onClick={_ => setIsEditMode(true)}></i>
-          </>
-        )}
-      </EditableStyled>
+      <LabelStyled>
+        {label}
+        <EditableStyled isEditMode={isEditMode}>
+          <input
+            spellCheck="false"
+            readOnly={!isEditMode}
+            ref={textInput}
+            type={type}
+            value={localValue}
+            onChange={handleInputChange}
+          />
+          {isEditMode ? (
+            <div>
+              {localValue !== value && (
+                <i className="fa fa-check" onClick={handleSubmit}></i>
+              )}
+              <i className="fa fa-times" onClick={handleCancel}></i>
+            </div>
+          ) : (
+            <>
+              <i className="fa fa-edit" onClick={_ => setIsEditMode(true)}></i>
+            </>
+          )}
+        </EditableStyled>
+      </LabelStyled>
     </form>
   )
 }
+const LabelStyled = styled.label`
+  display: grid;
+  grid-gap: 5px;
+`
 const EditableStyled = styled.div`
   background-color: #444;
   display: flex;
