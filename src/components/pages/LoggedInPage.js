@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import SwipeableViews from 'react-swipeable-views'
 import ContactPage from './ContactPage'
 import FriendsPage from './FriendsPage'
+import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
 
@@ -26,6 +27,7 @@ export default function LoggedInPage(props) {
       >
         <ContactPage onRequestAccepted={refreshContacts} />
         <FriendsPage friends={friends} />
+        <SettingsPage />
       </SwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>
