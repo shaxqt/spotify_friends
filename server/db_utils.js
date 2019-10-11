@@ -21,6 +21,13 @@ const getRequests = async session => {
   }
 }
 
+const getMe = async session => {
+  const user = await User.findOne({ id: session.userID }).exec()
+  if (user) {
+    return { id: user.id, display_name: user.display_name, email: user.email }
+  }
+  return null
+}
 const searchUsersByDisplayName = async (session, query) => {
   try {
     let mappedUsers = []
@@ -209,5 +216,6 @@ module.exports = {
   acceptOrDenyContact,
   searchUsersByDisplayName,
   getRequests,
-  userUpdateDisplayName
+  userUpdateDisplayName,
+  getMe
 }

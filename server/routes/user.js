@@ -9,7 +9,8 @@ const {
   deleteContact,
   acceptOrDenyContact,
   searchUsersByDisplayName,
-  userUpdateDisplayName
+  userUpdateDisplayName,
+  getMe
 } = require('../db_utils')
 
 router.post('/contacts', async function(req, res) {
@@ -74,6 +75,14 @@ router.post('/get_requests', async function(req, res) {
   })
 })
 
+router.post('/get_me', async function(req, res) {
+  withValidSession(req, res, async session => {
+    const me = await getMe(session)
+    return me
+      ? res.send({ success: true, item: me })
+      : res.send({ success: false })
+  })
+})
 router.post('/update_display_name', async function(req, res) {
   withValidSession(req, res, async session => {
     const { display_name } = req.body
