@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
 import Editable from '../form/Editable'
 import { getCurrentUser, updateDisplayName } from '../../api/api'
 import Main from '../utils/Main'
@@ -21,26 +22,43 @@ export default function SettingsPage({ slideIndex }) {
       console.log(err)
     }
   }
+
   return (
     <Main>
       {currentUser ? (
-        <>
+        <GridStyled gap="20px">
           <h1>Settings</h1>
-          <GridStyled gap="20px">
-            <Editable
-              label="display name"
-              value={currentUser.display_name}
-              onSubmit={onSubmitDisplayName}
-              isEditable={slideIndex === 2}
-            />
-            <small>
-              your username: <strong>{currentUser.id}</strong>
-            </small>
-          </GridStyled>
-        </>
+          {renderImage(currentUser)}
+          <Editable
+            label="display name"
+            value={currentUser.display_name}
+            onSubmit={onSubmitDisplayName}
+            isEditable={slideIndex === 2}
+          />
+          <small>
+            your username: <strong>{currentUser.id}</strong>
+          </small>
+        </GridStyled>
       ) : (
         <p>could not load user data</p>
       )}
     </Main>
   )
+  function renderImage() {
+    if (
+      currentUser &&
+      currentUser.images.length > 0 &&
+      currentUser.images[0].url !== ''
+    ) {
+      return <UserImageStyled src={currentUser.images[0].url} alt="" />
+    }
+  }
 }
+
+const UserImageStyled = styled.img`
+  margin: auto auto;
+  object-fit: cover;
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+`
