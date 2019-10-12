@@ -39,7 +39,7 @@ export default function User({
       <GridStyled
         stretchHeight
         gap="15px"
-        templateColumns="100px 1fr 50px"
+        templateColumns="60px 1fr 50px"
         justifyContent="space-between"
         alignItems="center"
       >
@@ -71,8 +71,8 @@ const UserStyled = styled.section`
   }
   img {
     background-color: #333;
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     position: center;
     size: cover;
     border-radius: 50%;
