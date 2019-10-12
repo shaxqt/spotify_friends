@@ -82,10 +82,12 @@ export default function Editable({
 }
 const LabelStyled = styled.label`
   display: grid;
+  padding-left: 20px;
   grid-gap: 5px;
 `
 const EditableStyled = styled.div`
   background-color: #444;
+  margin-left: -20px;
   display: flex;
   align-items: center;
   justify-content: space-between;

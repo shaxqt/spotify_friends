@@ -40,10 +40,9 @@ export default function FriendsCurrSong({ contact, onPlay }) {
 }
 
 const FriendsCurrSongStyled = styled.section`
-  min-height: 450px;
-  height: 100%;
+  height: 450px;
+  width: 100%;
   max-width: 450px;
-  min-width: 250px;
   position: relative;
   overflow-x: scroll;
 `

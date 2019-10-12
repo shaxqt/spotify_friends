@@ -29,6 +29,7 @@ export default function FriendsPage({ friends, isLoading }) {
   function getHandleOnPlay(contact) {
     return _ => {
       if (contact.currSong) {
+        // TODO test setting item.uri in case of context_type is 'artist'
         const {
           context_uri,
           context_type,
