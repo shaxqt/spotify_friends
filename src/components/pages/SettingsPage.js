@@ -25,23 +25,25 @@ export default function SettingsPage({ slideIndex }) {
 
   return (
     <Main>
-      {currentUser ? (
-        <GridStyled gap="20px">
-          <h1>Settings</h1>
-          {renderImage(currentUser)}
-          <Editable
-            label="display name"
-            value={currentUser.display_name}
-            onSubmit={onSubmitDisplayName}
-            isEditable={slideIndex === 2}
-          />
-          <small>
-            your username: <strong>{currentUser.id}</strong>
-          </small>
-        </GridStyled>
-      ) : (
-        <p>could not load user data</p>
-      )}
+      <GridStyled gap="20px">
+        {currentUser ? (
+          <>
+            <h1>Settings</h1>
+            {renderImage(currentUser)}
+            <Editable
+              label="display name"
+              value={currentUser.display_name}
+              onSubmit={onSubmitDisplayName}
+              isEditable={slideIndex === 2}
+            />
+            <small>
+              your username: <strong>{currentUser.id}</strong>
+            </small>
+          </>
+        ) : (
+          <p>could not load user data</p>
+        )}
+      </GridStyled>
     </Main>
   )
   function renderImage() {

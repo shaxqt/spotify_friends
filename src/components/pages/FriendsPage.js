@@ -7,7 +7,7 @@ import GridStyled from '../utils/GridStyled'
 export default function FriendsPage({ friends, isLoading }) {
   return (
     <Main>
-      <GridStyled gap="20px">
+      <GridStyled gap="20px" justifyItems="center">
         {isLoading ? <p>loading friends...</p> : renderFriends()}
       </GridStyled>
     </Main>
