@@ -37,9 +37,7 @@ const searchUsersByDisplayName = async (session, query) => {
   try {
     let mappedUsers = []
     if (query.length > 0) {
-      console.log('query', query)
       const users = await findUsersByDisplayName(session, query)
-      console.log('gefundene Benutzer', users)
       for (const user of users) {
         mappedUsers = [
           ...mappedUsers,
@@ -47,7 +45,6 @@ const searchUsersByDisplayName = async (session, query) => {
         ]
       }
     }
-    console.log('HIER', mappedUsers)
     return mappedUsers
   } catch (error) {
     console.log('getUsers', err)
@@ -130,12 +127,10 @@ function findUsersByDisplayName(session, query) {
         id: { $ne: session.userID },
         display_name: new RegExp('.*' + sanitize(query) + '.*', 'i')
       },
-      'display_name href id images',
       function(err, users) {
         if (err) {
           reject(err)
         } else {
-          console.log(users)
           resolve(users)
         }
       }

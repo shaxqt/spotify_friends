@@ -9,7 +9,6 @@ const putSpotifyRequest = (spotify_token, url, body) => {
       body: body
     }
     requestLib.put(authOptions, function(error, res, body) {
-      console.log('putSpotifyRequest', authOptions.url, res.statusCode)
       if (!error) {
         if (res.statusCode == 204) resolve('command sent')
         else {
@@ -30,7 +29,6 @@ const postSpotifyRequest = (url = '/api/token', form, headers) => {
       headers: headers
     }
     requestLib.post(authOptions, function(error, res, body) {
-      console.log('postSpotifyRequest', authOptions.url, res.statusCode)
       if (!error && (res.statusCode == 200 || res.statusCode == 401)) {
         resolve(body)
       } else {
@@ -47,7 +45,6 @@ const getSpotifyRequest = (token, url = '/v1/me') => {
       json: true
     }
     requestLib.get(authOptions, function(error, res, body) {
-      console.log('getSpotifyRequest', authOptions.url, res.statusCode)
       if (
         !error &&
         (res.statusCode == 200 ||
