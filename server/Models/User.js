@@ -26,6 +26,7 @@ const User = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  images: { type: [Object] },
   currSong: { type: Object }
 })
 

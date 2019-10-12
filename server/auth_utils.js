@@ -36,6 +36,7 @@ const handleUserLogin = async (access_token, refresh_token) => {
       if (user) {
         // update product on user login (premium / free account)
         user.product = body.product
+        user.images = body.images
         user = await user.save()
 
         session = new UserSession()

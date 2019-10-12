@@ -13,6 +13,7 @@ User.propTypes = {
 
 export default function User({
   display_name,
+  images,
   onClick,
   isAddButtonActive,
   isRetractButtonActive,
@@ -25,6 +26,12 @@ export default function User({
     event.preventDefault()
     onClick()
   }
+  const getImage = _ => {
+    console.log(images)
+    if (Array.isArray(images) && images.length > 0) {
+      return images[0].url
+    }
+  }
   return (
     <UserStyled isAddButtonActive={isAddButtonActive}>
       <GridStyled
@@ -34,6 +41,7 @@ export default function User({
         alignItems="center"
       >
         <div>
+          <img src={getImage()} alt="" />
           <h2>{display_name}</h2>
           <small>{contactInfo && contactInfo}</small>
         </div>

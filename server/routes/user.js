@@ -17,7 +17,6 @@ router.post('/contacts', async function(req, res) {
   withValidSession(req, res, async session => {
     const contacts = await getContacts(session)
     for (const contact of contacts) {
-      console.log(contact.id)
       const currSong = await getCurrentSong(contact.id)
       contact.currSong = currSong
     }

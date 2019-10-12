@@ -38,6 +38,7 @@ export default function UserSearchResults({
         searchResults.map(userFound => (
           <User
             key={userFound.id}
+            images={userFound.images}
             display_name={userFound.display_name}
             isAddButtonActive={userFound.isAddButtonActive}
             isRetractButtonActive={userFound.isRetractButtonActive}

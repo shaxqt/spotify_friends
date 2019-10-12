@@ -24,7 +24,12 @@ const getRequests = async session => {
 const getMe = async session => {
   const user = await User.findOne({ id: session.userID }).exec()
   if (user) {
-    return { id: user.id, display_name: user.display_name, email: user.email }
+    return {
+      id: user.id,
+      display_name: user.display_name,
+      email: user.email,
+      images: user.images
+    }
   }
   return null
 }
@@ -32,7 +37,9 @@ const searchUsersByDisplayName = async (session, query) => {
   try {
     let mappedUsers = []
     if (query.length > 0) {
+      console.log('query', query)
       const users = await findUsersByDisplayName(session, query)
+      console.log('gefundene Benutzer', users)
       for (const user of users) {
         mappedUsers = [
           ...mappedUsers,
@@ -40,6 +47,7 @@ const searchUsersByDisplayName = async (session, query) => {
         ]
       }
     }
+    console.log('HIER', mappedUsers)
     return mappedUsers
   } catch (error) {
     console.log('getUsers', err)
@@ -122,11 +130,12 @@ function findUsersByDisplayName(session, query) {
         id: { $ne: session.userID },
         display_name: new RegExp('.*' + sanitize(query) + '.*', 'i')
       },
-      'display_name href id',
+      'display_name href id images',
       function(err, users) {
         if (err) {
           reject(err)
         } else {
+          console.log(users)
           resolve(users)
         }
       }
@@ -167,6 +176,7 @@ async function contactMapUserInfo(contact, userID) {
     if (userToMap) {
       return {
         ...contact._doc,
+        images: userToMap.images,
         id: userToMap.id,
         display_name: userToMap.display_name
       }
@@ -184,6 +194,7 @@ async function userMapContactInfo(user, userID) {
       return {
         id: user.id,
         display_name: user.display_name,
+        images: user.images,
         target: contact.target,
         source: contact.source,
         status: contact.status
@@ -191,6 +202,7 @@ async function userMapContactInfo(user, userID) {
     }
     return {
       id: user.id,
+      images: user.images,
       display_name: user.display_name
     }
   } catch (err) {
