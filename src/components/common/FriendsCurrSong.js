@@ -4,7 +4,7 @@ import FixedStyled from '../utils/FixedStyled'
 import PropTypes from 'prop-types'
 import BackgroundImageStyled from '../utils/BackgroundImageStyled'
 import GridStyled from '../utils/GridStyled'
-import moment from 'moment'
+import { getSongData } from '../../utils/utils'
 
 FriendsCurrSong.propType = {
   contact: PropTypes.objectOf('contact').isRequired,
@@ -50,52 +50,6 @@ export default function FriendsCurrSong({ friend, onPlay }) {
   )
 }
 
-function getSongData(friend) {
-  let display_name,
-    song_title,
-    song_arists,
-    song_image,
-    playing_type,
-    timeFetched
-  if (friend) {
-    timeFetched = getDateString(friend.currSong.timestamp)
-    display_name = friend.display_name
-    if (friend.currSong) {
-      if (friend.currSong.context) {
-        playing_type = friend.currSong.context.type
-        if (friend.currSong.context.type === 'album') {
-          playing_type = 'album'
-          if (friend.currSong.item.album.album_type === 'single') {
-            playing_type = 'single'
-          }
-          playing_type += ': ' + friend.currSong.item.album.name
-        }
-      }
-      if (friend.currSong.item) {
-        song_title = friend.currSong.item.name
-        song_arists = friend.currSong.item.artists
-          .map(artist => artist.name)
-          .join(', ')
-        if (friend.currSong.item.album.images.length > 0) {
-          song_image = friend.currSong.item.album.images[0].url
-        }
-      } else {
-        song_title = 'no song information ☹️'
-      }
-    }
-  }
-  function getDateString(timestamp) {
-    return moment(timestamp).fromNow()
-  }
-  return {
-    display_name,
-    song_image,
-    song_title,
-    song_arists,
-    playing_type,
-    timeFetched
-  }
-}
 const FriendsCurrSongStyled = styled.section`
   height: 450px;
   width: 100%;
