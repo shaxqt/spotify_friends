@@ -44,7 +44,6 @@ const FriendsCurrSongStyled = styled.section`
   width: 100%;
   max-width: 450px;
   position: relative;
-  overflow-x: scroll;
 `
 
 const ContentStyled = styled(FixedStyled)`
