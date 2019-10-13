@@ -8,37 +8,46 @@ FriendsCurrSong.propType = {
   contact: PropTypes.objectOf('contact').isRequired,
   onPlay: PropTypes.func
 }
+export default function FriendsCurrSong({ friend, onPlay }) {
+  const { display_name, song_image, song_title, song_arists } = getSongData(
+    friend
+  )
 
-export default function FriendsCurrSong({ contact, onPlay }) {
-  const title =
-    contact.currSong && contact.currSong.name
-      ? contact.currSong.name
-      : 'no song information ☹️'
-  const artists =
-    contact.currSong && Array.isArray(contact.currSong.artists)
-      ? contact.currSong.artists.join(', ')
-      : ''
-  const imageUrl =
-    contact.currSong && Array.isArray(contact.currSong.images)
-      ? contact.currSong.images[0].url
-      : ''
   return (
     <FriendsCurrSongStyled>
-      <BackgroundImageStyled img={imageUrl} />
+      <BackgroundImageStyled img={song_image} />
       <ContentStyled>
         <div>
-          <h2>{title}</h2>
-          <h4>{artists}</h4>
+          <h2>{song_title}</h2>
+          <h4>{song_arists}</h4>
         </div>
         <div className="bottom">
           <i onClick={onPlay} className="fa fa-play-circle"></i>
-          <h3>{contact.display_name}</h3>
+          <h3>{display_name}</h3>
         </div>
       </ContentStyled>
     </FriendsCurrSongStyled>
   )
 }
 
+function getSongData(friend) {
+  let display_name, song_title, song_arists, song_image
+  if (friend) {
+    display_name = friend.display_name
+    if (friend.currSong && friend.currSong.item) {
+      song_title = friend.currSong.item.name
+      song_arists = friend.currSong.item.artists
+        .map(artist => artist.name)
+        .join(', ')
+      if (friend.currSong.item.album.images.length > 0) {
+        song_image = friend.currSong.item.album.images[0].url
+      }
+    } else {
+      song_title = 'no song information ☹️'
+    }
+  }
+  return { display_name, song_image, song_title, song_arists }
+}
 const FriendsCurrSongStyled = styled.section`
   height: 450px;
   width: 100%;

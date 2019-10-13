@@ -18,7 +18,7 @@ export default function FriendsPage({ friends, isLoading }) {
       friends.map(friend => (
         <FriendsCurrSong
           key={friend.id}
-          contact={friend}
+          friend={friend}
           onPlay={getHandleOnPlay(friend)}
         />
       ))

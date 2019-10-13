@@ -12,7 +12,7 @@ const getCurrentSong = async userID => {
         user.currSong.next_fetch_spotify == null ||
         user.currSong.next_fetch_spotify < Date.now()
       ) {
-        console.log('getting new song user: ' + userID)
+        console.log('requesting currSong for user: ' + userID)
 
         const validSession = await getValidSessionForUser(userID)
         if (validSession) {
@@ -21,18 +21,23 @@ const getCurrentSong = async userID => {
             validSession.spotify_access_token,
             '/v1/me/player/currently-playing'
           )
-          if (res) {
+          // currently_playing_type can be 'ad' or 'unknown' -> dont save that to db
+          if (
+            res &&
+            (res.currently_playing_type === 'track' ||
+              res.currently_playing_type === 'episode')
+          ) {
             // return song from db for next 10 secounds
             res.next_fetch_spotify = Date.now() + 10000
             user.currSong = res
             const savedUser = await user.save()
-            console.log('returning song just fetched')
-            return mapCurrSong(savedUser.currSong)
+            console.log('returning updated song for user: ' + userID)
+            return savedUser.currSong
           }
         }
       }
-      console.log('getCurrentSong returning song from db user: ' + userID)
-      return mapCurrSong(user.currSong)
+      console.log('returning currSong from db for user: ' + userID)
+      return user.currSong
     }
   } catch (err) {
     console.log('getCurrSong err:', err)
@@ -40,7 +45,7 @@ const getCurrentSong = async userID => {
   }
 }
 
-function mapCurrSong(currSong) {
+/* function mapCurrSong(currSong) {
   if (
     currSong &&
     currSong.item &&
@@ -67,5 +72,5 @@ function mapCurrSong(currSong) {
   } else {
     return null
   }
-}
+} */
 module.exports = { getCurrentSong }
