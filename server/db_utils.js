@@ -186,20 +186,8 @@ async function contactMapUserInfo(contact, userID) {
     // contact points to two users, map user who is not sending the request
     const idToMap = contact.source === userID ? contact.target : contact.source
     const user = await User.findOne({ id: idToMap }).exec()
-    if (user) {
-      // return user image if friends or public
-      const usrImg =
-        user.isUserImagePublic || contact.status === 20 ? user.images : ''
-      return {
-        ...contact._doc,
-        images: usrImg,
-        id: user.id,
-        display_name: user.display_name,
-        fetchedCurrSong: user.fetchedCurrSong,
-        isUserImagePublic: user.isUserImagePublic
-      }
-    }
-    return null
+
+    return mapUserAndContact(user, contact._doc)
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
@@ -207,28 +195,8 @@ async function contactMapUserInfo(contact, userID) {
 }
 async function userMapContactInfo(user, userID) {
   try {
-    let userData = {
-      id: user.id,
-      display_name: user.display_name,
-      fetchedCurrSong: user.fetchedCurrSong,
-      isUserImagePublic: user.isUserImagePublic
-    }
-
     const contact = await getContactFromUserPair(user.id, userID)
-    if (contact) {
-      // return user image if friends or public
-      const usrImg =
-        user.isUserImagePublic || contact.status === 20 ? user.images : []
-      userData = {
-        images: usrImg,
-        ...userData,
-        status: contact.status,
-        target: contact.target,
-        source: contact.source
-      }
-    }
-
-    return userData
+    return mapUserAndContact(user, contact._doc)
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
@@ -236,19 +204,29 @@ async function userMapContactInfo(user, userID) {
 }
 
 function mapUserAndContact(user, contact) {
+  if (user == null) {
+    return null
+  }
+  const userData = {
+    id: user.id,
+    display_name: user.display_name
+  }
+  if (contact == null) {
+    return userData
+  }
   const fetchedCurrSong = contact.status === 20 ? user.fetchedCurrSong : ''
-  // return image when friends, its public, or if user send a request
-  const img =
+  const images =
     contact.status === 20 ||
     user.isUserImagePublic ||
-    (contact.status === 0 && contact.source === user.userID)
+    contact.source === user.id
       ? user.images
       : []
-  const mapped = {
-    id: user.id,
-    images: img,
-    display_name: user.display_name,
-    fetchedCurrSong
+
+  return {
+    ...userData,
+    images,
+    fetchedCurrSong,
+    ...contact
   }
 }
 

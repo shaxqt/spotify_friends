@@ -20,16 +20,10 @@ export const searchUser = query => {
     if (res.success) {
       resolve(
         res.items.map(userFound => {
-          const {
-            contactInfo,
-            isAddButtonActive,
-            isRetractButtonActive
-          } = getContactInfo(userFound)
+          const userInfo = getContactInfo(userFound)
           return {
             ...userFound,
-            contactInfo,
-            isAddButtonActive,
-            isRetractButtonActive
+            ...userInfo
           }
         })
       )
@@ -103,8 +97,9 @@ function contactsSortByTimestamp(contacts) {
 function getContactInfo(user) {
   let contactInfo = '',
     isAddButtonActive = false,
-    isRetractButtonActive = false
-  if (Object.hasOwnProperty('status')) {
+    isRetractButtonActive = false,
+    isAcceptButtonActive = false
+  if (user.hasOwnProperty('status')) {
     if (user.status === 0) {
       if (user.target === user.id) {
         contactInfo = 'contact already requestet'
@@ -124,6 +119,7 @@ function getContactInfo(user) {
       } else if (user.source === user.id) {
         contactInfo = 'you denied the request'
         isAddButtonActive = false
+        isAcceptButtonActive = true
       } else {
         contactInfo = ''
         isAddButtonActive = true
@@ -136,5 +132,10 @@ function getContactInfo(user) {
     contactInfo = ''
     isAddButtonActive = true
   }
-  return { contactInfo, isAddButtonActive, isRetractButtonActive }
+  return {
+    contactInfo,
+    isAddButtonActive,
+    isRetractButtonActive,
+    isAcceptButtonActive
+  }
 }

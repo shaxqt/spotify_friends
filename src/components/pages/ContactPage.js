@@ -47,16 +47,19 @@ export default function ContactPage({ onRequestAccepted }) {
     </Main>
   )
 
-  function updateSearchResult(user, create) {
-    const newContactInfo = create ? 'request sent' : 'request retracted'
+  function updateSearchResult(user, create, wasAccepted = false) {
+    let newContactInfo = create ? 'request sent' : 'request retracted'
+    newContactInfo = wasAccepted && 'request accepted'
     setSearchResults(
       findReplace(searchResults, user, {
         ...user,
         contactInfo: newContactInfo,
-        isAddButtonActive: !create,
-        isRetractButtonActive: create
+        isAddButtonActive: !create && !wasAccepted,
+        isRetractButtonActive: create && !wasAccepted,
+        isAcceptButtonActive: false
       })
     )
+    wasAccepted && onRequestAccepted() // updates friends page
   }
   function onHandleContactRequest(request, accept = true) {
     // remove from contact-requests

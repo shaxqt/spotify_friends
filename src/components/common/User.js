@@ -18,11 +18,13 @@ export default function User({
   onClick,
   isAddButtonActive,
   isRetractButtonActive,
+  isAcceptButtonActive,
   contactInfo
 }) {
-  const buttonClassName = isAddButtonActive
-    ? 'fa fa-user-plus'
-    : 'fa fa-user-times'
+  const buttonClassName =
+    isAddButtonActive || isAcceptButtonActive
+      ? 'fa fa-user-plus'
+      : 'fa fa-user-times'
   const handleOnClick = event => {
     event.preventDefault()
     onClick()
@@ -48,7 +50,9 @@ export default function User({
           <h2>{display_name}</h2>
           <small>{contactInfo && contactInfo}</small>
         </div>
-        {(isAddButtonActive || isRetractButtonActive) && (
+        {(isAddButtonActive ||
+          isRetractButtonActive ||
+          isAcceptButtonActive) && (
           <i onClick={handleOnClick} className={buttonClassName}></i>
         )}
       </GridStyled>
