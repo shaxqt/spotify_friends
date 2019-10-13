@@ -183,11 +183,14 @@ async function contactsMapUserInfo(contacts, userID) {
 }
 async function contactMapUserInfo(contact, userID) {
   try {
-    // contact points to two users, map user who is not sending the request
-    const idToMap = contact.source === userID ? contact.target : contact.source
-    const user = await User.findOne({ id: idToMap }).exec()
+    if (contact) {
+      // contact points to two users, map user who is not sending the request
+      const idToMap =
+        contact.source === userID ? contact.target : contact.source
+      const user = await User.findOne({ id: idToMap }).exec()
 
-    return mapUserAndContact(user, contact._doc)
+      return mapUserAndContact(user, contact._doc)
+    }
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
@@ -195,8 +198,10 @@ async function contactMapUserInfo(contact, userID) {
 }
 async function userMapContactInfo(user, userID) {
   try {
-    const contact = await getContactFromUserPair(user.id, userID)
-    return mapUserAndContact(user, contact._doc)
+    if (user) {
+      const contact = await getContactFromUserPair(user.id, userID)
+      return mapUserAndContact(user, contact)
+    }
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
@@ -207,15 +212,18 @@ function mapUserAndContact(user, contact) {
   if (user == null) {
     return null
   }
+  let images = user.isUserImagePublic ? user.images : []
   const userData = {
     id: user.id,
-    display_name: user.display_name
+    display_name: user.display_name,
+    images
   }
   if (contact == null) {
     return userData
   }
+  contact = contact.hasOwnProperty('_doc') ? contact._doc : contact
   const fetchedCurrSong = contact.status === 20 ? user.fetchedCurrSong : ''
-  const images =
+  images =
     contact.status === 20 ||
     user.isUserImagePublic ||
     contact.source === user.id
