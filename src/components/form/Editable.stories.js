@@ -9,7 +9,7 @@ storiesOf('Editable', module).add('default', () => (
     value={text('value', 'Hans Peter')}
     onSubmit={action('submit')}
     label={text('label', 'display name')}
-    isEditable={boolean('isEditable', true)}
-    type="text"
+    isEditable={true}
+    type={text('type', 'text')}
   />
 ))

@@ -1,24 +1,21 @@
 import React from 'react'
 import Button from '../form/Button'
 import Main from '../utils/Main'
-import GridStyled from '../utils/GridStyled'
-import styled from 'styled-components'
+import Form from '../form/Form'
+
 const LoginPage = props => {
   return (
-    <MainFullWidth>
-      <GridStyled>
+    <Main>
+      <Form paddingTop="200px">
         <Button
           onClick={() => {
             window.location = 'http://localhost:3333/auth/login'
           }}
           text="login"
         />
-      </GridStyled>
-    </MainFullWidth>
+      </Form>
+    </Main>
   )
 }
-const MainFullWidth = styled(Main)`
-  width: 100%;
-`
 
 export default LoginPage

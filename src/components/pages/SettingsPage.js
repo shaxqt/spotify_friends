@@ -4,6 +4,7 @@ import Editable from '../form/Editable'
 import { getCurrentUser, updateDisplayName } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
+import Checkbox from '../form/Checkbox'
 
 export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
@@ -23,10 +24,9 @@ export default function SettingsPage({ slideIndex }) {
 
   return (
     <Main>
-      <GridStyled gap="20px">
+      <GridStyled gap="30px">
         {currentUser ? (
           <>
-            <h1>Settings</h1>
             {renderImage(currentUser)}
             <Editable
               label="display name"
@@ -34,6 +34,11 @@ export default function SettingsPage({ slideIndex }) {
               onSubmit={onSubmitDisplayName}
               isEditable={slideIndex === 2}
             />
+            <Checkbox
+              label="Show profile picture"
+              info="This could make it easier for your friends to find you. Your friends can always see your picture"
+            />
+
             <small>
               your username: <strong>{currentUser.id}</strong>
             </small>

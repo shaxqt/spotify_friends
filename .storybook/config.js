@@ -6,7 +6,7 @@ import { withKnobs } from '@storybook/addon-knobs/react'
 
 const wrapper = storyFn => {
   return (
-    <div style={{ margin: '20px' }}>
+    <div style={{ margin: '15px', marginTop: '50px' }}>
       <GlobalStyle />
       {storyFn()}
     </div>

@@ -103,7 +103,7 @@ const EditableStyled = styled.div`
   &:focus-within {
     background-color: #666;
   }
-  .icons{
+  .icons {
     margin-top: -5px;
     margin-bottom: -5px;
   }
@@ -111,7 +111,7 @@ const EditableStyled = styled.div`
     display: inline-block;
     height: 20px;
     flex-grow: 1;
-    color: #fff;
+    color: #eee;
     margin: 0;
     padding: 0;
     border: none;
@@ -119,7 +119,7 @@ const EditableStyled = styled.div`
     font-size: 1rem;
     background-color: transparent;
     caret-color: rgb(30, 215, 97);
-    /* ${({ isEditMode }) =>
-      isEditMode && 'border-bottom: 1px solid rgb(30, 215, 97);'} */
+    ${({ isEditMode }) =>
+      isEditMode && 'border-bottom: 1px solid rgb(30, 215, 97);'}
   }
 `
