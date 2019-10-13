@@ -70,7 +70,6 @@ const UserStyled = styled.section`
     font-size: 40px;
   }
   img {
-    background-color: #333;
     width: 60px;
     height: 60px;
     position: center;
