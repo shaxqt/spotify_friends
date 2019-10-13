@@ -26,32 +26,23 @@ export default function FriendsPage({ friends, isLoading }) {
       <p>no friends ☹️</p>
     )
   }
-  function getHandleOnPlay(contact) {
+  function getHandleOnPlay(friend) {
     return _ => {
-      if (contact.currSong) {
-        // TODO test setting item.uri in case of context_type is 'artist'
-        const {
-          context_uri,
-          context_type,
-          currently_playing_type,
-          position_ms,
-          uri
-        } = contact.currSong
-        console.log(
-          context_uri,
-          context_type,
-          currently_playing_type,
-          position_ms,
-          uri
-        )
-        let body = { context_uri }
-        if (
-          (context_type === 'playlist' || context_type === 'album') &&
-          currently_playing_type === 'track'
-        ) {
-          body.offset = { uri }
-          body.position_ms = position_ms
+      if (friend.currSong) {
+        const body = {
+          position_ms: friend.currSong.progress_ms,
+          offset: { uri: friend.currSong.item.uri }
         }
+        // play album if user listens to artist
+        if (friend.currSong.context.type === 'artist') {
+          body.context_uri = friend.currSong.item.album.uri
+        } else {
+          // play context (playlist or album)
+          body.context_uri = friend.currSong.context.uri
+        }
+
+        console.log(body)
+
         putRequest('/user/start_playback', body).then(res => console.log(res))
       }
     }
