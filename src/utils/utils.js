@@ -23,7 +23,7 @@ export function getSongData(friend) {
     playing_type,
     timeFetched
   if (friend) {
-    timeFetched = moment(friend.currSong.timestamp)
+    timeFetched = moment(friend.currSong.timestamp).fromNow()
     display_name = friend.display_name
     if (friend.currSong) {
       if (friend.currSong.context) {
