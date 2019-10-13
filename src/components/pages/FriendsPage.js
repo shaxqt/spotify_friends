@@ -40,10 +40,7 @@ export default function FriendsPage({ friends, isLoading }) {
           // play context (playlist or album)
           body.context_uri = friend.currSong.context.uri
         }
-
-        console.log(body)
-
-        putRequest('/user/start_playback', body).then(res => console.log(res))
+        putRequest('/user/start_playback', body)
       }
     }
   }

@@ -28,7 +28,6 @@ const getOrVerifyToken = () => {
             .catch(err => reject(err))
         } else {
           // nothing in local storage -> nothing to verify
-          console.log('nothing to check in local storage')
           resolve(false)
         }
       }
@@ -44,10 +43,8 @@ function fetchAuth(query) {
         if (json.success) {
           localStorage.setItem('spotify_friends_token', json.token)
           resolve(true)
-          console.log('fetch /auth/callback resolve: true')
         } else {
           resolve(false)
-          console.log('fetch /auth/callback resolve: false')
         }
       })
       .catch(err => reject(err))

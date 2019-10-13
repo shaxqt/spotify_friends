@@ -9,9 +9,7 @@ export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(_ => {
-    getCurrentUser()
-      .then(setCurrentUser)
-      .catch(err => console.log('ERROR', err))
+    getCurrentUser().then(setCurrentUser)
   }, [])
 
   const onSubmitDisplayName = async display_name => {

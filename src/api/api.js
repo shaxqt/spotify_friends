@@ -18,7 +18,6 @@ export const searchUser = query => {
       query_string: query
     })
     if (res.success) {
-      console.log(res.items)
       resolve(
         res.items.map(userFound => {
           const {
