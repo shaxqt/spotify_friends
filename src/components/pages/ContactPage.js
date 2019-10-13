@@ -49,7 +49,7 @@ export default function ContactPage({ onRequestAccepted }) {
 
   function updateSearchResult(user, create, wasAccepted = false) {
     let newContactInfo = create ? 'request sent' : 'request retracted'
-    newContactInfo = wasAccepted && 'request accepted'
+    newContactInfo = wasAccepted ? 'request accepted' : newContactInfo
     setSearchResults(
       findReplace(searchResults, user, {
         ...user,
