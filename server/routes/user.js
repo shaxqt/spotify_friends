@@ -29,6 +29,7 @@ router.post('/contacts', async function(req, res) {
 router.put('/start_playback', async function(req, res) {
   withValidSession(req, res, async session => {
     const { context_uri, position_ms, offset } = req.body
+    console.log(context_uri, position_ms, offset)
     response = await putSpotifyRequest(
       session.spotify_access_token,
       '/v1/me/player/play',

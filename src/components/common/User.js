@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 
 User.propTypes = {
   display_name: PropTypes.string.isRequired,
+  images: PropTypes.arrayOf(Object),
   onClick: PropTypes.func,
   isAddButtonActive: PropTypes.bool,
   isRetractButtonActive: PropTypes.bool,
@@ -26,22 +27,24 @@ export default function User({
     event.preventDefault()
     onClick()
   }
-  const getImage = _ => {
-    console.log(images)
-    if (Array.isArray(images) && images.length > 0) {
-      return images[0].url
+  const renderImage = _ => {
+    if (Array.isArray(images) && images.length > 0 && images[0].url !== '') {
+      return <img src={images[0].url} alt="" />
+    } else {
+      return <div></div>
     }
   }
   return (
     <UserStyled isAddButtonActive={isAddButtonActive}>
       <GridStyled
         stretchHeight
-        gap="10px"
-        templateColumns="1fr 50px"
+        gap="15px"
+        templateColumns="60px 1fr 50px"
+        justifyContent="space-between"
         alignItems="center"
       >
+        {renderImage()}
         <div>
-          <img src={getImage()} alt="" />
           <h2>{display_name}</h2>
           <small>{contactInfo && contactInfo}</small>
         </div>
@@ -58,11 +61,19 @@ const UserStyled = styled.section`
   border-radius: 15px;
   background-color: #333;
   & h2 {
+    font-size: 20px;
     margin: 0;
   }
   & i {
     color: ${({ isAddButtonActive }) =>
       isAddButtonActive ? 'rgb(30, 215, 97)' : '#777'};
     font-size: 40px;
+  }
+  img {
+    width: 60px;
+    height: 60px;
+    position: center;
+    size: cover;
+    border-radius: 50%;
   }
 `

@@ -26,6 +26,10 @@ const User = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  fetchedCurrSong: {
+    type: Number,
+    default: 0
+  },
   images: { type: [Object] },
   currSong: { type: Object }
 })

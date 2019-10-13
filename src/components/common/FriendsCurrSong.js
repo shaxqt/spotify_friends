@@ -3,36 +3,47 @@ import styled from 'styled-components'
 import FixedStyled from '../utils/FixedStyled'
 import PropTypes from 'prop-types'
 import BackgroundImageStyled from '../utils/BackgroundImageStyled'
+import GridStyled from '../utils/GridStyled'
+import { getSongData } from '../../utils/utils'
 
 FriendsCurrSong.propType = {
   contact: PropTypes.objectOf('contact').isRequired,
   onPlay: PropTypes.func
 }
+export default function FriendsCurrSong({ friend, onPlay }) {
+  const {
+    display_name,
+    song_image,
+    song_title,
+    song_arists,
+    playing_type,
+    timeFetched
+  } = getSongData(friend)
 
-export default function FriendsCurrSong({ contact, onPlay }) {
-  const title =
-    contact.currSong && contact.currSong.name
-      ? contact.currSong.name
-      : 'no song information ☹️'
-  const artists =
-    contact.currSong && Array.isArray(contact.currSong.artists)
-      ? contact.currSong.artists.join(', ')
-      : ''
-  const imageUrl =
-    contact.currSong && Array.isArray(contact.currSong.images)
-      ? contact.currSong.images[0].url
-      : ''
   return (
     <FriendsCurrSongStyled>
-      <BackgroundImageStyled img={imageUrl} />
+      <BackgroundImageStyled img={song_image} />
       <ContentStyled>
-        <div>
-          <h2>{title}</h2>
-          <h4>{artists}</h4>
-        </div>
+        <GridStyled autoFlow="column" justifyContent="space-between">
+          <div>
+            <h2>{song_title}</h2>
+            <h4>{song_arists}</h4>
+          </div>
+          <div>{timeFetched}</div>
+        </GridStyled>
         <div className="bottom">
-          <i onClick={onPlay} className="fa fa-play-circle"></i>
-          <h3>{contact.display_name}</h3>
+          <div className="bottom__left">
+            <i onClick={onPlay} className="fa fa-play-circle"></i>
+            <div>
+              <div>
+                <small>listening to</small>
+              </div>
+              <div>
+                <strong>{playing_type}</strong>
+              </div>
+            </div>
+          </div>
+          <h3>{display_name}</h3>
         </div>
       </ContentStyled>
     </FriendsCurrSongStyled>
@@ -40,12 +51,9 @@ export default function FriendsCurrSong({ contact, onPlay }) {
 }
 
 const FriendsCurrSongStyled = styled.section`
-  min-height: 450px;
-  height: 100%;
-  max-width: 450px;
-  min-width: 250px;
+  height: 450px;
+  width: 100%;
   position: relative;
-  overflow-x: scroll;
 `
 
 const ContentStyled = styled(FixedStyled)`
@@ -70,9 +78,16 @@ const ContentStyled = styled(FixedStyled)`
   }
   .bottom {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
+    &__left {
+      display: grid;
+      grid-auto-flow: column;
+      grid-gap: 10px;
+      align-items: center;
+    }
   }
+
   .fa-play-circle {
     color: rgb(30, 215, 97);
     font-size: 50px;

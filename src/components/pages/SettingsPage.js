@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
 import Editable from '../form/Editable'
 import { getCurrentUser, updateDisplayName } from '../../api/api'
 import Main from '../utils/Main'
@@ -8,9 +9,7 @@ export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(_ => {
-    getCurrentUser()
-      .then(setCurrentUser)
-      .catch(err => console.log('ERROR', err))
+    getCurrentUser().then(setCurrentUser)
   }, [])
 
   const onSubmitDisplayName = async display_name => {
@@ -21,12 +20,14 @@ export default function SettingsPage({ slideIndex }) {
       console.log(err)
     }
   }
+
   return (
     <Main>
-      {currentUser ? (
-        <>
-          <h1>Settings</h1>
-          <GridStyled gap="20px">
+      <GridStyled gap="20px">
+        {currentUser ? (
+          <>
+            <h1>Settings</h1>
+            {renderImage(currentUser)}
             <Editable
               label="display name"
               value={currentUser.display_name}
@@ -36,11 +37,28 @@ export default function SettingsPage({ slideIndex }) {
             <small>
               your username: <strong>{currentUser.id}</strong>
             </small>
-          </GridStyled>
-        </>
-      ) : (
-        <p>could not load user data</p>
-      )}
+          </>
+        ) : (
+          <p>could not load user data</p>
+        )}
+      </GridStyled>
     </Main>
   )
+  function renderImage() {
+    if (
+      currentUser &&
+      currentUser.images.length > 0 &&
+      currentUser.images[0].url !== ''
+    ) {
+      return <UserImageStyled src={currentUser.images[0].url} alt="" />
+    }
+  }
 }
+
+const UserImageStyled = styled.img`
+  margin: auto auto;
+  object-fit: cover;
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+`

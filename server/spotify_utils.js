@@ -9,10 +9,10 @@ const getCurrentSong = async userID => {
     if (user) {
       if (
         user.currSong == null ||
-        user.currSong.next_fetch_spotify == null ||
-        user.currSong.next_fetch_spotify < Date.now()
+        user.fetchedCurrSong == null ||
+        user.fetchedCurrSong + 10000 < Date.now()
       ) {
-        console.log('getting new song user: ' + userID)
+        console.log('requesting currSong for user: ' + userID)
 
         const validSession = await getValidSessionForUser(userID)
         if (validSession) {
@@ -21,18 +21,21 @@ const getCurrentSong = async userID => {
             validSession.spotify_access_token,
             '/v1/me/player/currently-playing'
           )
-          if (res) {
-            // return song from db for next 10 secounds
-            res.next_fetch_spotify = Date.now() + 10000
+          // currently_playing_type can be 'ad' or 'unknown' -> dont save that to db
+          if (
+            res &&
+            (res.currently_playing_type === 'track' ||
+              res.currently_playing_type === 'episode')
+          ) {
             user.currSong = res
-            const savedUser = await user.save()
-            console.log('returning song just fetched')
-            return mapCurrSong(savedUser.currSong)
+            console.log('updated song for user ' + userID)
           }
         }
+        // set fetch time, if song was fetched
+        user.fetchedCurrSong = Date.now()
       }
-      console.log('getCurrentSong returning song from db user: ' + userID)
-      return mapCurrSong(user.currSong)
+      const savedUser = await user.save()
+      return savedUser.currSong
     }
   } catch (err) {
     console.log('getCurrSong err:', err)
@@ -40,32 +43,4 @@ const getCurrentSong = async userID => {
   }
 }
 
-function mapCurrSong(currSong) {
-  if (
-    currSong &&
-    currSong.item &&
-    currSong.item.album &&
-    currSong.item.artists
-  ) {
-    const mapped = {
-      next_fetch_in_ms: currSong.item.duration_ms - currSong.progress_ms,
-      album_type: currSong.item.album.album_type,
-      album: currSong.item.album.name,
-      images: currSong.item.album.images,
-      artists: currSong.item.artists.map(artist => artist.name),
-      is_local: currSong.item.is_local,
-      name: currSong.item.name,
-      currently_playing_type: currSong.currently_playing_type,
-      is_playing: currSong.is_playing,
-      timestamp: currSong.timestamp,
-      position_ms: currSong.progress_ms,
-      context_uri: currSong.context.uri,
-      context_type: currSong.context.type,
-      uri: currSong.item.uri
-    }
-    return mapped
-  } else {
-    return null
-  }
-}
 module.exports = { getCurrentSong }

@@ -6,29 +6,40 @@ Button.propTypes = {
   text: PropTypes.string,
   onClick: PropTypes.func,
   type: PropTypes.string,
-  color: PropTypes.string
+  color: PropTypes.string,
+  fillColor: PropTypes.bool
 }
 Button.defaultProps = {
   type: 'submit',
-  color: 'rgb(30, 215, 97)'
+  color: 'rgb(30, 215, 97)',
+  fillColor: true
 }
 export default function Button({
   text,
   onClick,
   type = 'submit',
-  color = 'rgb(30, 215, 97)'
+  color = 'rgb(30, 215, 97)',
+  fillColor
 }) {
   return (
-    <ButtonStyled type={type} onClick={onClick} color={color}>
+    <ButtonStyled
+      fillColor={fillColor}
+      type={type}
+      onClick={onClick}
+      color={color}
+    >
       <UnderlineStyled>{text}</UnderlineStyled>
     </ButtonStyled>
   )
 }
 
 const ButtonStyled = styled.button`
-  border: 1px solid ${({ color }) => color};
-  color: ${({ color }) => color};
-  background-color: transparent;
+  border: ${({ fillColor, color }) =>
+    fillColor ? 'none' : '2px solid ' + color};
+  color: ${({ fillColor, color }) => (fillColor ? '#eee' : color)};
+  background-color: ${({ fillColor, color }) =>
+    fillColor ? color : 'transparent'};
+  font-weight: bold;
   outline: none;
   border-radius: 15px;
   padding: 10px 20px;
@@ -43,7 +54,7 @@ const UnderlineStyled = styled.span`
     left: 0;
     right: 0;
     display: block;
-    border-bottom: solid 1px ${({ color }) => color};
+    border-bottom: solid 2px ${({ color }) => color};
     transform: scaleX(0);
     transition: transform 150ms ease-in-out;
   }

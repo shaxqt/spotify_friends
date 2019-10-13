@@ -25,6 +25,7 @@ export default function ContactRequestList({
         contactRequests.map(request => (
           <ContactRequest
             key={request.source}
+            image={getImage(request)}
             display_name={request.display_name}
             onAccept={_ => handleRequestInteract(request)}
             onDeny={_ => handleRequestInteract(request, false)}
@@ -32,4 +33,10 @@ export default function ContactRequestList({
         ))}
     </GridStyled>
   )
+}
+
+function getImage(request) {
+  if (Array.isArray(request.images) && request.images.length > 0) {
+    return request.images[0].url
+  }
 }
