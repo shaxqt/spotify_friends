@@ -41,13 +41,15 @@ const ButtonStyled = styled.button`
     fillColor ? color : 'transparent'};
   font-weight: bold;
   outline: none;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 10px 20px;
   font-size: 1rem;
 `
 
 const UnderlineStyled = styled.span`
   position: relative;
+  display: inline-block;
+  height: 20px;
   &:after {
     content: '';
     position: absolute;
