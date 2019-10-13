@@ -92,15 +92,23 @@ const acceptOrDenyContact = (session, source, accept) => {
     )
   })
 }
-const userUpdateDisplayName = async (session, display_name) => {
+const userUpdateSettings = async (
+  session,
+  { display_name, isUserImagePublic }
+) => {
   display_name = sanitize(display_name)
-
-  if (!display_name || display_name.length < 3) {
+  let update = {}
+  if (display_name && display_name.length < 3) {
     throw 'display_name to short'
+  } else {
+    update.display_name = display_name
+  }
+  if (isUserImagePublic != null) {
+    update.isUserImagePublic = isUserImagePublic
   }
   const user = await User.findOneAndUpdate(
     { id: session.userID },
-    { display_name }
+    update
   ).exec()
   return user ? user : null
 }
@@ -177,14 +185,18 @@ async function contactMapUserInfo(contact, userID) {
   try {
     // contact points to two users, map user who is not sending the request
     const idToMap = contact.source === userID ? contact.target : contact.source
-    const userToMap = await User.findOne({ id: idToMap }).exec()
-    if (userToMap) {
+    const user = await User.findOne({ id: idToMap }).exec()
+    if (user) {
+      // return user image if friends or public
+      const usrImg =
+        user.isUserImagePublic || contact.status === 20 ? user.images : ''
       return {
         ...contact._doc,
-        images: userToMap.images,
-        id: userToMap.id,
-        display_name: userToMap.display_name,
-        fetchedCurrSong: userToMap.fetchedCurrSong
+        images: usrImg,
+        id: user.id,
+        display_name: user.display_name,
+        fetchedCurrSong: user.fetchedCurrSong,
+        isUserImagePublic: user.isUserImagePublic
       }
     }
     return null
@@ -197,14 +209,18 @@ async function userMapContactInfo(user, userID) {
   try {
     let userData = {
       id: user.id,
-      images: user.images,
       display_name: user.display_name,
-      fetchedCurrSong: user.fetchedCurrSong
+      fetchedCurrSong: user.fetchedCurrSong,
+      isUserImagePublic: user.isUserImagePublic
     }
 
     const contact = await getContactFromUserPair(user.id, userID)
     if (contact) {
+      // return user image if friends or public
+      const usrImg =
+        user.isUserImagePublic || contact.status === 20 ? user.images : []
       userData = {
+        images: usrImg,
         ...userData,
         status: contact.status,
         target: contact.target,
@@ -219,6 +235,23 @@ async function userMapContactInfo(user, userID) {
   }
 }
 
+function mapUserAndContact(user, contact) {
+  const fetchedCurrSong = contact.status === 20 ? user.fetchedCurrSong : ''
+  // return image when friends, its public, or if user send a request
+  const img =
+    contact.status === 20 ||
+    user.isUserImagePublic ||
+    (contact.status === 0 && contact.source === user.userID)
+      ? user.images
+      : []
+  const mapped = {
+    id: user.id,
+    images: img,
+    display_name: user.display_name,
+    fetchedCurrSong
+  }
+}
+
 module.exports = {
   getContacts,
   createContact,
@@ -226,6 +259,6 @@ module.exports = {
   acceptOrDenyContact,
   searchUsersByDisplayName,
   getRequests,
-  userUpdateDisplayName,
+  userUpdateSettings,
   getMe
 }

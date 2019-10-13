@@ -104,32 +104,34 @@ function getContactInfo(user) {
   let contactInfo = '',
     isAddButtonActive = false,
     isRetractButtonActive = false
-  if (user.status != null && user.status === 0) {
-    if (user.target === user.id) {
-      contactInfo = 'contact already requestet'
-      isRetractButtonActive = true
+  if (Object.hasOwnProperty('status')) {
+    if (user.status === 0) {
+      if (user.target === user.id) {
+        contactInfo = 'contact already requestet'
+        isRetractButtonActive = true
+        isAddButtonActive = false
+      } else if (user.source === user.id) {
+        contactInfo = 'you should have a contact request'
+        isAddButtonActive = false
+      } else {
+        contactInfo = ''
+        isAddButtonActive = true
+      }
+    } else if (user.status === 10) {
+      if (user.target === user.id) {
+        contactInfo = 'contact already requestet'
+        isAddButtonActive = false
+      } else if (user.source === user.id) {
+        contactInfo = 'you denied the request'
+        isAddButtonActive = false
+      } else {
+        contactInfo = ''
+        isAddButtonActive = true
+      }
+    } else if (user.status === 20) {
+      contactInfo = 'already in your contacts'
       isAddButtonActive = false
-    } else if (user.source === user.id) {
-      contactInfo = 'you should have a contact request'
-      isAddButtonActive = false
-    } else {
-      contactInfo = ''
-      isAddButtonActive = true
     }
-  } else if (user.status && user.status === 10) {
-    if (user.target === user.id) {
-      contactInfo = 'contact already requestet'
-      isAddButtonActive = false
-    } else if (user.source === user.id) {
-      contactInfo = 'you denied the request'
-      isAddButtonActive = false
-    } else {
-      contactInfo = ''
-      isAddButtonActive = true
-    }
-  } else if (user.status != null && user.status === 20) {
-    contactInfo = 'already in your contacts'
-    isAddButtonActive = false
   } else {
     contactInfo = ''
     isAddButtonActive = true
