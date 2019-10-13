@@ -6,10 +6,12 @@ Editable.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.any.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  isEditable: PropTypes.bool,
   type: PropTypes.string
 }
 Editable.defaultProps = {
-  type: 'text'
+  type: 'text',
+  isEditable: true
 }
 export default function Editable({
   value,
@@ -33,23 +35,7 @@ export default function Editable({
     },
     [isEditMode]
   )
-  useEffect(
-    _ => {
-      if (!isEditable) handleCancel()
-    },
-    [isEditable]
-  )
-
-  const handleInputChange = event => setLocalValue(event.target.value)
-  const handleSubmit = e => {
-    e.preventDefault()
-    setIsEditMode(false)
-    onSubmit(localValue)
-  }
-  const handleCancel = e => {
-    setLocalValue(value)
-    setIsEditMode(false)
-  }
+  useEffect(_ => setIsEditMode(false), [isEditable])
   return (
     <form onSubmit={handleSubmit}>
       <LabelStyled>
@@ -60,15 +46,19 @@ export default function Editable({
             readOnly={!isEditMode}
             ref={textInput}
             type={type}
-            value={localValue}
+            value={isEditMode ? localValue : value}
             onChange={handleInputChange}
+            onBlur={_ => setIsEditMode(false)}
           />
           {isEditMode ? (
             <div>
               {localValue !== value && (
                 <i className="fa fa-check" onClick={handleSubmit}></i>
               )}
-              <i className="fa fa-times" onClick={handleCancel}></i>
+              <i
+                className="fa fa-times"
+                onClick={_ => setIsEditMode(false)}
+              ></i>
             </div>
           ) : (
             <>
@@ -79,6 +69,14 @@ export default function Editable({
       </LabelStyled>
     </form>
   )
+  function handleInputChange(event) {
+    setLocalValue(event.target.value)
+  }
+  function handleSubmit(event) {
+    event.preventDefault()
+    setIsEditMode(false)
+    onSubmit(localValue)
+  }
 }
 const LabelStyled = styled.label`
   display: grid;

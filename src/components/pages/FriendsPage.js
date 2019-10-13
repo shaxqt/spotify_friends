@@ -23,7 +23,12 @@ export default function FriendsPage({ friends, isLoading }) {
         />
       ))
     ) : (
-      <p>no friends ☹️</p>
+      <p>
+        no friends
+        <span role="img" aria-label="sad emoji">
+          ☹️
+        </span>
+      </p>
     )
   }
   function getHandleOnPlay(friend) {

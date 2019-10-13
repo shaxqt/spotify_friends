@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import FixedStyled from '../utils/FixedStyled'
 import PropTypes from 'prop-types'
 import BackgroundImageStyled from '../utils/BackgroundImageStyled'
+import GridStyled from '../utils/GridStyled'
+import moment from 'moment'
 
 FriendsCurrSong.propType = {
   contact: PropTypes.objectOf('contact').isRequired,
@@ -14,17 +16,21 @@ export default function FriendsCurrSong({ friend, onPlay }) {
     song_image,
     song_title,
     song_arists,
-    playing_type
+    playing_type,
+    timeFetched
   } = getSongData(friend)
 
   return (
     <FriendsCurrSongStyled>
       <BackgroundImageStyled img={song_image} />
       <ContentStyled>
-        <div>
-          <h2>{song_title}</h2>
-          <h4>{song_arists}</h4>
-        </div>
+        <GridStyled autoFlow="column" justifyContent="space-between">
+          <div>
+            <h2>{song_title}</h2>
+            <h4>{song_arists}</h4>
+          </div>
+          <div>{timeFetched}</div>
+        </GridStyled>
         <div className="bottom">
           <div className="bottom__left">
             <i onClick={onPlay} className="fa fa-play-circle"></i>
@@ -45,8 +51,14 @@ export default function FriendsCurrSong({ friend, onPlay }) {
 }
 
 function getSongData(friend) {
-  let display_name, song_title, song_arists, song_image, playing_type, timestamp
+  let display_name,
+    song_title,
+    song_arists,
+    song_image,
+    playing_type,
+    timeFetched
   if (friend) {
+    timeFetched = getDateString(friend.currSong.timestamp)
     display_name = friend.display_name
     if (friend.currSong) {
       if (friend.currSong.context) {
@@ -72,7 +84,17 @@ function getSongData(friend) {
       }
     }
   }
-  return { display_name, song_image, song_title, song_arists, playing_type }
+  function getDateString(timestamp) {
+    return moment(timestamp).fromNow()
+  }
+  return {
+    display_name,
+    song_image,
+    song_title,
+    song_arists,
+    playing_type,
+    timeFetched
+  }
 }
 const FriendsCurrSongStyled = styled.section`
   height: 450px;

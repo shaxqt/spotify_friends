@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { getOrVerifyToken } from './api/auth'
 import LoginPage from './components/pages/LoginPage'
 import LoggedInPage from './components/pages/LoggedInPage'
-import Main from './components/utils/Main'
 import GlobalStyles from './components/utils/GlobalStyles'
 
 const App = props => {

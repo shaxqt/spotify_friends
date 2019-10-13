@@ -105,7 +105,7 @@ const userUpdateDisplayName = async (session, display_name) => {
   return user ? user : null
 }
 
-function getContactFromUsers(userID_1, userID_2) {
+function getContactFromUserPair(userID_1, userID_2) {
   return new Promise((resolve, reject) => {
     Contact.findOne(
       {
@@ -163,6 +163,16 @@ function findRequests(userID) {
     )
   })
 }
+async function contactsMapUserInfo(contacts, userID) {
+  let contactsMapped = []
+  for (const contact of contacts) {
+    contactsMapped = [
+      ...contactsMapped,
+      await contactMapUserInfo(contact, userID)
+    ]
+  }
+  return contactsMapped
+}
 async function contactMapUserInfo(contact, userID) {
   try {
     // contact points to two users, map user who is not sending the request
@@ -173,7 +183,8 @@ async function contactMapUserInfo(contact, userID) {
         ...contact._doc,
         images: userToMap.images,
         id: userToMap.id,
-        display_name: userToMap.display_name
+        display_name: userToMap.display_name,
+        fetchedCurrSong: userToMap.fetchedCurrSong
       }
     }
     return null
@@ -184,36 +195,28 @@ async function contactMapUserInfo(contact, userID) {
 }
 async function userMapContactInfo(user, userID) {
   try {
-    const contact = await getContactFromUsers(user.id, userID)
-    if (contact) {
-      return {
-        id: user.id,
-        display_name: user.display_name,
-        images: user.images,
-        target: contact.target,
-        source: contact.source,
-        status: contact.status
-      }
-    }
-    return {
+    let userData = {
       id: user.id,
       images: user.images,
-      display_name: user.display_name
+      display_name: user.display_name,
+      fetchedCurrSong: user.fetchedCurrSong
     }
+
+    const contact = await getContactFromUserPair(user.id, userID)
+    if (contact) {
+      userData = {
+        ...userData,
+        status: contact.status,
+        target: contact.target,
+        source: contact.source
+      }
+    }
+
+    return userData
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
   }
-}
-async function contactsMapUserInfo(contacts, userID) {
-  let contactsMapped = []
-  for (const contact of contacts) {
-    contactsMapped = [
-      ...contactsMapped,
-      await contactMapUserInfo(contact, userID)
-    ]
-  }
-  return contactsMapped
 }
 
 module.exports = {
