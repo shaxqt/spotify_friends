@@ -7,6 +7,8 @@ const Main = ({ bgColor, children }) => {
 const MainStyled = styled.main`
   padding: 20px;
   background-color: ${({ bgColor }) => bgColor || '#222'};
+  max-width: 450px;
+  margin: 0 auto;
 `
 
 export default Main

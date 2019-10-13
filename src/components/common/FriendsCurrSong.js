@@ -42,7 +42,6 @@ export default function FriendsCurrSong({ contact, onPlay }) {
 const FriendsCurrSongStyled = styled.section`
   height: 450px;
   width: 100%;
-  max-width: 450px;
   position: relative;
 `
 

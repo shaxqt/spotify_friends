@@ -38,6 +38,7 @@ const NavStyled = styled(GridStyled)`
 const NavButtonStyled = styled(GridStyled)`
   background-color: #222;
   border: none;
+  outline: none;
   color: ${({ activeSlide }) => (activeSlide ? 'rgb(30, 215, 97)' : '#555')};
   font-size: ${({ activeSlide }) => (activeSlide ? '25px' : '22px')};
   transition: ease-in-out 0.1s;
