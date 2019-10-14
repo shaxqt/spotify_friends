@@ -28,7 +28,8 @@ const getMe = async session => {
       id: user.id,
       display_name: user.display_name,
       email: user.email,
-      images: user.images
+      images: user.images,
+      isUserImagePublic: user.isUserImagePublic
     }
   }
   return null

@@ -6,10 +6,17 @@ export const getCurrentUser = _ => {
     res.success ? resolve(res.item) : reject(res)
   })
 }
-export const updateDisplayName = display_name => {
+export const updateUserSettings = ({ display_name, isUserImagePublic }) => {
   return new Promise(async (resolve, reject) => {
-    const res = await postRequest('/user/update_display_name', { display_name })
-    res.success ? resolve(res.display_name) : reject(res)
+    try {
+      const res = await postRequest('/user/update_settings', {
+        display_name: display_name,
+        isUserImagePublic: isUserImagePublic
+      })
+      resolve(res.success)
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 export const searchUser = query => {

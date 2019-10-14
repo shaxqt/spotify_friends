@@ -1,12 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export default function Checkbox({ label, info }) {
+export default function Checkbox({ label, info, value, onChange }) {
+  const initValue = value
   return (
     <CheckboxStyled>
       <LabelStyled>
         {label}
-        <input type="checkbox" id={label}></input>
+        <input
+          type="checkbox"
+          id={label}
+          checked={initValue}
+          onChange={e => onChange(e.target.checked)}
+        ></input>
         <label htmlFor={label}></label>
       </LabelStyled>
       {info && <InfoStyled>{info}</InfoStyled>}

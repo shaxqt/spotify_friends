@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Editable from '../form/Editable'
-import { getCurrentUser, updateDisplayName } from '../../api/api'
+import { getCurrentUser, updateUserSettings } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
 import Checkbox from '../form/Checkbox'
@@ -13,10 +13,20 @@ export default function SettingsPage({ slideIndex }) {
     getCurrentUser().then(setCurrentUser)
   }, [])
 
+  const onChangeIsUserImagePublic = async isUserImagePublic => {
+    try {
+      if (await updateUserSettings({ isUserImagePublic })) {
+        setCurrentUser({ ...currentUser, isUserImagePublic })
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
   const onSubmitDisplayName = async display_name => {
     try {
-      const newDisplayName = await updateDisplayName(display_name)
-      setCurrentUser({ ...currentUser, display_name: newDisplayName })
+      if (await updateUserSettings({ display_name })) {
+        setCurrentUser({ ...currentUser, display_name })
+      }
     } catch (err) {
       console.log(err)
     }
@@ -37,6 +47,8 @@ export default function SettingsPage({ slideIndex }) {
             <Checkbox
               label="Show profile picture"
               info="This could make it easier for your friends to find you. Your friends can always see your picture"
+              value={currentUser.isUserImagePublic}
+              onChange={onChangeIsUserImagePublic}
             />
 
             <small>
