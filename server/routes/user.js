@@ -86,7 +86,9 @@ router.post('/get_me', async function(req, res) {
 router.post('/update_settings', async function(req, res) {
   withValidSession(req, res, async session => {
     const user = await userUpdateSettings(session, req.body)
-    return user ? res.send({ success: true }) : res.send({ success: false })
+    return user
+      ? res.send({ success: true, item: user })
+      : res.send({ success: false })
   })
 })
 

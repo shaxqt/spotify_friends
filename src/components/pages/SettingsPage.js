@@ -15,8 +15,11 @@ export default function SettingsPage({ slideIndex }) {
 
   const onChangeIsUserImagePublic = async isUserImagePublic => {
     try {
-      if (await updateUserSettings({ isUserImagePublic })) {
-        setCurrentUser({ ...currentUser, isUserImagePublic })
+      if (isUserImagePublic !== currentUser.isUserImagePublic) {
+        const res = await updateUserSettings({ isUserImagePublic })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
       }
     } catch (err) {
       console.log(err)
@@ -24,8 +27,11 @@ export default function SettingsPage({ slideIndex }) {
   }
   const onSubmitDisplayName = async display_name => {
     try {
-      if (await updateUserSettings({ display_name })) {
-        setCurrentUser({ ...currentUser, display_name })
+      if (display_name !== currentUser.display_name) {
+        const res = await updateUserSettings({ display_name })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
       }
     } catch (err) {
       console.log(err)

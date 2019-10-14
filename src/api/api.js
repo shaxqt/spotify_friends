@@ -13,7 +13,7 @@ export const updateUserSettings = ({ display_name, isUserImagePublic }) => {
         display_name: display_name,
         isUserImagePublic: isUserImagePublic
       })
-      resolve(res.success)
+      res.success ? resolve(res) : reject(res)
     } catch (err) {
       reject(err)
     }

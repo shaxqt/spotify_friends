@@ -23,16 +23,7 @@ const getRequests = async session => {
 
 const getMe = async session => {
   const user = await User.findOne({ id: session.userID }).exec()
-  if (user) {
-    return {
-      id: user.id,
-      display_name: user.display_name,
-      email: user.email,
-      images: user.images,
-      isUserImagePublic: user.isUserImagePublic
-    }
-  }
-  return null
+  return getUserData(user)
 }
 const searchUsersByDisplayName = async (session, query) => {
   try {
@@ -97,21 +88,22 @@ const userUpdateSettings = async (
   session,
   { display_name, isUserImagePublic }
 ) => {
-  display_name = sanitize(display_name)
   let update = {}
-  if (display_name && display_name.length < 3) {
-    throw 'display_name to short'
-  } else {
-    update.display_name = display_name
+  if (display_name != null) {
+    if (display_name.length < 3) {
+      display_name = sanitize(display_name)
+      throw 'display_name to short'
+    } else {
+      update.display_name = display_name
+    }
   }
   if (isUserImagePublic != null) {
     update.isUserImagePublic = isUserImagePublic
   }
-  const user = await User.findOneAndUpdate(
-    { id: session.userID },
-    update
-  ).exec()
-  return user ? user : null
+  const user = await User.findOneAndUpdate({ id: session.userID }, update, {
+    new: true
+  }).exec()
+  return getUserData(user)
 }
 
 function getContactFromUserPair(userID_1, userID_2) {
@@ -236,6 +228,17 @@ function mapUserAndContact(user, contact) {
     images,
     fetchedCurrSong,
     ...contact
+  }
+}
+function getUserData(user) {
+  if (user) {
+    return {
+      id: user.id,
+      display_name: user.display_name,
+      email: user.email,
+      images: user.images,
+      isUserImagePublic: user.isUserImagePublic
+    }
   }
 }
 

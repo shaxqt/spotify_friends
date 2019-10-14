@@ -48,7 +48,7 @@ export default function Editable({
             type={type}
             value={isEditMode ? localValue : value}
             onChange={handleInputChange}
-            /*  onBlur={_ => setIsEditMode(false)} */
+            onBlur={_ => setIsEditMode(false)}
           />
           {isEditMode ? (
             <div className="icons">

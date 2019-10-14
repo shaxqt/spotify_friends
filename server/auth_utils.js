@@ -90,7 +90,7 @@ const refreshSpotifyToken = async session => {
     const headers = {
       Authorization:
         'Basic ' +
-        Buffer.fom(client_id + ':' + client_secret).toString('base64')
+        Buffer.from(client_id + ':' + client_secret).toString('base64')
     }
     const body = await postSpotifyRequest('/api/token', form, headers)
     if (body && body.access_token) {
