@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Editable from '../form/Editable'
-import { getCurrentUser, updateDisplayName } from '../../api/api'
+import { getCurrentUser, updateUserSettings } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
+import Checkbox from '../form/Checkbox'
 
 export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
@@ -12,10 +13,26 @@ export default function SettingsPage({ slideIndex }) {
     getCurrentUser().then(setCurrentUser)
   }, [])
 
+  const onChangeIsUserImagePublic = async isUserImagePublic => {
+    try {
+      if (isUserImagePublic !== currentUser.isUserImagePublic) {
+        const res = await updateUserSettings({ isUserImagePublic })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
   const onSubmitDisplayName = async display_name => {
     try {
-      const newDisplayName = await updateDisplayName(display_name)
-      setCurrentUser({ ...currentUser, display_name: newDisplayName })
+      if (display_name !== currentUser.display_name) {
+        const res = await updateUserSettings({ display_name })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
+      }
     } catch (err) {
       console.log(err)
     }
@@ -23,10 +40,9 @@ export default function SettingsPage({ slideIndex }) {
 
   return (
     <Main>
-      <GridStyled gap="20px">
+      <GridStyled gap="30px">
         {currentUser ? (
           <>
-            <h1>Settings</h1>
             {renderImage(currentUser)}
             <Editable
               label="display name"
@@ -34,6 +50,13 @@ export default function SettingsPage({ slideIndex }) {
               onSubmit={onSubmitDisplayName}
               isEditable={slideIndex === 2}
             />
+            <Checkbox
+              label="Show profile picture"
+              info="This could make it easier for your friends to find you. Your friends can always see your picture"
+              value={currentUser.isUserImagePublic}
+              onChange={onChangeIsUserImagePublic}
+            />
+
             <small>
               your username: <strong>{currentUser.id}</strong>
             </small>

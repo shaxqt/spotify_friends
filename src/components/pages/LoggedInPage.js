@@ -5,6 +5,9 @@ import FriendsPage from './FriendsPage'
 import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
+import { bindKeyboard } from 'react-swipeable-views-utils'
+
+const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 
 export default function LoggedInPage(props) {
   const [slideIndex, setSlideIndex] = useState(1)
@@ -23,7 +26,7 @@ export default function LoggedInPage(props) {
   }
   return (
     <>
-      <SwipeableViews
+      <BindKeyboardSwipeableViews
         containerStyle={{ maxHeight: '100%' }}
         resistance
         onChangeIndex={index => setSlideIndex(index)}
@@ -32,10 +35,8 @@ export default function LoggedInPage(props) {
         <ContactPage onRequestAccepted={refreshContacts} />
         <FriendsPage friends={friends} isLoading={loadingFriends} />
         <SettingsPage slideIndex={slideIndex} />
-      </SwipeableViews>
+      </BindKeyboardSwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>
   )
 }
-
-// pading left / margin left negativ

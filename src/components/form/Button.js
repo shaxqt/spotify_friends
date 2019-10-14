@@ -7,26 +7,30 @@ Button.propTypes = {
   onClick: PropTypes.func,
   type: PropTypes.string,
   color: PropTypes.string,
-  fillColor: PropTypes.bool
+  borderButton: PropTypes.bool,
+  noCaps: PropTypes.bool
 }
 Button.defaultProps = {
   type: 'submit',
   color: 'rgb(30, 215, 97)',
-  fillColor: true
+  borderButton: false,
+  noCaps: false
 }
 export default function Button({
   text,
   onClick,
   type = 'submit',
   color = 'rgb(30, 215, 97)',
-  fillColor
+  borderButton,
+  noCaps
 }) {
   return (
     <ButtonStyled
-      fillColor={fillColor}
       type={type}
       onClick={onClick}
       color={color}
+      borderButton={borderButton}
+      noCaps={noCaps}
     >
       <UnderlineStyled>{text}</UnderlineStyled>
     </ButtonStyled>
@@ -34,20 +38,22 @@ export default function Button({
 }
 
 const ButtonStyled = styled.button`
-  border: ${({ fillColor, color }) =>
-    fillColor ? 'none' : '2px solid ' + color};
-  color: ${({ fillColor, color }) => (fillColor ? '#eee' : color)};
-  background-color: ${({ fillColor, color }) =>
-    fillColor ? color : 'transparent'};
+  border: ${({ borderButton, color }) =>
+    borderButton ? '2px solid ' + color : 'none'};
+  color: ${({ borderButton, color }) => (borderButton ? color : '#eee')};
+  background-color: ${({ borderButton, color }) =>
+    borderButton ? 'transparent' : color};
   font-weight: bold;
   outline: none;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 10px 20px;
   font-size: 1rem;
+  ${({ noCaps }) => !noCaps && 'text-transform: uppercase;'}
 `
 
 const UnderlineStyled = styled.span`
   position: relative;
+  height: 20px;
   &:after {
     content: '';
     position: absolute;

@@ -51,7 +51,7 @@ export default function Editable({
             onBlur={_ => setIsEditMode(false)}
           />
           {isEditMode ? (
-            <div>
+            <div className="icons">
               {localValue !== value && (
                 <i className="fa fa-check" onClick={handleSubmit}></i>
               )}
@@ -92,15 +92,26 @@ const EditableStyled = styled.div`
   border-radius: 15px;
   padding: 10px 20px;
   i {
-    font-size: 25px;
+    display: inline-block;
+    margin-top: -5px;
+    margin-bottom: -5px;
+    height: 30px;
+    width: 30px;
+    font-size: 30px;
     margin-left: 15px;
   }
   &:focus-within {
     background-color: #666;
   }
+  .icons {
+    margin-top: -5px;
+    margin-bottom: -5px;
+  }
   input {
+    display: inline-block;
+    height: 20px;
     flex-grow: 1;
-    color: #fff;
+    color: #eee;
     margin: 0;
     padding: 0;
     border: none;

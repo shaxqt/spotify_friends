@@ -30,6 +30,7 @@ const User = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  isUserImagePublic: { type: Boolean, default: true },
   images: { type: [Object] },
   currSong: { type: Object }
 })

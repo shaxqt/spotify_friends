@@ -23,15 +23,7 @@ const getRequests = async session => {
 
 const getMe = async session => {
   const user = await User.findOne({ id: session.userID }).exec()
-  if (user) {
-    return {
-      id: user.id,
-      display_name: user.display_name,
-      email: user.email,
-      images: user.images
-    }
-  }
-  return null
+  return getUserData(user)
 }
 const searchUsersByDisplayName = async (session, query) => {
   try {
@@ -92,17 +84,26 @@ const acceptOrDenyContact = (session, source, accept) => {
     )
   })
 }
-const userUpdateDisplayName = async (session, display_name) => {
-  display_name = sanitize(display_name)
-
-  if (!display_name || display_name.length < 3) {
-    throw 'display_name to short'
+const userUpdateSettings = async (
+  session,
+  { display_name, isUserImagePublic }
+) => {
+  let update = {}
+  if (display_name != null) {
+    if (display_name.length < 3) {
+      display_name = sanitize(display_name)
+      throw 'display_name to short'
+    } else {
+      update.display_name = display_name
+    }
   }
-  const user = await User.findOneAndUpdate(
-    { id: session.userID },
-    { display_name }
-  ).exec()
-  return user ? user : null
+  if (isUserImagePublic != null) {
+    update.isUserImagePublic = isUserImagePublic
+  }
+  const user = await User.findOneAndUpdate({ id: session.userID }, update, {
+    new: true
+  }).exec()
+  return getUserData(user)
 }
 
 function getContactFromUserPair(userID_1, userID_2) {
@@ -175,19 +176,14 @@ async function contactsMapUserInfo(contacts, userID) {
 }
 async function contactMapUserInfo(contact, userID) {
   try {
-    // contact points to two users, map user who is not sending the request
-    const idToMap = contact.source === userID ? contact.target : contact.source
-    const userToMap = await User.findOne({ id: idToMap }).exec()
-    if (userToMap) {
-      return {
-        ...contact._doc,
-        images: userToMap.images,
-        id: userToMap.id,
-        display_name: userToMap.display_name,
-        fetchedCurrSong: userToMap.fetchedCurrSong
-      }
+    if (contact) {
+      // contact points to two users, map user who is not sending the request
+      const idToMap =
+        contact.source === userID ? contact.target : contact.source
+      const user = await User.findOne({ id: idToMap }).exec()
+
+      return mapUserAndContact(user, contact._doc)
     }
-    return null
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
@@ -195,27 +191,54 @@ async function contactMapUserInfo(contact, userID) {
 }
 async function userMapContactInfo(user, userID) {
   try {
-    let userData = {
-      id: user.id,
-      images: user.images,
-      display_name: user.display_name,
-      fetchedCurrSong: user.fetchedCurrSong
+    if (user) {
+      const contact = await getContactFromUserPair(user.id, userID)
+      return mapUserAndContact(user, contact)
     }
-
-    const contact = await getContactFromUserPair(user.id, userID)
-    if (contact) {
-      userData = {
-        ...userData,
-        status: contact.status,
-        target: contact.target,
-        source: contact.source
-      }
-    }
-
-    return userData
   } catch (err) {
     console.log('contactMapUserInfo', err)
     return null
+  }
+}
+
+function mapUserAndContact(user, contact) {
+  if (user == null) {
+    return null
+  }
+  let images = user.isUserImagePublic ? user.images : []
+  const userData = {
+    id: user.id,
+    display_name: user.display_name,
+    images
+  }
+  if (contact == null) {
+    return userData
+  }
+  contact = contact.hasOwnProperty('_doc') ? contact._doc : contact
+  const fetchedCurrSong = contact.status === 20 ? user.fetchedCurrSong : ''
+  images =
+    contact.status === 20 ||
+    user.isUserImagePublic ||
+    contact.source === user.id
+      ? user.images
+      : []
+
+  return {
+    ...userData,
+    images,
+    fetchedCurrSong,
+    ...contact
+  }
+}
+function getUserData(user) {
+  if (user) {
+    return {
+      id: user.id,
+      display_name: user.display_name,
+      email: user.email,
+      images: user.images,
+      isUserImagePublic: user.isUserImagePublic
+    }
   }
 }
 
@@ -226,6 +249,6 @@ module.exports = {
   acceptOrDenyContact,
   searchUsersByDisplayName,
   getRequests,
-  userUpdateDisplayName,
+  userUpdateSettings,
   getMe
 }

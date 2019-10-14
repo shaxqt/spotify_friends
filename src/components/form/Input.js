@@ -52,7 +52,7 @@ const IconInputStyled = styled.div`
   grid-gap: 10px;
   grid-template-columns: 20px auto;
   align-items: center;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 10px 20px;
   background-color: #444;
   &:focus-within {

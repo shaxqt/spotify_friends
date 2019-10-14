@@ -17,7 +17,9 @@ export default function Form({ onSubmit, children, paddingTop }) {
   function handleSubmit(event) {
     event.preventDefault()
     event.stopPropagation()
-    onSubmit()
+    if (onSubmit) {
+      onSubmit()
+    }
   }
 }
 const FormStyled = styled.form`

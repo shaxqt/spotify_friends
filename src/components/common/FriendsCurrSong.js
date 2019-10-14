@@ -29,7 +29,7 @@ export default function FriendsCurrSong({ friend, onPlay }) {
             <h2>{song_title}</h2>
             <h4>{song_arists}</h4>
           </div>
-          <div>{timeFetched}</div>
+          <small>{timeFetched}</small>
         </GridStyled>
         <div className="bottom">
           <div className="bottom__left">

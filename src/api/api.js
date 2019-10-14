@@ -6,10 +6,17 @@ export const getCurrentUser = _ => {
     res.success ? resolve(res.item) : reject(res)
   })
 }
-export const updateDisplayName = display_name => {
+export const updateUserSettings = ({ display_name, isUserImagePublic }) => {
   return new Promise(async (resolve, reject) => {
-    const res = await postRequest('/user/update_display_name', { display_name })
-    res.success ? resolve(res.display_name) : reject(res)
+    try {
+      const res = await postRequest('/user/update_settings', {
+        display_name: display_name,
+        isUserImagePublic: isUserImagePublic
+      })
+      res.success ? resolve(res) : reject(res)
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 export const searchUser = query => {
@@ -20,16 +27,10 @@ export const searchUser = query => {
     if (res.success) {
       resolve(
         res.items.map(userFound => {
-          const {
-            contactInfo,
-            isAddButtonActive,
-            isRetractButtonActive
-          } = getContactInfo(userFound)
+          const userInfo = getContactInfo(userFound)
           return {
             ...userFound,
-            contactInfo,
-            isAddButtonActive,
-            isRetractButtonActive
+            ...userInfo
           }
         })
       )
@@ -103,36 +104,45 @@ function contactsSortByTimestamp(contacts) {
 function getContactInfo(user) {
   let contactInfo = '',
     isAddButtonActive = false,
-    isRetractButtonActive = false
-  if (user.status != null && user.status === 0) {
-    if (user.target === user.id) {
-      contactInfo = 'contact already requestet'
-      isRetractButtonActive = true
+    isRetractButtonActive = false,
+    isAcceptButtonActive = false
+  if (user && user.hasOwnProperty('status')) {
+    if (user.status === 0) {
+      if (user.target === user.id) {
+        contactInfo = 'contact already requestet'
+        isRetractButtonActive = true
+        isAddButtonActive = false
+      } else if (user.source === user.id) {
+        contactInfo = 'you should have a contact request'
+        isAddButtonActive = false
+      } else {
+        contactInfo = ''
+        isAddButtonActive = true
+      }
+    } else if (user.status === 10) {
+      if (user.target === user.id) {
+        contactInfo = 'contact already requestet'
+        isAddButtonActive = false
+      } else if (user.source === user.id) {
+        contactInfo = 'you denied the request'
+        isAddButtonActive = false
+        isAcceptButtonActive = true
+      } else {
+        contactInfo = ''
+        isAddButtonActive = true
+      }
+    } else if (user.status === 20) {
+      contactInfo = 'already in your contacts'
       isAddButtonActive = false
-    } else if (user.source === user.id) {
-      contactInfo = 'you should have a contact request'
-      isAddButtonActive = false
-    } else {
-      contactInfo = ''
-      isAddButtonActive = true
     }
-  } else if (user.status && user.status === 10) {
-    if (user.target === user.id) {
-      contactInfo = 'contact already requestet'
-      isAddButtonActive = false
-    } else if (user.source === user.id) {
-      contactInfo = 'you denied the request'
-      isAddButtonActive = false
-    } else {
-      contactInfo = ''
-      isAddButtonActive = true
-    }
-  } else if (user.status != null && user.status === 20) {
-    contactInfo = 'already in your contacts'
-    isAddButtonActive = false
   } else {
     contactInfo = ''
     isAddButtonActive = true
   }
-  return { contactInfo, isAddButtonActive, isRetractButtonActive }
+  return {
+    contactInfo,
+    isAddButtonActive,
+    isRetractButtonActive,
+    isAcceptButtonActive
+  }
 }

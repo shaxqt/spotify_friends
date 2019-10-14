@@ -24,8 +24,8 @@ export default function FriendsPage({ friends, isLoading }) {
       ))
     ) : (
       <p>
-        no friends
-        <span role="img" aria-label="sad emoji">
+        <span>no friends</span>
+        <span style={{ marginLeft: '5px' }} role="img" aria-label="sad emoji">
           ☹️
         </span>
       </p>

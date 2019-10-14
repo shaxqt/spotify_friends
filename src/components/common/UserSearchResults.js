@@ -2,7 +2,10 @@ import React from 'react'
 import GridStyled from '../utils/GridStyled'
 import SectionHeaderStyled from '../utils/SectionHeaderStyled'
 import User from '../common/User'
-import { createOrRetractContactRequest } from '../../api/api'
+import {
+  createOrRetractContactRequest,
+  acceptOrDenyContactRequest
+} from '../../api/api'
 
 export default function UserSearchResults({
   searchResults,
@@ -23,10 +26,16 @@ export default function UserSearchResults({
     }
   }
   const handleOnClick = async user => {
-    const sendContactRequest = user.isAddButtonActive
     try {
-      await createOrRetractContactRequest(user, sendContactRequest)
-      onHandleSearchResult(user, sendContactRequest)
+      if (user.isAcceptButtonActive) {
+        await acceptOrDenyContactRequest({ source: user.id })
+        onHandleSearchResult(user, false, true)
+      } else {
+        const sendContactRequest = user.isAddButtonActive
+
+        await createOrRetractContactRequest(user, sendContactRequest)
+        onHandleSearchResult(user, sendContactRequest)
+      }
     } catch (err) {
       console.log(err)
     }
@@ -42,6 +51,7 @@ export default function UserSearchResults({
             display_name={userFound.display_name}
             isAddButtonActive={userFound.isAddButtonActive}
             isRetractButtonActive={userFound.isRetractButtonActive}
+            isAcceptButtonActive={userFound.isAcceptButtonActive}
             contactInfo={userFound.contactInfo}
             onClick={_ => handleOnClick(userFound)}
           />

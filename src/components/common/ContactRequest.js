@@ -34,7 +34,12 @@ export default function ContactRequest({
           {renderImage(image)}
         </GridStyled>
         <GridStyled gap="30px" templateColumns="1fr 1fr">
-          <Button onClick={handleOnDeny} color="red" text="deny"></Button>
+          <Button
+            onClick={handleOnDeny}
+            borderButton
+            color="#FF695B"
+            text="deny"
+          ></Button>
           <Button onClick={handleOnAccept} text="accept"></Button>
         </GridStyled>
       </GridStyled>
