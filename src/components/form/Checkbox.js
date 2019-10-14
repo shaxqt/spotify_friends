@@ -1,5 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
+
+Checkbox.propTypes = {
+  label: PropTypes.string,
+  info: PropTypes.string,
+  value: PropTypes.bool,
+  onChange: PropTypes.func
+}
 
 export default function Checkbox({ label, info, value, onChange }) {
   const initValue = value
