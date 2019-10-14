@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const { getCurrentSong } = require('../spotify_utils')
 const { getSessionIfValid } = require('../auth_utils')
-const { putSpotifyRequest } = require('../request_utils')
+const { putSpotifyRequest, getSpotifyRequest } = require('../request_utils')
 const {
   getContacts,
   getRequests,
@@ -26,19 +26,26 @@ router.post('/contacts', async function(req, res) {
   })
 })
 
+router.post('/get_devices', async function(req, res) {
+  withValidSession(req, res, async session => {
+    const response = await getSpotifyRequest(
+      session.spotify_access_token,
+      '/v1/me/player/devices'
+    )
+    response && response.devices
+      ? res.send({ success: true, items: response.devices })
+      : res.send({ success: false })
+  })
+})
 router.put('/start_playback', async function(req, res) {
   withValidSession(req, res, async session => {
-    const { context_uri, position_ms, offset } = req.body
-    console.log(context_uri, position_ms, offset)
+    console.log(req.body)
     response = await putSpotifyRequest(
       session.spotify_access_token,
       '/v1/me/player/play',
-      {
-        context_uri,
-        position_ms,
-        offset
-      }
+      req.body
     )
+    console.log(response)
     return res.send({ success: true, response })
   })
 })
@@ -113,6 +120,7 @@ async function withValidSession(req, res, callback) {
     const { spotify_friends_token } = req.body
     const session = await getSessionIfValid(spotify_friends_token)
     if (session) {
+      delete req.body.spotify_friends_token
       await callback(session)
     } else {
       res.send({

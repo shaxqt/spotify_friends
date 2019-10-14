@@ -39,16 +39,22 @@ export const searchUser = query => {
     }
   })
 }
+export const getDevices = _ => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await postRequest('/user/get_devices')
+      res.success ? resolve(res.items) : reject(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
 export const createOrRetractContactRequest = (user, create = true) => {
   return new Promise(async (resolve, reject) => {
     try {
       const url = create ? '/user/create_contact' : '/user/retract_contact'
       const res = await postRequest(url, { target: user.id })
-      if (res.success) {
-        resolve(res)
-      } else {
-        reject(res)
-      }
+      res.success ? resolve(res) : reject(res)
     } catch (err) {
       reject(err)
     }
@@ -57,11 +63,7 @@ export const createOrRetractContactRequest = (user, create = true) => {
 export const getContactRequests = _ => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_requests')
-    if (res.success) {
-      resolve(res.items)
-    } else {
-      reject(res)
-    }
+    res.success ? resolve(res.items) : reject(res)
   })
 }
 export const acceptOrDenyContactRequest = (request, accept = true) => {
@@ -69,11 +71,7 @@ export const acceptOrDenyContactRequest = (request, accept = true) => {
     const url = accept ? '/user/accept_request' : '/user/deny_request'
     const body = { source: request.source }
     const res = await postRequest(url, body)
-    if (res.success) {
-      resolve(res)
-    } else {
-      reject(res)
-    }
+    res.success ? resolve(res.items) : reject(res)
   })
 }
 export const getFriends = _ => {

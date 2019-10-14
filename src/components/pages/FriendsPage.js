@@ -2,6 +2,7 @@ import React from 'react'
 import Main from '../utils/Main'
 import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
+import { getDevices } from '../../api/api'
 import GridStyled from '../utils/GridStyled'
 
 export default function FriendsPage({ friends, isLoading }) {
@@ -32,7 +33,7 @@ export default function FriendsPage({ friends, isLoading }) {
     )
   }
   function getHandleOnPlay(friend) {
-    return _ => {
+    return async _ => {
       if (friend.currSong) {
         const body = {
           position_ms: friend.currSong.progress_ms,
