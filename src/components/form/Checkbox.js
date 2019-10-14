@@ -87,7 +87,7 @@ const CheckboxStyled = styled.section`
       transition: all 0.4s ease;
       &:after {
         border-radius: 2em;
-        background: #eee;
+        background: #fff;
         transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
           padding 0.3s ease, margin 0.3s ease;
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 rgba(0, 0, 0, 0.08);
@@ -96,14 +96,14 @@ const CheckboxStyled = styled.section`
         will-change: padding;
       }
       &:active {
-        box-shadow: inset 0 0 0 2em rgb(30, 215, 97);
+        box-shadow: inset 0 0 0 2em #1db954;
         &:after {
           padding-right: 0.8em;
         }
       }
     }
     &:checked + label {
-      background: rgb(30, 215, 97);
+      background: #1db954;
       &:active {
         box-shadow: none;
         &:after {

@@ -5,38 +5,15 @@ import { getCurrentUser, updateUserSettings } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
 import Checkbox from '../form/Checkbox'
+import Modal from '../utils/Modal'
+import Button from '../form/Button'
 
 export default function SettingsPage({ slideIndex }) {
   const [currentUser, setCurrentUser] = useState(null)
-
+  const [showModal, setShowModal] = useState(false)
   useEffect(_ => {
     getCurrentUser().then(setCurrentUser)
   }, [])
-
-  const onChangeIsUserImagePublic = async isUserImagePublic => {
-    try {
-      if (isUserImagePublic !== currentUser.isUserImagePublic) {
-        const res = await updateUserSettings({ isUserImagePublic })
-        if (res.success) {
-          setCurrentUser(res.item)
-        }
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
-  const onSubmitDisplayName = async display_name => {
-    try {
-      if (display_name !== currentUser.display_name) {
-        const res = await updateUserSettings({ display_name })
-        if (res.success) {
-          setCurrentUser(res.item)
-        }
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
 
   return (
     <Main>
@@ -60,6 +37,38 @@ export default function SettingsPage({ slideIndex }) {
             <small>
               your username: <strong>{currentUser.id}</strong>
             </small>
+            <Button
+              color="#FF695B"
+              maxWidth="100px"
+              borderButton
+              onClick={toggleModal}
+              text="logout"
+              noCaps
+            />
+            <Modal
+              title="logging out on..."
+              show={showModal}
+              toggle={toggleModal}
+            >
+              <GridStyled gap="15px">
+                <Button
+                  key="1"
+                  color="#FF695B"
+                  borderButton
+                  onClick={toggleModal}
+                  text="this device"
+                  noCaps
+                ></Button>
+                <Button
+                  key="2"
+                  color="#FF695B"
+                  borderButton
+                  onClick={toggleModal}
+                  text="all devices"
+                  noCaps
+                ></Button>
+              </GridStyled>
+            </Modal>
           </>
         ) : (
           <p>could not load user data</p>
@@ -67,6 +76,36 @@ export default function SettingsPage({ slideIndex }) {
       </GridStyled>
     </Main>
   )
+
+  function toggleModal() {
+    setShowModal(!showModal)
+  }
+
+  async function onChangeIsUserImagePublic(isUserImagePublic) {
+    try {
+      if (isUserImagePublic !== currentUser.isUserImagePublic) {
+        const res = await updateUserSettings({ isUserImagePublic })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  async function onSubmitDisplayName(display_name) {
+    try {
+      if (display_name !== currentUser.display_name) {
+        const res = await updateUserSettings({ display_name })
+        if (res.success) {
+          setCurrentUser(res.item)
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   function renderImage() {
     if (
       currentUser &&

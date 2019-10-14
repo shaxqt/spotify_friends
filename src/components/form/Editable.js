@@ -89,7 +89,7 @@ const EditableStyled = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 10px 20px;
   i {
     display: inline-block;
@@ -111,15 +111,14 @@ const EditableStyled = styled.div`
     display: inline-block;
     height: 20px;
     flex-grow: 1;
-    color: #eee;
+    color: inherit;
     margin: 0;
     padding: 0;
     border: none;
     outline: none;
     font-size: 1rem;
     background-color: transparent;
-    caret-color: rgb(30, 215, 97);
-    ${({ isEditMode }) =>
-      isEditMode && 'border-bottom: 1px solid rgb(30, 215, 97);'}
+    caret-color: #1db954;
+    ${({ isEditMode }) => isEditMode && 'border-bottom: 1px solid #1DB954;'}
   }
 `
