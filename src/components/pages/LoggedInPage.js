@@ -9,7 +9,7 @@ import { bindKeyboard } from 'react-swipeable-views-utils'
 
 const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 
-export default function LoggedInPage(props) {
+export default function LoggedInPage({ setIsLoggedIn }) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
   const [loadingFriends, setLoadingFriends] = useState(true)
@@ -34,7 +34,7 @@ export default function LoggedInPage(props) {
       >
         <ContactPage onRequestAccepted={refreshContacts} />
         <FriendsPage friends={friends} isLoading={loadingFriends} />
-        <SettingsPage slideIndex={slideIndex} />
+        <SettingsPage setIsLoggedIn={setIsLoggedIn} slideIndex={slideIndex} />
       </BindKeyboardSwipeableViews>
       <Navigation slideIndex={slideIndex} onClick={setSlideIndex} />
     </>

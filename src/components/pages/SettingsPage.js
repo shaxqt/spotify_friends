@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Editable from '../form/Editable'
-import { getCurrentUser, updateUserSettings } from '../../api/api'
+import { getCurrentUser, updateUserSettings, logout } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
 import Checkbox from '../form/Checkbox'
 import Modal from '../utils/Modal'
 import Button from '../form/Button'
 
-export default function SettingsPage({ slideIndex }) {
+export default function SettingsPage({ slideIndex, setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [showModal, setShowModal] = useState(false)
+
   useEffect(_ => {
     getCurrentUser().then(setCurrentUser)
   }, [])
@@ -55,7 +56,7 @@ export default function SettingsPage({ slideIndex }) {
                   key="1"
                   color="#FF695B"
                   borderButton
-                  onClick={toggleModal}
+                  onClick={_ => handleLogout()}
                   text="this device"
                   noCaps
                 ></Button>
@@ -63,7 +64,7 @@ export default function SettingsPage({ slideIndex }) {
                   key="2"
                   color="#FF695B"
                   borderButton
-                  onClick={toggleModal}
+                  onClick={_ => handleLogout(true)}
                   text="all devices"
                   noCaps
                 ></Button>
@@ -77,6 +78,10 @@ export default function SettingsPage({ slideIndex }) {
     </Main>
   )
 
+  async function handleLogout(allDevices = false) {
+    const deletedCount = await logout(allDevices)
+    setIsLoggedIn(false)
+  }
   function toggleModal() {
     setShowModal(!showModal)
   }

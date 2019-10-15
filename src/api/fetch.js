@@ -4,6 +4,9 @@ const postRequest = (url, body) => {
 const putRequest = (url, body) => {
   return request('PUT', body, url)
 }
+const deleteRequest = (url, body) => {
+  return request('DELETE', body, url)
+}
 
 function request(method = 'GET', body, url) {
   return new Promise((resolve, reject) => {
@@ -25,4 +28,4 @@ function request(method = 'GET', body, url) {
       .catch(err => reject(err))
   })
 }
-export { postRequest, putRequest }
+export { postRequest, putRequest, deleteRequest }

@@ -1,9 +1,17 @@
-const { postRequest } = require('./fetch')
+const { postRequest, deleteRequest } = require('./fetch')
 
 export const getCurrentUser = _ => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_me')
     res.success ? resolve(res.item) : reject(res)
+  })
+}
+export const logout = allDevices => {
+  return new Promise(async (resolve, reject) => {
+    const res = await deleteRequest('/user/session', {
+      deleteAllSessions: allDevices
+    })
+    return res.success ? resolve(res.deletedCount) : reject(res)
   })
 }
 export const updateUserSettings = ({ display_name, isUserImagePublic }) => {
