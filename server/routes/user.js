@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const { getCurrentSong } = require('../spotify_utils')
-const { getSessionIfValid } = require('../auth_utils')
+const { getSessionIfValid, deleteUserSessions } = require('../auth_utils')
 const { putSpotifyRequest, getSpotifyRequest } = require('../request_utils')
 const {
   getContacts,
@@ -13,6 +13,15 @@ const {
   getMe
 } = require('../db_utils')
 
+router.delete('/session', function(req, res) {
+  withValidSession(req, res, async session => {
+    const { deleteAllSessions } = req.body
+    const response = await deleteUserSessions(session, !!deleteAllSessions)
+    return response.deletedCount > 0
+      ? res.send({ success: true, deletedCount: response.deletedCount })
+      : res.send({ success: false })
+  })
+})
 router.post('/contacts', async function(req, res) {
   withValidSession(req, res, async session => {
     const contacts = await getContacts(session)
@@ -20,7 +29,7 @@ router.post('/contacts', async function(req, res) {
       const currSong = await getCurrentSong(contact.id)
       contact.currSong = currSong
     }
-    contacts
+    return contacts
       ? res.send({ success: true, items: contacts })
       : res.send({ success: false, error: 'no contacts' })
   })
@@ -32,20 +41,19 @@ router.post('/get_devices', async function(req, res) {
       session.spotify_access_token,
       '/v1/me/player/devices'
     )
-    response && response.devices
+    return response && response.devices
       ? res.send({ success: true, items: response.devices })
       : res.send({ success: false })
   })
 })
 router.put('/start_playback', async function(req, res) {
   withValidSession(req, res, async session => {
-    console.log(req.body)
     response = await putSpotifyRequest(
       session.spotify_access_token,
       '/v1/me/player/play',
       req.body
     )
-    console.log(response)
+    console.log('start_playback', response)
     return res.send({ success: true, response })
   })
 })
