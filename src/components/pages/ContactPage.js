@@ -8,7 +8,7 @@ import { searchUser, getContactRequests } from '../../api/api'
 import UserSearchResults from '../common/UserSearchResults'
 import ContactRequestList from '../common/ContactRequestList'
 
-export default function ContactPage({ onRequestAccepted }) {
+export default function ContactPage({ onRequestAccepted, setReuqestCount }) {
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState('')
@@ -20,10 +20,17 @@ export default function ContactPage({ onRequestAccepted }) {
     },
     [query]
   )
+  useEffect(_ => setReuqestCount(contactRequests.length), [contactRequests])
   useEffect(_ => {
     getContactRequests().then(setContactRequests)
+    fetchContactRequests()
   }, [])
 
+  const fetchContactRequests = _ => {
+    console.log('fetching contact requests')
+    getContactRequests().then(setContactRequests)
+    setTimeout(fetchContactRequests, 1000 * 30)
+  }
   return (
     <Main>
       <Form paddingTop="200px" onSubmit={_ => setQuery(search)}>

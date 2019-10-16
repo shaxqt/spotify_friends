@@ -8,7 +8,7 @@ const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         background-color: #222;
-        color: #eee;
+        color: #fff;
         font-family: 'Roboto', sans-serif;
     }
     #root {
@@ -17,7 +17,6 @@ const GlobalStyle = createGlobalStyle`
         right: 0;
         bottom: 0;
         left: 0;
-        -color: #eee;
         display: grid;
         grid-auto-rows: auto 45px;
     }

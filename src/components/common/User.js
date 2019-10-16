@@ -70,7 +70,7 @@ const UserStyled = styled.section`
   }
   & i {
     color: ${({ isAddButtonActive }) =>
-      isAddButtonActive ? 'rgb(30, 215, 97)' : '#777'};
+      isAddButtonActive ? '#1DB954' : '#777'};
     font-size: 40px;
   }
   img {

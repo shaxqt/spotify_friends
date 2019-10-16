@@ -35,6 +35,8 @@ export function getSongData(friend) {
           }
           playing_type += ': ' + friend.currSong.item.album.name
         }
+      } else {
+        playing_type = friend.currSong.currently_playing_type
       }
       if (friend.currSong.item) {
         song_title = friend.currSong.item.name

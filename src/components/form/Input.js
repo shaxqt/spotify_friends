@@ -62,7 +62,7 @@ const IconInputStyled = styled.div`
     color: #888;
   }
   &:focus-within > i {
-    color: rgb(30, 215, 97);
+    color: #1db954;
   }
 `
 const InputStyled = styled.input`
@@ -70,7 +70,7 @@ const InputStyled = styled.input`
   border: none;
   font-size: 1rem;
   background: none;
-  color: #eee;
+  color: inherit;
   &::placeholder {
     color: #888;
   }

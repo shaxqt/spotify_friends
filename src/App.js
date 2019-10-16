@@ -32,7 +32,11 @@ const App = props => {
     return <h3>checking token...</h3>
   }
   function renderMainPage() {
-    return isLoggedIn ? <LoggedInPage /> : <LoginPage />
+    return isLoggedIn ? (
+      <LoggedInPage setIsLoggedIn={setIsLoggedIn} />
+    ) : (
+      <LoginPage />
+    )
   }
 }
 

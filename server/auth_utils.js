@@ -4,6 +4,20 @@ const User = require('./Models/User')
 const { client_secret, client_id } = require('./config/config')
 const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
 
+const deleteUserSessions = async (session, deleteAllSessions = false) => {
+  try {
+    let query = {}
+    deleteAllSessions
+      ? (query.userID = session.userID)
+      : (query._id = session.id)
+    return await UserSession.deleteMany({
+      ...query
+    }).exec()
+  } catch (err) {
+    console.log('deleteUserSessions', err)
+    return null
+  }
+}
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
     const session = await UserSession.findOne({ _id: sanitize(token) })
@@ -105,4 +119,9 @@ const refreshSpotifyToken = async session => {
   }
 }
 
-module.exports = { getSessionIfValid, handleUserLogin, getValidSessionForUser }
+module.exports = {
+  getSessionIfValid,
+  handleUserLogin,
+  getValidSessionForUser,
+  deleteUserSessions
+}

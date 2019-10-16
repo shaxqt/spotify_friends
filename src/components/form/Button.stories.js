@@ -9,7 +9,7 @@ storiesOf('Button', module)
     <Button
       onClick={action('clicked')}
       text={text('text', 'search')}
-      color={text('color', 'rgb(30, 215, 97)')}
+      color={text('color', '#1DB954')}
       borderButton={boolean('borderButton', false)}
       noCaps={boolean('noCaps', false)}
     />

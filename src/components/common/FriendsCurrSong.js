@@ -64,7 +64,7 @@ const ContentStyled = styled(FixedStyled)`
   h2 {
     margin: 0;
     font-size: 24px;
-    color: rgb(30, 215, 97);
+    color: #1db954;
   }
   h3 {
     margin: 0;
@@ -89,7 +89,7 @@ const ContentStyled = styled(FixedStyled)`
   }
 
   .fa-play-circle {
-    color: rgb(30, 215, 97);
+    color: #1db954;
     font-size: 50px;
   }
 `
