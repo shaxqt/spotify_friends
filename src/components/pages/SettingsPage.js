@@ -79,8 +79,9 @@ export default function SettingsPage({ slideIndex, setIsLoggedIn }) {
   )
 
   async function handleLogout(allDevices = false) {
-    const deletedCount = await logout(allDevices)
-    setIsLoggedIn(false)
+    await logout(allDevices)
+      .then(_ => setIsLoggedIn(false))
+      .catch(err => err)
   }
   function toggleModal() {
     setShowModal(!showModal)

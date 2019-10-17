@@ -14,6 +14,15 @@ export function findReplace(array, item, replace) {
   ]
   return newResult
 }
+export function findReplaceId(array, item, replace) {
+  const index = array.indexOf(item)
+  const newResult = [
+    ...array.slice(0, index),
+    replace,
+    ...array.slice(index + 1)
+  ]
+  return newResult
+}
 
 export function getSongData(friend) {
   let display_name,

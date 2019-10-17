@@ -8,6 +8,7 @@ import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
 import { bindKeyboard } from 'react-swipeable-views-utils'
+import SocketContext from '../../hooks/SocketContext'
 
 const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 
@@ -15,25 +16,26 @@ export default function LoggedInPage({ setIsLoggedIn }) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
   const [loadingFriends, setLoadingFriends] = useState(true)
-  const [requestCount, setReuqestCount] = useState(0)
+  const [requestCount, setRequestCount] = useState(0)
+  const socket = React.useContext(SocketContext)
 
-  useEffect(_ => {
-    getFriends().then(friends => {
-      setFriends(friends)
-      setLoadingFriends(false)
-      fetchFriends()
-    })
-  }, [])
+  useEffect(
+    _ => {
+      getFriends().then(friends => {
+        getFriends().then(setFriends)
+        setLoadingFriends(false)
 
-  const fetchFriends = _ => {
-    console.log('fetching friends')
-    refreshContacts()
-    setTimeout(fetchFriends, 1000 * 10)
-  }
+        socket.on('newsong', ({ userID, currSong }) => {
+          console.log('got new song for ur friend ' + userID)
+          setFriends(
+            friends.map(f => (f.id === userID ? { ...f, currSong } : f))
+          )
+        })
+      })
+    },
+    [socket]
+  )
 
-  const refreshContacts = _ => {
-    getFriends().then(setFriends)
-  }
   return (
     <>
       <BindKeyboardSwipeableViews
@@ -43,8 +45,8 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         index={slideIndex}
       >
         <ContactPage
-          setReuqestCount={setReuqestCount}
-          onRequestAccepted={refreshContacts}
+          setRequestCount={setRequestCount}
+          onRequestAccepted={_ => getFriends().then(setFriends)}
         />
         <FriendsPage friends={friends} isLoading={loadingFriends} />
         <SettingsPage setIsLoggedIn={setIsLoggedIn} slideIndex={slideIndex} />
