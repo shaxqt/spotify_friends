@@ -35,8 +35,10 @@ router.post('/contacts', async function(req, res) {
   withValidSession(req, res, async session => {
     const contacts = await getContacts(session)
     for (const contact of contacts) {
-      const currSong = await getCurrentSong(contact.id)
-      contact.currSong = currSong
+      const res = await getCurrentSong(contact.id)
+      if (res) {
+        contact.currSong = res.currSong
+      }
     }
     return contacts
       ? res.send({ success: true, items: contacts })
