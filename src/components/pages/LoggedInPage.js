@@ -8,7 +8,7 @@ import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
 import { bindKeyboard } from 'react-swipeable-views-utils'
-import SocketContext from '../../hooks/SocketContext'
+import SocketContext from '../../context/SocketContext'
 
 const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 

@@ -3,7 +3,7 @@ import { getOrVerifyToken } from './api/auth'
 import LoginPage from './components/pages/LoginPage'
 import LoggedInPage from './components/pages/LoggedInPage'
 import GlobalStyles from './components/utils/GlobalStyles'
-import SocketContext from './hooks/SocketContext'
+import SocketContext from './context/SocketContext'
 import io from 'socket.io-client'
 
 const { spotify_friends_token } = localStorage
