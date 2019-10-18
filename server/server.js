@@ -7,7 +7,9 @@ const mongoose = require('mongoose')
 const { getSessionIfValid } = require('./auth_utils')
 const { startCurrSongFetchIntervall } = require('./spotify_utils')
 const http = require('http').createServer(server)
-const io = require('socket.io')(http)
+const io = require('socket.io')(http, {
+  pingTimeout: 60000
+})
 
 mongoose
   .connect(mongoDB, {
@@ -19,7 +21,7 @@ mongoose
   .then(() => console.log('connected to mongoDB'))
   .catch(err => console.log('error connecting to mongoDB', err))
 
-io.use(async function(socket, next) {
+io.use(async (socket, next) => {
   if (socket.handshake.query && socket.handshake.query.spotify_friends_token) {
     const session = await getSessionIfValid(
       socket.handshake.query.spotify_friends_token
@@ -34,18 +36,21 @@ io.use(async function(socket, next) {
 })
 
 let clients = []
-io.sockets.on('connection', function(socket) {
+io.sockets.on('connection', socket => {
+  console.log('clients counts: ' + clients.length)
+
+  clients = [...clients, socket]
   console.log(
-    socket.session.userID + ' joined, client count: ' + clients.push(socket)
+    'client ' + socket.session.userID + ' joined, count: ' + clients.length
   )
 
-  socket.on('disconnect', function(socket) {
+  socket.on('disconnect', socket => {
     clients = clients.filter(s => s.id === socket.id)
-    console.log('client left, client count: ' + clients.length)
+    console.log('client left, count: ' + clients.length)
   })
 })
 
-http.listen(3333, function() {
+http.listen(3333, _ => {
   console.log('listening on *:3333')
 })
 
@@ -67,5 +72,4 @@ startCurrSongFetchIntervall((userID, currSong, friends) => {
       socket.emit('newsong', { userID, currSong })
     })
   })
-  //console.log('new song to push: ', userID, currSong.item.name, friends)
 })
