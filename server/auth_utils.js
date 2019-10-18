@@ -20,6 +20,7 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
+    console.log('get session if valid for ' + token)
     const session = await UserSession.findOne({ _id: sanitize(token) })
     if (session) {
       if (!checkSpotifyToken) {
@@ -82,13 +83,13 @@ const verifySpotifyToken = async session => {
     return null
   }
 }
-async function getValidSessionForUser(userID) {
+async function getValidSessionForUser(userID, tryRefresh = false) {
   try {
     sessions = await UserSession.find({ userID }).exec()
     sessions.sort((a, b) => b.timestamp - a.timestamp)
     for (const session of sessions) {
-      const validSession = await verifySpotifyToken(session)
-      if (validSession != null) return validSession
+      const validSession = await verifySpotifyToken(session, tryRefresh)
+      return validSession != null ? validSession : null
     }
   } catch {
     console.log('getValidSessionForUser err:', err)
@@ -110,6 +111,7 @@ const refreshSpotifyToken = async session => {
     if (body && body.access_token) {
       session.spotify_access_token = body.access_token
       const updatedSession = await session.save()
+      console.log('refreshed token', session.userID)
       return updatedSession != null ? updatedSession : null
     }
     return null

@@ -2,7 +2,6 @@ import React from 'react'
 import Main from '../utils/Main'
 import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
-import { getDevices } from '../../api/api'
 import GridStyled from '../utils/GridStyled'
 
 export default function FriendsPage({ friends, isLoading }) {

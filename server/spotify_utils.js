@@ -1,21 +1,50 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
+const { findContacts } = require('./db_utils')
+const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')
 
-const getCurrentSong = async userID => {
+const startCurrSongFetchIntervall = _ => {
+  setInterval(async _ => {
+    try {
+      const users = await User.find().exec()
+      for (const user of users) {
+        const { currSong, isSongNew } = await getCurrentSong('', user, true)
+        if (isSongNew) {
+          let friends = await findContacts(user.id)
+          friends = friends.map(f =>
+            user.id === f.target ? f.source : f.target
+          )
+          clientHandler.emitToUserIDs(friends, 'newsong', {
+            userID: user.id,
+            currSong
+          })
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }, 5 * 1000)
+}
+
+const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
   try {
-    const user = await User.findOne({ id: userID }).exec()
+    if (!user) {
+      user = await User.findOne({ id: userID }).exec()
+    }
     // return song from db if last request was within last 10sec
     if (user) {
+      let isSongNew = false
       if (
         user.currSong == null ||
         user.fetchedCurrSong == null ||
         user.fetchedCurrSong + 10000 < Date.now()
       ) {
-        console.log('requesting currSong for user: ' + userID)
+        let currSongUri = user.currSong.item.uri
+        console.log('requesting currSong for user: ' + user.id)
 
-        const validSession = await getValidSessionForUser(userID)
+        const validSession = await getValidSessionForUser(user.id, tryRefresh)
         if (validSession) {
           // request new current song and save to db
           const res = await getSpotifyRequest(
@@ -28,15 +57,19 @@ const getCurrentSong = async userID => {
             (res.currently_playing_type === 'track' ||
               res.currently_playing_type === 'episode')
           ) {
-            user.currSong = res
-            console.log('updated song for user ' + userID)
+            isSongNew = currSongUri !== res.item.uri
+            if (isSongNew) {
+              user.currSong = res
+              console.log('updated song for user ' + user.id)
+            }
           }
+        } else {
         }
         // set fetch time, if song was fetched
         user.fetchedCurrSong = Date.now()
       }
       const savedUser = await user.save()
-      return savedUser.currSong
+      return { currSong: savedUser.currSong, isSongNew }
     }
   } catch (err) {
     console.log('getCurrSong err:', err)
@@ -98,4 +131,4 @@ const getTop = async ({
   }
 }
 
-module.exports = { getCurrentSong, getTop }
+module.exports = { getCurrentSong, getTop, startCurrSongFetchIntervall }

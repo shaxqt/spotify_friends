@@ -138,7 +138,7 @@ function findUsersByDisplayName(session, query) {
     )
   })
 }
-function findContacts(userID) {
+const findContacts = userID => {
   return new Promise((resolve, reject) => {
     Contact.find(
       {
@@ -250,5 +250,6 @@ module.exports = {
   searchUsersByDisplayName,
   getRequests,
   userUpdateSettings,
-  getMe
+  getMe,
+  findContacts
 }
