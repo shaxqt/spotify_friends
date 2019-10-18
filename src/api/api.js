@@ -98,7 +98,7 @@ function contactsSortByTimestamp(contacts) {
   contacts.sort((a, b) => {
     if (a.currSong) {
       if (b.currSong) {
-        return a.currSong.timestamp - b.currSong.timestamp
+        return b.currSong.timestamp - a.currSong.timestamp
       } else {
         return -1
       }

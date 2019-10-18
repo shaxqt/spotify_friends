@@ -15,12 +15,14 @@ const log = _ =>
   )
 
 const emitToUserIDs = (userIDs, message, data) => {
+  console.log('emitToUserIDs called for ' + userIDs.join(', '))
+  log()
   userIDs.forEach(userID => {
     const socketsToPush = clients.filter(
       socket => socket.session.userID === userID
     )
     socketsToPush.forEach(socket => {
-      console.log('pushing newsong to ' + socket.session.userID)
+      console.log('pushing ' + message + ' to ' + socket.session.userID)
       socket.emit(message, data)
     })
   })
