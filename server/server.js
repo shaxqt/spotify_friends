@@ -30,8 +30,6 @@ io.sockets.on('connection', socket => {
     )
     getSessionIfValid(socket.handshake.query.spotify_friends_token)
       .then(session => {
-        console.log('VIELLEICHT SO?', session['userID'] != null)
-        console.log('SESSION?', session.userID, !!session.userID)
         if (session != null && session['userID'] != null) {
           socket.session = session
           clients.add(socket)
