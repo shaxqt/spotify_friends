@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Input from '../form/Input'
 import Button from '../form/Button'
 import Form from '../form/Form'
@@ -7,31 +7,26 @@ import Main from '../utils/Main'
 import { searchUser, getContactRequests } from '../../api/api'
 import UserSearchResults from '../common/UserSearchResults'
 import ContactRequestList from '../common/ContactRequestList'
+import SocketContext from '../../context/SocketContext'
 
 export default function ContactPage({ onRequestAccepted, setRequestCount }) {
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState('')
   const [contactRequests, setContactRequests] = useState([])
+  const socket = useContext(SocketContext)
 
   useEffect(
     _ => {
-      searchUser(query).then(setSearchResults)
+      fetchContacts()
+      socket.on('update_requests', data => {
+        fetchContacts()
+      })
     },
     [query]
   )
-  useEffect(_ => setRequestCount(contactRequests.length), [
-    contactRequests,
-    setRequestCount
-  ])
-  useEffect(_ => {
-    getContactRequests().then(setContactRequests)
-    fetchContactRequests()
-  }, [])
+  useEffect(_ => setRequestCount(contactRequests.length), [contactRequests])
 
-  const fetchContactRequests = _ => {
-    getContactRequests().then(setContactRequests)
-  }
   return (
     <Main>
       <Form paddingTop="200px" onSubmit={_ => setQuery(search)}>
@@ -54,6 +49,16 @@ export default function ContactPage({ onRequestAccepted, setRequestCount }) {
       />
     </Main>
   )
+  function fetchContacts() {
+    getContactRequests()
+      .then(requests => {
+        setContactRequests(requests)
+        searchUser(query)
+          .then(setSearchResults)
+          .catch(err => err)
+      })
+      .catch(err => err)
+  }
 
   function updateSearchResult(user, create, wasAccepted = false) {
     let newContactInfo = create ? 'request sent' : 'request retracted'

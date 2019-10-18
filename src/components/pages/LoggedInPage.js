@@ -31,6 +31,10 @@ export default function LoggedInPage({ setIsLoggedIn }) {
             friends.map(f => (f.id === userID ? { ...f, currSong } : f))
           )
         })
+        socket.on('update_friends', data => {
+          console.log('update_friends kam an')
+          getFriends().then(setFriends)
+        })
       })
     },
     [socket]

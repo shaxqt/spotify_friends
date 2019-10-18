@@ -12,6 +12,7 @@ const {
   userUpdateSettings,
   getMe
 } = require('../db_utils')
+const clients = require('../clients')
 
 router.get('/top', function(req, res) {
   withValidSession(req, res, async session => {
@@ -81,9 +82,12 @@ router.post('/get_user', function(req, res) {
 router.post('/create_contact', async function(req, res) {
   withValidSession(req, res, async session => {
     const contact = await createContact(session, req.body.target)
-    return contact
-      ? res.send({ success: true, items: contact })
-      : res.send({ success: false, error: 'could not save conacts to db' })
+    if (contact) {
+      clients.emitToUserIDs([contact.target], 'update_requests')
+      res.send({ success: true, items: contact })
+    } else {
+      res.send({ success: false, error: 'could not save conacts to db' })
+    }
   })
 })
 
@@ -91,6 +95,7 @@ router.post('/retract_contact', async function(req, res) {
   withValidSession(req, res, async session => {
     const { target } = req.body
     const success = await deleteContact(session, target)
+    success && clients.emitToUserIDs([target], 'update_requests')
     return res.send({ success })
   })
 })
@@ -129,9 +134,12 @@ async function handleRequest(req, res, accept = true) {
   withValidSession(req, res, async session => {
     const { source } = req.body
     const contact = await acceptOrDenyContact(session, source, accept)
-    return contact
-      ? res.send({ success: true, items: contact })
-      : res.send({ success: false, error: 'coulnd not update contact' })
+    if (contact) {
+      accept && clients.emitToUserIDs([contact.source], 'update_friends')
+      res.send({ success: true, items: contact })
+    } else {
+      res.send({ success: false, error: 'coulnd not update contact' })
+    }
   })
 }
 async function withValidSession(req, res, callback) {
