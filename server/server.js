@@ -6,6 +6,7 @@ const { mongoDB } = require('./config/config')
 const mongoose = require('mongoose')
 const { getSessionIfValid } = require('./auth_utils')
 const { startCurrSongFetchIntervall } = require('./spotify_utils')
+const clients = require('./clients')
 const http = require('http').createServer(server)
 const io = require('socket.io')(http, {
   pingTimeout: 60000
@@ -21,32 +22,33 @@ mongoose
   .then(() => console.log('connected to mongoDB'))
   .catch(err => console.log('error connecting to mongoDB', err))
 
-io.use(async (socket, next) => {
-  if (socket.handshake.query && socket.handshake.query.spotify_friends_token) {
-    const session = await getSessionIfValid(
-      socket.handshake.query.spotify_friends_token
-    )
-    if (session) {
-      socket.session = session
-      next()
-    } else {
-      socket.disconnect()
-    }
-  }
-})
-
-let clients = []
 io.sockets.on('connection', socket => {
-  console.log('clients counts: ' + clients.length)
-
-  clients = [...clients, socket]
-  console.log(
-    'client ' + socket.session.userID + ' joined, count: ' + clients.length
-  )
+  if (socket.handshake.query && socket.handshake.query.spotify_friends_token) {
+    console.log(
+      'incoming connection token: ' +
+        socket.handshake.query.spotify_friends_token
+    )
+    getSessionIfValid(socket.handshake.query.spotify_friends_token)
+      .then(session => {
+        console.log('VIELLEICHT SO?', session['userID'] != null)
+        console.log('SESSION?', session.userID, !!session.userID)
+        if (session != null && session['userID'] != null) {
+          socket.session = session
+          clients.add(socket)
+          clients.log()
+        } else {
+          socket.disconnect()
+        }
+      })
+      .catch(err => {
+        socket.disconnect()
+        console.log('err getting session', err)
+      })
+  }
 
   socket.on('disconnect', socket => {
-    clients = clients.filter(s => s.id === socket.id)
-    console.log('client left, count: ' + clients.length)
+    clients.remove(socket.id)
+    clients.log()
   })
 })
 
@@ -62,14 +64,4 @@ server.set('json spaces', 2)
 server.use('/auth', require('./routes/auth'))
 server.use('/user', require('./routes/user'))
 
-startCurrSongFetchIntervall((userID, currSong, friends) => {
-  friends.forEach(friend => {
-    const socketsToPush = clients.filter(
-      socket => socket.session.userID === friend
-    )
-    socketsToPush.forEach(socket => {
-      console.log('pushing newsong to ' + socket.session.userID)
-      socket.emit('newsong', { userID, currSong })
-    })
-  })
-})
+startCurrSongFetchIntervall()

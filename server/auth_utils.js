@@ -20,6 +20,7 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
+    console.log('get session if valid for ' + token)
     const session = await UserSession.findOne({ _id: sanitize(token) })
     if (session) {
       if (!checkSpotifyToken) {
@@ -88,7 +89,6 @@ async function getValidSessionForUser(userID, tryRefresh = false) {
     sessions.sort((a, b) => b.timestamp - a.timestamp)
     for (const session of sessions) {
       const validSession = await verifySpotifyToken(session, tryRefresh)
-
       return validSession != null ? validSession : null
     }
   } catch {

@@ -1,10 +1,11 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
 const { findContacts } = require('./db_utils')
+const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')
 
-const startCurrSongFetchIntervall = callback => {
+const startCurrSongFetchIntervall = _ => {
   setInterval(async _ => {
     try {
       const users = await User.find().exec()
@@ -15,7 +16,10 @@ const startCurrSongFetchIntervall = callback => {
           friends = friends.map(f =>
             user.id === f.target ? f.source : f.target
           )
-          callback(user.id, currSong, friends)
+          clientHandler.emitToUserIDs(friends, 'newsong', {
+            userID: user.id,
+            currSong
+          })
         }
       }
     } catch (err) {
