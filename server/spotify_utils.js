@@ -1,6 +1,6 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
-const { getContacts } = require('./db_utils')
+const { getContacts, getMe } = require('./db_utils')
 const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')
@@ -89,8 +89,7 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
   }
 }
 const getTops = async options => {
-  const friends = await getContacts(session)
-  console.log('FRIENDS', friends)
+  const friends = await getContacts(options.session)
   let tops = []
   for (const friend of friends) {
     let topOfFriend = await getTop({ ...options, userID: friend.id })
@@ -100,7 +99,17 @@ const getTops = async options => {
     }))
     tops = [...tops, ...topOfFriend]
   }
-  return tops
+  const user = await getMe(options.session)
+  let ownTops = await getTop({ ...options, userID: session.userID })
+  ownTops = ownTops.map(top => ({
+    song: top,
+    friend: {
+      display_name: user.display_name,
+      id: user.id,
+      images: user.images
+    }
+  }))
+  return [...tops, ...ownTops]
 }
 const getTop = async ({
   userID,

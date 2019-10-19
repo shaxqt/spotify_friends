@@ -14,6 +14,14 @@ const {
 } = require('../db_utils')
 const clients = require('../clients')
 
+router.put('/shuffle', function(req, res) {
+  withValidSession(req, res, async session => {
+    await putSpotifyRequest(
+      session.spotify_access_token,
+      '/v1/me/player/shuffle?state=' + !!req.body.state
+    )
+  })
+})
 router.post('/top', function(req, res) {
   withValidSession(req, res, async session => {
     const response = await getTops({ session, ...req.body })

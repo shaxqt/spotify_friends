@@ -14,11 +14,19 @@ export function findReplace(array, item, replace) {
   ]
   return newResult
 }
+export function getTopSongData(topSong) {
+  let ret = {}
 
+  const songData = getSpotifySongItemData(topSong.song)
+  ret = { ...songData }
+  ret.names = topSong.friends.map(f => f.display_name).join(', ')
+
+  return ret
+}
 export function getSongData(friend) {
   let display_name,
     song_title,
-    song_arists,
+    song_artists,
     song_image,
     playing_type,
     timeFetched
@@ -39,24 +47,33 @@ export function getSongData(friend) {
         playing_type = friend.currSong.currently_playing_type
       }
       if (friend.currSong.item) {
-        song_title = friend.currSong.item.name
-        song_arists = friend.currSong.item.artists
-          .map(artist => artist.name)
-          .join(', ')
-        if (friend.currSong.item.album.images.length > 0) {
-          song_image = friend.currSong.item.album.images[0].url
-        }
+        const songData = getSpotifySongItemData(friend.currSong.item)
+        song_title = songData.song_title
+        song_artists = songData.song_artists
+        song_image = songData.song_image
       } else {
         song_title = 'no song information ☹️'
       }
     }
   }
+
   return {
     display_name,
     song_image,
     song_title,
-    song_arists,
+    song_artists,
     playing_type,
     timeFetched
   }
+}
+function getSpotifySongItemData(item) {
+  let ret = {}
+  ret.song_title = item.name
+  ret.song_artists = item.artists.map(artist => artist.name).join(', ')
+  ret.uri = item.uri
+  if (item.album.images.length > 0) {
+    ret.song_image = item.album.images[0].url
+  }
+  ret.preview_url = item.preview_url
+  return ret
 }
