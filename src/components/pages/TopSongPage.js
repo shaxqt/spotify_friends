@@ -48,7 +48,6 @@ export default function TopSongPage() {
         offset: { uri: start_uri },
         uris: filteredSongs.map(song => song.song.uri)
       }
-      console.log('body', body)
       putRequest('/user/shuffle', { state: true })
       putRequest('/user/start_playback', body)
     }
@@ -74,6 +73,7 @@ export default function TopSongPage() {
     return friends
   }
   function reduceSongs(songs) {
+    songs = topSongs.slice()
     songs = topSongs.reduce((acc, curr) => {
       curr.friends = []
       const [sameSong] = acc.filter(test => test.song.uri === curr.song.uri)
@@ -92,6 +92,7 @@ export default function TopSongPage() {
         for (const friend of song.friends) {
           if (friendIdFilter.includes(friend.id)) {
             filteredSongs = [...filteredSongs, song]
+            break
           }
         }
       }
@@ -99,7 +100,6 @@ export default function TopSongPage() {
       filteredSongs = songs
     }
     filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
-    console.log(filteredSongs)
     return filteredSongs
   }
 }
