@@ -33,7 +33,7 @@ router.get('/callback', async function(req, res) {
   try {
     const { code, state, error, token } = req.query
     const storedState = req.cookies ? req.cookies[stateKey] : null
-    console.log('/callback code:' + code + ' token: ' + code)
+    console.log('/callback code:' + code + ' token: ' + token)
 
     if (token) {
       // check if session is valid

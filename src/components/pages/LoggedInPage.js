@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import GridStyled from '../utils/GridStyled'
 import ContactPage from './ContactPage'
 import FriendsPage from './FriendsPage'
+import TopSongPage from './TopSongPage'
 import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
 import { getFriends } from '../../api/api'
@@ -53,13 +54,15 @@ export default function LoggedInPage({ setIsLoggedIn }) {
           onRequestAccepted={_ => getFriends().then(setFriends)}
         />
         <FriendsPage friends={friends} isLoading={loadingFriends} />
-        <SettingsPage setIsLoggedIn={setIsLoggedIn} slideIndex={slideIndex} />
+        <TopSongPage></TopSongPage>
+        <SettingsPage setIsLoggedIn={setIsLoggedIn} active={slideIndex === 3} />
       </BindKeyboardSwipeableViews>
 
       <Navigation slideIndex={slideIndex}>
         {withNavButtonStyled(0, 'fa fa-search', requestCount)}
         {withNavButtonStyled(1, 'fa fa-users')}
-        {withNavButtonStyled(2, 'fa fa-cogs')}
+        {withNavButtonStyled(2, 'fa fa-headphones')}
+        {withNavButtonStyled(3, 'fa fa-cogs')}
       </Navigation>
     </>
   )

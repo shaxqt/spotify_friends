@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { getCurrentSong, getTop } = require('../spotify_utils')
+const { getCurrentSong, getTops } = require('../spotify_utils')
 const { getSessionIfValid, deleteUserSessions } = require('../auth_utils')
 const { putSpotifyRequest, getSpotifyRequest } = require('../request_utils')
 const {
@@ -14,9 +14,9 @@ const {
 } = require('../db_utils')
 const clients = require('../clients')
 
-router.get('/top', function(req, res) {
+router.post('/top', function(req, res) {
   withValidSession(req, res, async session => {
-    const response = await getTop({ userID: session.userID, ...req.body })
+    const response = await getTops({ session, ...req.body })
     response
       ? res.send({ success: true, items: response })
       : res.send({ success: false })

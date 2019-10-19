@@ -8,7 +8,7 @@ import Checkbox from '../form/Checkbox'
 import Modal from '../utils/Modal'
 import Button from '../form/Button'
 
-export default function SettingsPage({ slideIndex, setIsLoggedIn }) {
+export default function SettingsPage({ active, setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [showModal, setShowModal] = useState(false)
 
@@ -26,7 +26,7 @@ export default function SettingsPage({ slideIndex, setIsLoggedIn }) {
               label="display name"
               value={currentUser.display_name}
               onSubmit={onSubmitDisplayName}
-              isEditable={slideIndex === 2}
+              isEditable={active}
             />
             <Checkbox
               label="Show profile picture"
