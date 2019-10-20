@@ -11,7 +11,11 @@ export default function TopSongPage() {
   const [topSongs, setTopSongs] = useState([])
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, setFilteredSongs] = useState([])
-
+  const [activeAudio, setActiveAudio] = useState({
+    audio: null,
+    preview_url: '',
+    isPlaying: false
+  })
   useEffect(_ => {
     getTopSongs().then(setTopSongs)
   }, [])
@@ -32,11 +36,40 @@ export default function TopSongPage() {
         />
         <IconStyled onClick={shuffleAll} className="fa fa-random"></IconStyled>
         {filteredSongs.map(song => {
-          return <Song song={song} key={song.song.uri} />
+          return (
+            <Song
+              song={song}
+              key={song.song.uri}
+              togglePreview={togglePreview}
+              isPlaying={
+                song.song.preview_url === activeAudio.preview_url &&
+                activeAudio.isPlaying
+              }
+            />
+          )
         })}
       </GridStyled>
     </Main>
   )
+  function togglePreview(preview_url) {
+    if (activeAudio.preview_url === preview_url) {
+      if (activeAudio.isPlaying) {
+        activeAudio.audio.pause()
+        setActiveAudio({ ...activeAudio, isPlaying: false })
+      } else {
+        activeAudio.audio.play()
+        setActiveAudio({ ...activeAudio, isPlaying: true })
+      }
+    } else {
+      if (activeAudio.audio) {
+        activeAudio.audio.pause()
+      }
+      let audio = new Audio(preview_url)
+      audio.play()
+      setActiveAudio({ audio, isPlaying: true, preview_url })
+    }
+  }
+
   function shuffleAll() {
     if (filteredSongs.length > 0) {
       const start_uri =

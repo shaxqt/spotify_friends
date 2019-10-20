@@ -10,7 +10,7 @@ export default function BackgroundImage({
   return (
     <FriendsCurrSongStyled height={height}>
       <BackgroundImageStyled img={img} borderRadius={borderRadius} />
-      <ContentStyled className="YOLO">{children}</ContentStyled>
+      <ContentStyled>{children}</ContentStyled>
     </FriendsCurrSongStyled>
   )
 }

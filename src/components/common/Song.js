@@ -1,28 +1,20 @@
-import React, { createRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { getTopSongData } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
-export default function Song({ onClick, song }) {
+
+export default function Song({ song, togglePreview, isPlaying }) {
   const {
     song_title,
     song_artists,
     song_image,
     names,
-    uri,
     preview_url
   } = getTopSongData(song)
 
-  let buttonPressTimer
-  let audio
   return (
-    <SongStyled
-      onTouchStart={handleButtonPress}
-      onTouchEnd={handleButtonRelease}
-      onMouseDown={handleButtonPress}
-      onMouseUp={handleButtonRelease}
-      onMouseLeave={handleButtonRelease}
-    >
-      <img src={song_image} />
+    <SongStyled>
+      <ImgContainerStyled img={song_image} />
       <TextContentStyled alignContent="space-between">
         <h2>{song_title}</h2>
         <div>
@@ -30,30 +22,44 @@ export default function Song({ onClick, song }) {
           <small>{names}</small>
         </div>
       </TextContentStyled>
+      <IconStyled
+        isPlaying={isPlaying}
+        className={'fas fa-music'}
+        onClick={handleOnClick}
+      >
+        {isPlaying}
+      </IconStyled>
     </SongStyled>
   )
-
-  function handleButtonPress(e) {
+  function handleOnClick(e) {
     e.preventDefault()
-    if (!audio) {
-      audio = new Audio(preview_url)
-    }
-    buttonPressTimer = setTimeout(() => audio.play(), 400)
-  }
-
-  function handleButtonRelease(e) {
-    e.preventDefault()
-    if (audio) {
-      audio.pause()
-    }
-    clearTimeout(buttonPressTimer)
+    togglePreview(preview_url)
   }
 }
+const IconStyled = styled.i`
+  height: 80px;
+  color: ${({ isPlaying }) => (isPlaying ? '#1db954' : '#777')};
+
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+const ImgContainerStyled = styled.div`
+  height: 80px;
+  overflow: hidden;
+  background-image: ${props => props.img && `url(${props.img})`};
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+`
 const TextContentStyled = styled(GridStyled)`
+  height: 80px;
   padding: 5px;
 `
 const SongStyled = styled.section`
-  display: flex;
+  display: grid;
+  grid-template-columns: 80px 1fr 50px;
   background-color: #333;
   height: 80px;
   overflow: hidden;
@@ -67,8 +73,5 @@ const SongStyled = styled.section`
   small {
     font-size: 12px;
     color: #aaa;
-  }
-  img {
-    height: 100%;
   }
 `
