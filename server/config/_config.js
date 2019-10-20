@@ -3,5 +3,6 @@ module.exports = {
   client_id: 'your id (from your spotify application)',
   client_secret: 'your secret (also from your spotify application)',
   mongoDB: 'mongodb://localhost:27017/spotifyFriends',
-  tokenCookieName: 'spotify_friends_token'
+  tokenCookieName: 'spotify_friends_token',
+  redirect_uri: 'http://localhost:3000'
 }

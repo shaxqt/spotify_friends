@@ -6,8 +6,10 @@ import GlobalStyles from './components/utils/GlobalStyles'
 import SocketContext from './context/SocketContext'
 import io from 'socket.io-client'
 
+const backend = process.env.BACKEND || 'http://localhost:3333'
+
 const { spotify_friends_token } = localStorage
-const socket = io('http://localhost:3333', {
+const socket = io(backend, {
   query: { spotify_friends_token },
   secure: true,
   rejectUnauthorized: false
