@@ -3,34 +3,27 @@ import Main from '../utils/Main'
 import Song from '../common/Song'
 import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
-import { getTopSongs } from '../../api/api'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
 
-export default function TopSongPage() {
-  const [topSongs, setTopSongs] = useState([])
+export default function TopSongPage({ topSongs, activeAudio, togglePreview }) {
   const [friendIdFilter, setFriendIdFilter] = useState([])
+  const [allFriends, setAllFriends] = useState([])
   const [filteredSongs, setFilteredSongs] = useState([])
-  const [activeAudio, setActiveAudio] = useState({
-    audio: null,
-    preview_url: '',
-    isPlaying: false
-  })
-  useEffect(_ => {
-    getTopSongs().then(setTopSongs)
-  }, [])
+
   useEffect(
     _ => {
       setFilteredSongs(reduceSongs(topSongs))
     },
     [topSongs, friendIdFilter]
   )
+  useEffect(_ => setAllFriends(getFriends(topSongs)), [topSongs])
 
   return (
     <Main>
       <GridStyled gap="15px">
         <FriendFilter
-          friends={getFriends(topSongs)}
+          friends={allFriends}
           toggleFilter={toggleFilter}
           activeFilters={friendIdFilter}
         />
@@ -51,24 +44,6 @@ export default function TopSongPage() {
       </GridStyled>
     </Main>
   )
-  function togglePreview(preview_url) {
-    if (activeAudio.preview_url === preview_url) {
-      if (activeAudio.isPlaying) {
-        activeAudio.audio.pause()
-        setActiveAudio({ ...activeAudio, isPlaying: false })
-      } else {
-        activeAudio.audio.play()
-        setActiveAudio({ ...activeAudio, isPlaying: true })
-      }
-    } else {
-      if (activeAudio.audio) {
-        activeAudio.audio.pause()
-      }
-      let audio = new Audio(preview_url)
-      audio.play()
-      setActiveAudio({ audio, isPlaying: true, preview_url })
-    }
-  }
 
   function shuffleAll() {
     if (filteredSongs.length > 0) {
@@ -106,34 +81,36 @@ export default function TopSongPage() {
     return friends
   }
   function reduceSongs(songs) {
-    songs = topSongs.slice()
-    songs = topSongs.reduce((acc, curr) => {
-      curr.friends = []
-      const [sameSong] = acc.filter(test => test.song.uri === curr.song.uri)
-      if (sameSong) {
-        sameSong.friends = [...sameSong['friends'], curr.friend]
-        return acc
-      } else {
-        curr['friends'].push(curr.friend)
-        return [...acc, curr]
-      }
-    }, [])
+    if (songs != null) {
+      songs = topSongs.slice()
+      songs = topSongs.reduce((acc, curr) => {
+        curr.friends = []
+        const [sameSong] = acc.filter(test => test.song.uri === curr.song.uri)
+        if (sameSong) {
+          sameSong.friends = [...sameSong['friends'], curr.friend]
+          return acc
+        } else {
+          curr['friends'].push(curr.friend)
+          return [...acc, curr]
+        }
+      }, [])
 
-    let filteredSongs = []
-    if (friendIdFilter.length > 0) {
-      for (const song of songs) {
-        for (const friend of song.friends) {
-          if (friendIdFilter.includes(friend.id)) {
-            filteredSongs = [...filteredSongs, song]
-            break
+      let filteredSongs = []
+      if (friendIdFilter.length > 0) {
+        for (const song of songs) {
+          for (const friend of song.friends) {
+            if (friendIdFilter.includes(friend.id)) {
+              filteredSongs = [...filteredSongs, song]
+              break
+            }
           }
         }
+      } else {
+        filteredSongs = songs
       }
-    } else {
-      filteredSongs = songs
+      filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
+      return filteredSongs
     }
-    filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
-    return filteredSongs
   }
 }
 

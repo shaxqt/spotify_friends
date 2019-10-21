@@ -4,7 +4,12 @@ import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
 import GridStyled from '../utils/GridStyled'
 
-export default function FriendsPage({ friends, isLoading }) {
+export default function FriendsPage({
+  friends,
+  isLoading,
+  togglePreview,
+  activeAudio
+}) {
   return (
     <Main>
       <GridStyled gap="20px" justifyItems="center">
@@ -20,6 +25,8 @@ export default function FriendsPage({ friends, isLoading }) {
           key={friend.id}
           friend={friend}
           onPlay={getHandleOnPlay(friend)}
+          togglePreview={togglePreview}
+          activeAudio={activeAudio}
         />
       ))
     ) : (

@@ -9,14 +9,20 @@ FriendsCurrSong.propType = {
   contact: PropTypes.objectOf('contact').isRequired,
   onPlay: PropTypes.func
 }
-export default function FriendsCurrSong({ friend, onPlay }) {
+export default function FriendsCurrSong({
+  friend,
+  onPlay,
+  togglePreview,
+  activeAudio
+}) {
   const {
     display_name,
     song_image,
     song_title,
     song_artists,
     playing_type,
-    timeFetched
+    timeFetched,
+    preview_url
   } = getSongData(friend)
 
   return (
@@ -41,13 +47,25 @@ export default function FriendsCurrSong({ friend, onPlay }) {
               </div>
             </div>
           </div>
-          <h3>{display_name}</h3>
+          <div className="bottom__right">
+            <IconStyled
+              isPlaying={
+                preview_url === activeAudio.preview_url && activeAudio.isPlaying
+              }
+              className={'fas fa-music'}
+              onClick={_ => togglePreview(preview_url)}
+            ></IconStyled>
+            <h3>{display_name}</h3>
+          </div>
         </div>
       </ContentStyled>
     </BackgroundImage>
   )
 }
-
+const IconStyled = styled.i`
+  color: ${({ isPlaying }) => (isPlaying ? '#1db954' : '#aaa')};
+  font-size: 30px;
+`
 const ContentStyled = styled.div`
   height: 100%;
 
@@ -79,6 +97,12 @@ const ContentStyled = styled.div`
       grid-auto-flow: column;
       grid-gap: 10px;
       align-items: center;
+    }
+    &__right {
+    display: grid;
+    grid-gap: 5px;
+    justify-items: end;
+}
     }
   }
 

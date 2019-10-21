@@ -1,6 +1,6 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
-const { getContacts, getMe } = require('./db_utils')
+const { getContacts, getMe, findContacts } = require('./db_utils')
 const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')

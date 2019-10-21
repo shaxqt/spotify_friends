@@ -143,7 +143,11 @@ async function handleRequest(req, res, accept = true) {
     const { source } = req.body
     const contact = await acceptOrDenyContact(session, source, accept)
     if (contact) {
-      accept && clients.emitToUserIDs([contact.source], 'update_friends')
+      accept &&
+        clients.emitToUserIDs(
+          [contact.source, contact.target],
+          'update_friends'
+        )
       res.send({ success: true, items: contact })
     } else {
       res.send({ success: false, error: 'coulnd not update contact' })

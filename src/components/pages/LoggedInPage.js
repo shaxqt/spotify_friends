@@ -7,7 +7,7 @@ import FriendsPage from './FriendsPage'
 import TopSongPage from './TopSongPage'
 import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
-import { getFriends } from '../../api/api'
+import { getFriends, getTopSongs } from '../../api/api'
 import { bindKeyboard } from 'react-swipeable-views-utils'
 import SocketContext from '../../context/SocketContext'
 
@@ -16,8 +16,14 @@ const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 export default function LoggedInPage({ setIsLoggedIn }) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
+  const [topSongs, setTopSongs] = useState([])
   const [loadingFriends, setLoadingFriends] = useState(true)
   const [requestCount, setRequestCount] = useState(0)
+  const [activeAudio, setActiveAudio] = useState({
+    audio: null,
+    preview_url: '',
+    isPlaying: false
+  })
   const socket = React.useContext(SocketContext)
 
   useEffect(
@@ -25,16 +31,19 @@ export default function LoggedInPage({ setIsLoggedIn }) {
       getFriends().then(friends => {
         getFriends().then(setFriends)
         setLoadingFriends(false)
+        getTopSongs().then(setTopSongs)
 
         socket.on('newsong', ({ userID, currSong }) => {
           console.log('got new song for ur friend ' + userID)
+          console.log('yo', friends, topSongs)
           setFriends(
             friends.map(f => (f.id === userID ? { ...f, currSong } : f))
           )
         })
         socket.on('update_friends', data => {
-          console.log('update_friends kam an')
+          console.log('updating your friends')
           getFriends().then(setFriends)
+          getTopSongs().then(setTopSongs)
         })
       })
     },
@@ -49,12 +58,18 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         onChangeIndex={index => setSlideIndex(index)}
         index={slideIndex}
       >
-        <ContactPage
-          setRequestCount={setRequestCount}
-          onRequestAccepted={_ => getFriends().then(setFriends)}
+        <ContactPage setRequestCount={setRequestCount} />
+        <FriendsPage
+          friends={friends}
+          isLoading={loadingFriends}
+          activeAudio={activeAudio}
+          togglePreview={togglePreview}
         />
-        <FriendsPage friends={friends} isLoading={loadingFriends} />
-        <TopSongPage></TopSongPage>
+        <TopSongPage
+          activeAudio={activeAudio}
+          togglePreview={togglePreview}
+          topSongs={topSongs}
+        ></TopSongPage>
         <SettingsPage setIsLoggedIn={setIsLoggedIn} active={slideIndex === 3} />
       </BindKeyboardSwipeableViews>
 
@@ -84,6 +99,26 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         )}
       </NavButtonStyled>
     )
+  }
+  function togglePreview(preview_url) {
+    if (preview_url != null && preview_url !== '') {
+      if (activeAudio.preview_url === preview_url) {
+        if (activeAudio.isPlaying) {
+          activeAudio.audio.pause()
+          setActiveAudio({ ...activeAudio, isPlaying: false })
+        } else {
+          activeAudio.audio.play()
+          setActiveAudio({ ...activeAudio, isPlaying: true })
+        }
+      } else {
+        if (activeAudio.audio) {
+          activeAudio.audio.pause()
+        }
+        let audio = new Audio(preview_url)
+        audio.play()
+        setActiveAudio({ audio, isPlaying: true, preview_url })
+      }
+    }
   }
 }
 const NavButtonStyled = styled(GridStyled)`
