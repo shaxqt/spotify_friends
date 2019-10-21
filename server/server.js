@@ -5,7 +5,10 @@ const server = express()
 const { mongoDB } = require('./config/config')
 const mongoose = require('mongoose')
 const { getSessionIfValid } = require('./auth_utils')
-const { startCurrSongFetchIntervall } = require('./spotify_utils')
+const {
+  startCurrSongFetchIntervall,
+  startTopSongFetchIntervall
+} = require('./spotify_utils')
 const clients = require('./clients')
 const http = require('http').createServer(server)
 const io = require('socket.io')(http, {
@@ -63,3 +66,4 @@ server.use('/auth', require('./routes/auth'))
 server.use('/user', require('./routes/user'))
 
 startCurrSongFetchIntervall()
+startTopSongFetchIntervall()

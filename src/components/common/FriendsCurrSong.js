@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import BackgroundImageStyled from '../utils/BackgroundImageStyled'
+import BackgroundImage from '../utils/BackgroundImage'
 import GridStyled from '../utils/GridStyled'
 import { getSongData } from '../../utils/utils'
 
@@ -14,19 +14,18 @@ export default function FriendsCurrSong({ friend, onPlay }) {
     display_name,
     song_image,
     song_title,
-    song_arists,
+    song_artists,
     playing_type,
     timeFetched
   } = getSongData(friend)
 
   return (
-    <FriendsCurrSongStyled>
-      <BackgroundImageStyled img={song_image} />
+    <BackgroundImage img={song_image}>
       <ContentStyled>
         <GridStyled autoFlow="column" justifyContent="space-between">
           <div>
             <h2>{song_title}</h2>
-            <h4>{song_arists}</h4>
+            <h4>{song_artists}</h4>
           </div>
           <small>{timeFetched}</small>
         </GridStyled>
@@ -45,28 +44,19 @@ export default function FriendsCurrSong({ friend, onPlay }) {
           <h3>{display_name}</h3>
         </div>
       </ContentStyled>
-    </FriendsCurrSongStyled>
+    </BackgroundImage>
   )
 }
 
-const FriendsCurrSongStyled = styled.section`
-  height: 450px;
-  width: 100%;
-  position: relative;
-`
-
 const ContentStyled = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  height: 100%;
 
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
-  h2 {
+
+  & h2 {
     margin: 0;
     font-size: 24px;
     color: #1db954;
@@ -74,7 +64,6 @@ const ContentStyled = styled.div`
   h3 {
     margin: 0;
     color: white;
-    font-size: 24px;
   }
   h4 {
     margin: 0;

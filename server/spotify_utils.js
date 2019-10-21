@@ -1,6 +1,6 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
-const { findContacts } = require('./db_utils')
+const { getContacts, getMe } = require('./db_utils')
 const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')
@@ -21,6 +21,18 @@ const startCurrSongFetchIntervall = _ => {
             currSong
           })
         }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }, 5 * 1000)
+}
+const startTopSongFetchIntervall = _ => {
+  setInterval(async _ => {
+    try {
+      const users = await User.find().exec()
+      for (const user of users) {
+        getTop({ userID: user.id })
       }
     } catch (err) {
       console.log(err)
@@ -75,6 +87,29 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
     console.log('getCurrSong err:', err)
     return null
   }
+}
+const getTops = async options => {
+  const friends = await getContacts(options.session)
+  let tops = []
+  for (const friend of friends) {
+    let topOfFriend = await getTop({ ...options, userID: friend.id })
+    topOfFriend = topOfFriend.map(top => ({
+      song: top,
+      friend
+    }))
+    tops = [...tops, ...topOfFriend]
+  }
+  const user = await getMe(options.session)
+  let ownTops = await getTop({ ...options, userID: session.userID })
+  ownTops = ownTops.map(top => ({
+    song: top,
+    friend: {
+      display_name: user.display_name,
+      id: user.id,
+      images: user.images
+    }
+  }))
+  return [...tops, ...ownTops]
 }
 const getTop = async ({
   userID,
@@ -131,4 +166,9 @@ const getTop = async ({
   }
 }
 
-module.exports = { getCurrentSong, getTop, startCurrSongFetchIntervall }
+module.exports = {
+  getCurrentSong,
+  getTops,
+  startCurrSongFetchIntervall,
+  startTopSongFetchIntervall
+}

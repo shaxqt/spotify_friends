@@ -1,6 +1,33 @@
+import React from 'react'
 import styled from 'styled-components'
 
-export default styled.div`
+export default function BackgroundImage({
+  children,
+  img,
+  height,
+  borderRadius
+}) {
+  return (
+    <FriendsCurrSongStyled height={height}>
+      <BackgroundImageStyled img={img} borderRadius={borderRadius} />
+      <ContentStyled>{children}</ContentStyled>
+    </FriendsCurrSongStyled>
+  )
+}
+const ContentStyled = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+`
+const FriendsCurrSongStyled = styled.section`
+  height: ${({ height }) => (height ? height : '450px')};
+  width: 100%;
+  position: relative;
+`
+
+const BackgroundImageStyled = styled.div`
   position: absolute;
   top: 0;
   right: 0;
@@ -11,7 +38,8 @@ export default styled.div`
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  border-radius: 20px;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius ? borderRadius : '20px'};
   overflow: hidden;
   &:after {
     content: '';

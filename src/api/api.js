@@ -1,5 +1,9 @@
 const { postRequest, deleteRequest } = require('./fetch')
 
+export const getTopSongs = async _ => {
+  const res = await postRequest('/user/top')
+  return res.success ? res.items : null
+}
 export const getCurrentUser = _ => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_me')
@@ -149,6 +153,7 @@ function getContactInfo(user) {
     contactInfo,
     isAddButtonActive,
     isRetractButtonActive,
-    isAcceptButtonActive
+    isAcceptButtonActive,
+    getTopSongs
   }
 }

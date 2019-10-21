@@ -1,18 +1,13 @@
 const router = require('express').Router()
 const querystring = require('querystring')
 const { getSessionIfValid, handleUserLogin } = require('../auth_utils')
-const { client_secret, client_id } = require('../config/config')
+const { client_secret, client_id, redirect_uri } = require('../config/config')
 const { postSpotifyRequest } = require('../request_utils')
-
-let redirect_uri = ''
 
 const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
-
-  //redirect_uri = req.protocol + '://' + req.hostname + ':3000'
-  redirect_uri = 'http://localhost:3000'
 
   // application requests authorization
   const scope = `streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
@@ -33,7 +28,7 @@ router.get('/callback', async function(req, res) {
   try {
     const { code, state, error, token } = req.query
     const storedState = req.cookies ? req.cookies[stateKey] : null
-    console.log('/callback code:' + code + ' token: ' + code)
+    console.log('/callback code:' + code + ' token: ' + token)
 
     if (token) {
       // check if session is valid
