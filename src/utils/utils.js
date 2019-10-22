@@ -32,7 +32,10 @@ export function getSongData(friend) {
     timeFetched,
     preview_url
   if (friend) {
-    timeFetched = moment(friend['currSong.timestamp']).fromNow()
+    timeFetched =
+      friend.currSong && friend.currSong.timestamp
+        ? moment(friend['currSong']['timestamp']).fromNow()
+        : ''
     display_name = friend.display_name
     if (friend.currSong) {
       if (friend.currSong.context) {

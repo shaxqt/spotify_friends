@@ -37,7 +37,7 @@ const startTopSongFetchIntervall = _ => {
     } catch (err) {
       console.log(err)
     }
-  }, 5 * 1000)
+  }, 5 * 60 * 60 * 1000)
 }
 
 const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
@@ -53,9 +53,10 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
         user.fetchedCurrSong == null ||
         user.fetchedCurrSong + 10000 < Date.now()
       ) {
-        let currSongUri = user.currSong.item.uri
-        console.log('requesting currSong for user: ' + user.id)
-
+        let currSongUri =
+          user && user.currSong && user.currSong.item && user.currSong.item.uri
+            ? user.currSong.item.uri
+            : null
         const validSession = await getValidSessionForUser(user.id, tryRefresh)
         if (validSession) {
           // request new current song and save to db
@@ -71,8 +72,8 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
           ) {
             isSongNew = currSongUri !== res.item.uri
             if (isSongNew) {
+              mapSongItem(res.item)
               user.currSong = res
-              console.log('updated song for user ' + user.id)
             }
           }
         } else {
@@ -150,7 +151,7 @@ const getTop = async ({
               top.userID = userID
             }
             top.lastFetched = Date.now()
-            top.items = res.items
+            top.items = res.items.map(songItem => mapSongItem(songItem))
             const savedTop = await top.save()
             return savedTop.items
           }
@@ -164,6 +165,22 @@ const getTop = async ({
     console.log('getTop err:', err)
     return null
   }
+}
+
+function mapSongItem(songObject) {
+  delete songObject.album.available_markets
+  delete songObject.album.external_urls
+  delete songObject.album.href
+  delete songObject.album.total_tracks
+  delete songObject.available_markets
+  delete songObject.disc_number
+  delete songObject.disc_number
+  delete songObject.external_ids
+  delete songObject.external_urls
+  delete songObject.href
+  delete songObject.track_number
+
+  return songObject
 }
 
 module.exports = {

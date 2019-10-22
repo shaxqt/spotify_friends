@@ -24,12 +24,9 @@ router.get('/login', function(req, res) {
 })
 
 router.get('/callback', async function(req, res) {
-  console.log('/callback')
   try {
     const { code, state, error, token } = req.query
     const storedState = req.cookies ? req.cookies[stateKey] : null
-    console.log('/callback code:' + code + ' token: ' + token)
-
     if (token) {
       // check if session is valid
       session = await getSessionIfValid(token, true)

@@ -27,29 +27,22 @@ mongoose
 
 io.sockets.on('connection', socket => {
   if (socket.handshake.query && socket.handshake.query.spotify_friends_token) {
-    console.log(
-      'incoming connection token: ' +
-        socket.handshake.query.spotify_friends_token
-    )
     getSessionIfValid(socket.handshake.query.spotify_friends_token)
       .then(session => {
         if (session != null && session['userID'] != null) {
           socket.session = session
           clients.add(socket)
-          clients.log()
         } else {
           socket.disconnect()
         }
       })
       .catch(err => {
         socket.disconnect()
-        console.log('err getting session', err)
       })
   }
 
   socket.on('disconnect', socket => {
     clients.remove(socket.id)
-    clients.log()
   })
 })
 

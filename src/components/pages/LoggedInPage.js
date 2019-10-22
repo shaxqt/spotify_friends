@@ -19,6 +19,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
   const [topSongs, setTopSongs] = useState([])
   const [loadingFriends, setLoadingFriends] = useState(true)
   const [requestCount, setRequestCount] = useState(0)
+  const [newSong, setNewSong] = useState({})
   const [activeAudio, setActiveAudio] = useState({
     audio: null,
     preview_url: '',
@@ -32,22 +33,32 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         getFriends().then(setFriends)
         setLoadingFriends(false)
         getTopSongs().then(setTopSongs)
-
-        socket.on('newsong', ({ userID, currSong }) => {
-          console.log('got new song for ur friend ' + userID)
-          console.log('yo', friends, topSongs)
-          setFriends(
-            friends.map(f => (f.id === userID ? { ...f, currSong } : f))
-          )
-        })
-        socket.on('update_friends', data => {
-          console.log('updating your friends')
-          getFriends().then(setFriends)
-          getTopSongs().then(setTopSongs)
-        })
+      })
+      socket.on('update_friends', data => {
+        console.log('updating your friends')
+        getFriends().then(setFriends)
+        getTopSongs().then(setTopSongs)
+      })
+      socket.on('newsong', data => {
+        setNewSong(data)
       })
     },
     [socket]
+  )
+  useEffect(
+    _ => {
+      if (newSong['userID'] && newSong['currSong']) {
+        const friendToReplace = friends.find(f => f.id === newSong['userID'])
+        if (friendToReplace) {
+          setFriends(
+            friends.map(f =>
+              f === friendToReplace ? { ...f, currSong: newSong.currSong } : f
+            )
+          )
+        }
+      }
+    },
+    [newSong]
   )
 
   return (
