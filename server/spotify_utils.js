@@ -72,7 +72,7 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
           ) {
             isSongNew = currSongUri !== res.item.uri
             if (isSongNew) {
-              mapSongItem(res.item)
+              cleanUpSongItem(res.item)
               user.currSong = res
             }
           }
@@ -154,7 +154,7 @@ const getTop = async ({
             }
 
             top.lastFetched = Date.now()
-            top.items = res.items.map(songItem => mapSongItem(songItem))
+            top.items = res.items.map(songItem => cleanUpSongItem(songItem))
             top = await top.save()
           }
         }
@@ -168,7 +168,7 @@ const getTop = async ({
   }
 }
 
-function mapSongItem(songObject) {
+function cleanUpSongItem(songObject) {
   delete songObject.album.available_markets
   delete songObject.album.external_urls
   delete songObject.album.href

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { getShowenDisplayName } from '../../utils/utils'
+import { getShownDisplayName } from '../../utils/utils'
 
 export default function FriendFilterItem({ friend, toggleFilter, active }) {
   return (
@@ -11,7 +11,7 @@ export default function FriendFilterItem({ friend, toggleFilter, active }) {
         onClick={toggleFilter}
       />
       <FriendNameStyled active={active}>
-        {getShowenDisplayName(friend.display_name)}
+        {getShownDisplayName(friend.display_name)}
       </FriendNameStyled>
     </FilterItemStyled>
   )

@@ -20,12 +20,12 @@ export function getTopSongData(topSong) {
   const songData = getSpotifySongItemData(topSong.song)
   ret = { ...songData }
   ret.names = topSong.friends
-    .map(f => getShowenDisplayName(f.display_name))
+    .map(f => getShownDisplayName(f.display_name))
     .join(', ')
 
   return ret
 }
-export function getShowenDisplayName(display_name) {
+export function getShownDisplayName(display_name) {
   return display_name.length > 12
     ? display_name.substring(0, 12) + '...'
     : display_name
@@ -43,7 +43,7 @@ export function getSongData(friend) {
       friend.currSong && friend.currSong.timestamp
         ? moment(friend['currSong']['timestamp']).fromNow()
         : ''
-    display_name = getShowenDisplayName(friend.display_name)
+    display_name = getShownDisplayName(friend.display_name)
     if (friend.currSong) {
       if (friend.currSong.context) {
         playing_type = friend.currSong.context.type
