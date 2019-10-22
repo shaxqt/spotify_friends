@@ -94,23 +94,29 @@ const getTops = async options => {
   let tops = []
   for (const friend of friends) {
     let topOfFriend = await getTop({ ...options, userID: friend.id })
-    topOfFriend = topOfFriend.map(top => ({
-      song: top,
-      friend
-    }))
-    tops = [...tops, ...topOfFriend]
+    if (Array.isArray(topOfFriend)) {
+      topOfFriend = topOfFriend.map(top => ({
+        song: top,
+        friend
+      }))
+      tops = [...tops, ...topOfFriend]
+    }
   }
   const user = await getMe(options.session)
   let ownTops = await getTop({ ...options, userID: session.userID })
-  ownTops = ownTops.map(top => ({
-    song: top,
-    friend: {
-      display_name: user.display_name,
-      id: user.id,
-      images: user.images
-    }
-  }))
-  return [...tops, ...ownTops]
+  if (Array.isArray(ownTops)) {
+    ownTops = ownTops.map(top => ({
+      song: top,
+      friend: {
+        display_name: user.display_name,
+        id: user.id,
+        images: user.images
+      }
+    }))
+    return [...tops, ...ownTops]
+  } else {
+    return tops
+  }
 }
 const getTop = async ({
   userID,
@@ -132,10 +138,6 @@ const getTop = async ({
         top.lastFetched == null ||
         top.lastFetched + 1000 * 60 * 60 < Date.now()
       ) {
-        console.log(
-          'requesting top ' + type + ' ' + time_range + ' for user: ' + userID
-        )
-
         const validSession = await getValidSessionForUser(userID)
         if (validSession) {
           // request new current song and save to db
@@ -144,21 +146,20 @@ const getTop = async ({
             '/v1/me/top/' + type + '?time_range=' + time_range
           )
           if (res && res.items) {
-            if (!top) {
+            if (top == null) {
               top = new Top()
               top.type = type
               top.time_range = time_range
               top.userID = userID
             }
+
             top.lastFetched = Date.now()
             top.items = res.items.map(songItem => mapSongItem(songItem))
-            const savedTop = await top.save()
-            return savedTop.items
+            top = await top.save()
           }
         }
-      } else {
-        return top.items
       }
+      return top != null && Array.isArray(top.items) ? top.items : null
     }
     return null
   } catch (err) {
