@@ -38,8 +38,8 @@ const FriendNameStyled = styled.div`
 `
 
 const FriendImageStyled = styled.div`
-  height: 60px;
-  width: 60px;
+  height: 55px;
+  width: 55px;
   border-radius: 50%;
   ${({ active }) => active && 'border: 1px solid #1db954'}
   background-color: #666;
