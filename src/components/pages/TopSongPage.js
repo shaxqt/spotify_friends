@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
-
+import { useAlert } from 'react-alert'
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
 
@@ -18,6 +18,7 @@ export default function TopSongPage({
 }) {
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, allFriends] = useTopSongs(topSongs)
+  const alert = useAlert()
 
   return (
     <Main>
@@ -52,7 +53,7 @@ export default function TopSongPage({
     </Main>
   )
 
-  function shuffleAll() {
+  async function shuffleAll() {
     if (filteredSongs.length > 0) {
       const start_uri =
         filteredSongs[
@@ -64,7 +65,20 @@ export default function TopSongPage({
         uris: filteredSongs.map(song => song.song.uri)
       }
       putRequest('/user/shuffle', { state: true })
-      putRequest('/user/start_playback', body)
+      const res = await putRequest('/user/start_playback', body)
+      if (res && res.response) {
+        console.log(res.response)
+        if (res.response.error) {
+          let message = res.response.error.message
+          message =
+            res.response.error.reason === 'NO_ACTIVE_DEVICE'
+              ? 'no active spotify device'
+              : message
+          alert.error(message)
+        } else {
+          alert.show('playing on spotify...')
+        }
+      }
     }
   }
 
