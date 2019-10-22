@@ -23,6 +23,7 @@ export default function SettingsPage({ active, setIsLoggedIn }) {
           <>
             {renderImage(currentUser)}
             <Editable
+              maxLength="25"
               label="display name"
               value={currentUser.display_name}
               onSubmit={onSubmitDisplayName}

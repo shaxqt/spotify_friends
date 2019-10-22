@@ -24,7 +24,6 @@ export default function FriendsCurrSong({
     timeFetched,
     preview_url
   } = getSongData(friend)
-
   return (
     <BackgroundImage img={song_image}>
       <ContentStyled>

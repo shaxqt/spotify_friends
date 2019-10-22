@@ -7,18 +7,21 @@ Editable.propTypes = {
   value: PropTypes.any.isRequired,
   onSubmit: PropTypes.func.isRequired,
   isEditable: PropTypes.bool,
-  type: PropTypes.string
+  type: PropTypes.string,
+  maxLength: PropTypes.string
 }
 Editable.defaultProps = {
   type: 'text',
-  isEditable: true
+  isEditable: true,
+  maxLength: '20'
 }
 export default function Editable({
   value,
   onSubmit,
   label,
   isEditable,
-  type = 'text'
+  type,
+  maxLength
 }) {
   const [localValue, setLocalValue] = useState(value)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -42,6 +45,7 @@ export default function Editable({
         {label}
         <EditableStyled isEditMode={isEditMode}>
           <input
+            maxLength={maxLength}
             spellCheck="false"
             readOnly={!isEditMode}
             ref={textInput}
