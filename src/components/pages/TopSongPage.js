@@ -74,6 +74,10 @@ export default function TopSongPage({
             res.response.error.reason === 'NO_ACTIVE_DEVICE'
               ? 'no active spotify device'
               : message
+          message =
+            res.response.error.reason === 'PREMIUM_REQUIRED'
+              ? 'You need spotify premium account'
+              : message
           alert.error(message)
         } else {
           alert.show('playing on spotify...')

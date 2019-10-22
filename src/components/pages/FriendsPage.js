@@ -46,7 +46,7 @@ export default function FriendsPage({
       if (friend['currSong']) {
         let body = {}
         if (friend.currSong['context']) {
-          const body = {
+          body = {
             position_ms: friend.currSong.progress_ms,
             offset: { uri: friend.currSong.item.uri }
           }
@@ -80,6 +80,10 @@ export default function FriendsPage({
               message =
                 res.response.error.reason === 'NO_ACTIVE_DEVICE'
                   ? 'no active spotify device'
+                  : message
+              message =
+                res.response.error.reason === 'PREMIUM_REQUIRED'
+                  ? 'You need spotify premium account'
                   : message
               alert.error(message)
             } else {
