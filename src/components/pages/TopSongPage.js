@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom'
 import Main from '../utils/Main'
 import Song from '../common/Song'
 import styled from 'styled-components'
@@ -6,18 +7,17 @@ import FriendFilter from '../common/FriendFilter'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
 
-export default function TopSongPage({ topSongs, activeAudio, togglePreview }) {
-  const [friendIdFilter, setFriendIdFilter] = useState([])
-  const [allFriends, setAllFriends] = useState([])
-  const [filteredSongs, setFilteredSongs] = useState([])
+const Portal = ({ children }) =>
+  ReactDOM.createPortal(<>{children}</>, document.body)
 
-  useEffect(
-    _ => {
-      setFilteredSongs(reduceSongs(topSongs))
-    },
-    [topSongs, friendIdFilter]
-  )
-  useEffect(_ => setAllFriends(getFriends(topSongs)), [topSongs])
+export default function TopSongPage({
+  topSongs,
+  activeAudio,
+  togglePreview,
+  active
+}) {
+  const [friendIdFilter, setFriendIdFilter] = useState([])
+  const [filteredSongs, allFriends] = useTopSongs(topSongs)
 
   return (
     <Main>
@@ -27,7 +27,14 @@ export default function TopSongPage({ topSongs, activeAudio, togglePreview }) {
           toggleFilter={toggleFilter}
           activeFilters={friendIdFilter}
         />
-        <IconStyled onClick={shuffleAll} className="fa fa-random"></IconStyled>
+        {active && (
+          <Portal>
+            <IconStyled
+              onClick={shuffleAll}
+              className="fa fa-random"
+            ></IconStyled>
+          </Portal>
+        )}
         {filteredSongs.map(song => {
           return (
             <Song
@@ -72,58 +79,71 @@ export default function TopSongPage({ topSongs, activeAudio, togglePreview }) {
     }
     setFriendIdFilter(filter)
   }
+  function useTopSongs(topSongs) {
+    const [allFriends, setAllFriends] = useState([])
+    const [filteredSongs, setFilteredSongs] = useState([])
 
-  function getFriends(songs) {
-    let friends = songs.reduce((acc, curr) => {
-      const [sameFriend] = acc.filter(f => f.id === curr.friend.id)
-      return sameFriend ? [...acc] : [...acc, curr.friend]
-    }, [])
-    return friends
-  }
-  function reduceSongs(songs) {
-    if (songs != null) {
-      songs = topSongs.slice()
-      songs = topSongs.reduce((acc, curr) => {
-        curr.friends = []
-        const [sameSong] = acc.filter(test => test.song.uri === curr.song.uri)
-        if (sameSong) {
-          sameSong.friends = [...sameSong['friends'], curr.friend]
-          return acc
-        } else {
-          curr['friends'].push(curr.friend)
-          return [...acc, curr]
-        }
-      }, [])
-
-      let filteredSongs = []
-      if (friendIdFilter.length > 0) {
-        for (const song of songs) {
-          for (const friend of song.friends) {
-            if (friendIdFilter.includes(friend.id)) {
-              filteredSongs = [...filteredSongs, song]
-              break
+    useEffect(
+      _ => {
+        let songs = topSongs
+        if (songs != null) {
+          songs = topSongs.slice()
+          songs = topSongs.reduce((acc, curr) => {
+            curr.friends = []
+            const [sameSong] = acc.filter(
+              test => test.song.uri === curr.song.uri
+            )
+            if (sameSong) {
+              sameSong.friends = [...sameSong['friends'], curr.friend]
+              return acc
+            } else {
+              curr['friends'].push(curr.friend)
+              return [...acc, curr]
             }
+          }, [])
+
+          let filteredSongs = []
+          if (friendIdFilter.length > 0) {
+            for (const song of songs) {
+              for (const friend of song.friends) {
+                if (friendIdFilter.includes(friend.id)) {
+                  filteredSongs = [...filteredSongs, song]
+                  break
+                }
+              }
+            }
+          } else {
+            filteredSongs = songs
           }
+          filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
+          setFilteredSongs(songs)
         }
-      } else {
-        filteredSongs = songs
-      }
-      filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
-      return filteredSongs
-    }
+        songs = topSongs
+        if (songs) {
+          let friends = songs.reduce((acc, curr) => {
+            const [sameFriend] = acc.filter(f => f.id === curr.friend.id)
+            return sameFriend ? [...acc] : [...acc, curr.friend]
+          }, [])
+          setAllFriends(friends)
+        }
+      },
+      [topSongs, friendIdFilter]
+    )
+    return [filteredSongs, allFriends]
   }
 }
 
 const IconStyled = styled.i`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #1db954;
   border-radius: 50%;
-  bottom: 20px;
-  right: 20px;
+  bottom: 50px;
+  right: 6px;
+  position: fixed;
   font-size: 25px;
   color: white;
 `

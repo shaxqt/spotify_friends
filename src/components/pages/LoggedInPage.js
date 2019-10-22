@@ -80,6 +80,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
           activeAudio={activeAudio}
           togglePreview={togglePreview}
           topSongs={topSongs}
+          active={slideIndex === 2}
         ></TopSongPage>
         <SettingsPage setIsLoggedIn={setIsLoggedIn} active={slideIndex === 3} />
       </BindKeyboardSwipeableViews>
