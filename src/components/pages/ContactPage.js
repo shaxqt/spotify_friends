@@ -9,7 +9,7 @@ import UserSearchResults from '../common/UserSearchResults'
 import ContactRequestList from '../common/ContactRequestList'
 import SocketContext from '../../context/SocketContext'
 
-export default function ContactPage({ onRequestAccepted, setRequestCount }) {
+export default function ContactPage({ setRequestCount }) {
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState('')
@@ -34,8 +34,9 @@ export default function ContactPage({ onRequestAccepted, setRequestCount }) {
           placeholder="search"
           inputIcon="fa fa-search"
           onChange={e => setSearch(e.target.value)}
-        ></Input>
-        <Button text="search" />
+          maxLength="16"
+        />
+        <Button text={getButtonText()} />
       </Form>
 
       <UserSearchResults
@@ -49,6 +50,14 @@ export default function ContactPage({ onRequestAccepted, setRequestCount }) {
       />
     </Main>
   )
+  function getButtonText() {
+    let text =
+      search.length > 10
+        ? search.substring(0, 10) +
+          '...'.substring(0, Math.min(search.length - 10, 3))
+        : search
+    return text === '' ? 'search' : 'search "' + text + '"'
+  }
   function fetchContacts() {
     getContactRequests()
       .then(requests => {
@@ -72,7 +81,6 @@ export default function ContactPage({ onRequestAccepted, setRequestCount }) {
         isAcceptButtonActive: false
       })
     )
-    wasAccepted && onRequestAccepted() // updates friends page
   }
   function onHandleContactRequest(request, accept = true) {
     // remove from contact-requests
@@ -91,6 +99,5 @@ export default function ContactPage({ onRequestAccepted, setRequestCount }) {
         )
       }
     }
-    accept && onRequestAccepted() // updates friends page
   }
 }

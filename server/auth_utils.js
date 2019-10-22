@@ -20,7 +20,6 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
-    console.log('get session if valid for ' + token)
     const session = await UserSession.findOne({ _id: sanitize(token) })
     if (session) {
       if (!checkSpotifyToken) {
@@ -44,7 +43,6 @@ const handleUserLogin = async (access_token, refresh_token) => {
       if (!user) {
         user = new User()
         user.id = body.id
-        user.email = body.email
         user.href = body.href
         user.display_name = body.display_name
       }

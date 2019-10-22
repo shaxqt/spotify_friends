@@ -5,8 +5,16 @@ const get = _ => {
 }
 const add = socket => {
   clients = [...clients, socket]
+  console.log(
+    'socket.io, added new client ' + socket.session && socket.session.userID
+      ? socket.session.userID
+      : 'no userID' + ' total clients: ' + clients.length
+  )
 }
-const remove = id => (clients = clients.filter(socket => socket.id === id))
+const remove = id => {
+  clients = clients.filter(socket => socket.id === id)
+  console.log('socket.io, removed a client total clients: ' + clients.length)
+}
 const log = _ =>
   console.log(
     clients.length +

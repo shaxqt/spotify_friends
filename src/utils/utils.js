@@ -19,9 +19,16 @@ export function getTopSongData(topSong) {
 
   const songData = getSpotifySongItemData(topSong.song)
   ret = { ...songData }
-  ret.names = topSong.friends.map(f => f.display_name).join(', ')
+  ret.names = topSong.friends
+    .map(f => getShownDisplayName(f.display_name))
+    .join(', ')
 
   return ret
+}
+export function getShownDisplayName(display_name) {
+  return display_name.length > 12
+    ? display_name.substring(0, 12) + '...'
+    : display_name
 }
 export function getSongData(friend) {
   let display_name,
@@ -29,10 +36,14 @@ export function getSongData(friend) {
     song_artists,
     song_image,
     playing_type,
-    timeFetched
+    timeFetched,
+    preview_url
   if (friend) {
-    timeFetched = moment(friend.currSong.timestamp).fromNow()
-    display_name = friend.display_name
+    timeFetched =
+      friend.currSong && friend.currSong.timestamp
+        ? moment(friend['currSong']['timestamp']).fromNow()
+        : ''
+    display_name = getShownDisplayName(friend.display_name)
     if (friend.currSong) {
       if (friend.currSong.context) {
         playing_type = friend.currSong.context.type
@@ -51,9 +62,10 @@ export function getSongData(friend) {
         song_title = songData.song_title
         song_artists = songData.song_artists
         song_image = songData.song_image
-      } else {
-        song_title = 'no song information ☹️'
+        preview_url = songData.preview_url
       }
+    } else {
+      song_title = 'no song information ☹️'
     }
   }
 
@@ -63,7 +75,8 @@ export function getSongData(friend) {
     song_title,
     song_artists,
     playing_type,
-    timeFetched
+    timeFetched,
+    preview_url
   }
 }
 function getSpotifySongItemData(item) {

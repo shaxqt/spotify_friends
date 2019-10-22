@@ -6,12 +6,6 @@ const User = new mongoose.Schema({
     required: true,
     index: { unique: true, dropDups: true }
   },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    dropDups: true
-  },
   display_name: {
     type: String
   },

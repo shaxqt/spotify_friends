@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { getShownDisplayName } from '../../utils/utils'
 
 export default function FriendFilterItem({ friend, toggleFilter, active }) {
   return (
@@ -9,7 +10,9 @@ export default function FriendFilterItem({ friend, toggleFilter, active }) {
         img={friendGetImg(friend)}
         onClick={toggleFilter}
       />
-      <FriendNameStyled active={active}>{friend.display_name}</FriendNameStyled>
+      <FriendNameStyled active={active}>
+        {getShownDisplayName(friend.display_name)}
+      </FriendNameStyled>
     </FilterItemStyled>
   )
   function friendGetImg(friend) {

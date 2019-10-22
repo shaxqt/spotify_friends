@@ -8,18 +8,21 @@ Input.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.any,
   type: PropTypes.string,
-  inputIcon: PropTypes.string
+  inputIcon: PropTypes.string,
+  maxLength: PropTypes.string
 }
 Input.defaultProps = {
-  type: 'text'
+  type: 'text',
+  maxLength: '30'
 }
 export default function Input({
   label,
   placeholder,
   onChange,
   value,
-  type = 'text',
-  inputIcon
+  type,
+  inputIcon,
+  maxLength
 }) {
   if (label) {
     return (
@@ -41,6 +44,7 @@ export default function Input({
           onChange={onChange}
           value={value}
           type={type}
+          maxLength={maxLength}
         />
       </IconInputStyled>
     )

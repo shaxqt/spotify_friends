@@ -1,6 +1,6 @@
 const { getSpotifyRequest } = require('./request_utils')
 const { getValidSessionForUser } = require('./auth_utils')
-const { getContacts, getMe } = require('./db_utils')
+const { getContacts, getMe, findContacts } = require('./db_utils')
 const clientHandler = require('./clients')
 const Top = require('./Models/Top')
 const User = require('./Models/User')
@@ -37,7 +37,7 @@ const startTopSongFetchIntervall = _ => {
     } catch (err) {
       console.log(err)
     }
-  }, 5 * 1000)
+  }, 5 * 60 * 60 * 1000)
 }
 
 const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
@@ -53,9 +53,10 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
         user.fetchedCurrSong == null ||
         user.fetchedCurrSong + 10000 < Date.now()
       ) {
-        let currSongUri = user.currSong.item.uri
-        console.log('requesting currSong for user: ' + user.id)
-
+        let currSongUri =
+          user && user.currSong && user.currSong.item && user.currSong.item.uri
+            ? user.currSong.item.uri
+            : null
         const validSession = await getValidSessionForUser(user.id, tryRefresh)
         if (validSession) {
           // request new current song and save to db
@@ -71,8 +72,8 @@ const getCurrentSong = async (userID = '', user, tryRefresh = false) => {
           ) {
             isSongNew = currSongUri !== res.item.uri
             if (isSongNew) {
+              cleanUpSongItem(res.item)
               user.currSong = res
-              console.log('updated song for user ' + user.id)
             }
           }
         } else {
@@ -93,23 +94,29 @@ const getTops = async options => {
   let tops = []
   for (const friend of friends) {
     let topOfFriend = await getTop({ ...options, userID: friend.id })
-    topOfFriend = topOfFriend.map(top => ({
-      song: top,
-      friend
-    }))
-    tops = [...tops, ...topOfFriend]
+    if (Array.isArray(topOfFriend)) {
+      topOfFriend = topOfFriend.map(top => ({
+        song: top,
+        friend
+      }))
+      tops = [...tops, ...topOfFriend]
+    }
   }
   const user = await getMe(options.session)
   let ownTops = await getTop({ ...options, userID: session.userID })
-  ownTops = ownTops.map(top => ({
-    song: top,
-    friend: {
-      display_name: user.display_name,
-      id: user.id,
-      images: user.images
-    }
-  }))
-  return [...tops, ...ownTops]
+  if (Array.isArray(ownTops)) {
+    ownTops = ownTops.map(top => ({
+      song: top,
+      friend: {
+        display_name: user.display_name,
+        id: user.id,
+        images: user.images
+      }
+    }))
+    return [...tops, ...ownTops]
+  } else {
+    return tops
+  }
 }
 const getTop = async ({
   userID,
@@ -131,10 +138,6 @@ const getTop = async ({
         top.lastFetched == null ||
         top.lastFetched + 1000 * 60 * 60 < Date.now()
       ) {
-        console.log(
-          'requesting top ' + type + ' ' + time_range + ' for user: ' + userID
-        )
-
         const validSession = await getValidSessionForUser(userID)
         if (validSession) {
           // request new current song and save to db
@@ -143,27 +146,42 @@ const getTop = async ({
             '/v1/me/top/' + type + '?time_range=' + time_range
           )
           if (res && res.items) {
-            if (!top) {
+            if (top == null) {
               top = new Top()
               top.type = type
               top.time_range = time_range
               top.userID = userID
             }
+
             top.lastFetched = Date.now()
-            top.items = res.items
-            const savedTop = await top.save()
-            return savedTop.items
+            top.items = res.items.map(songItem => cleanUpSongItem(songItem))
+            top = await top.save()
           }
         }
-      } else {
-        return top.items
       }
+      return top != null && Array.isArray(top.items) ? top.items : null
     }
     return null
   } catch (err) {
     console.log('getTop err:', err)
     return null
   }
+}
+
+function cleanUpSongItem(songObject) {
+  delete songObject.album.available_markets
+  delete songObject.album.external_urls
+  delete songObject.album.href
+  delete songObject.album.total_tracks
+  delete songObject.available_markets
+  delete songObject.disc_number
+  delete songObject.disc_number
+  delete songObject.external_ids
+  delete songObject.external_urls
+  delete songObject.href
+  delete songObject.track_number
+
+  return songObject
 }
 
 module.exports = {
