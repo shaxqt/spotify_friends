@@ -50,8 +50,11 @@ io.sockets.on('connection', socket => {
   })
 })
 
-http.listen(3333, _ => {
-  console.log('listening on *:3333')
+const port = process.env.PORT || 5000
+
+console.log(`Password generator listening on ${port}`)
+http.listen(port, _ => {
+  console.log('listening on *:' + port)
 })
 
 server.use(express.json())
