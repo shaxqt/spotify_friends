@@ -6,6 +6,8 @@ import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
+import LazyLoad from 'react-lazyload'
+
 import { useAlert } from 'react-alert'
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
@@ -20,7 +22,6 @@ export default function TopSongPage({
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, allFriends] = useTopSongs(topSongs, friendIdFilter)
   const alert = useAlert()
-
   return (
     <Main>
       <FriendFilter
@@ -42,15 +43,33 @@ export default function TopSongPage({
         ) : (
           filteredSongs.map(song => {
             return (
-              <Song
-                song={song}
+              <LazyLoad
+                overflow={true}
                 key={song.song.uri}
-                togglePreview={togglePreview}
-                isPlaying={
-                  song.song.preview_url === activeAudio.preview_url &&
-                  activeAudio.isPlaying
+                once={true}
+                placeholder={
+                  <Song
+                    noImage
+                    song={song}
+                    key={song.song.uri}
+                    togglePreview={togglePreview}
+                    isPlaying={
+                      song.song.preview_url === activeAudio.preview_url &&
+                      activeAudio.isPlaying
+                    }
+                  />
                 }
-              />
+              >
+                <Song
+                  song={song}
+                  key={song.song.uri}
+                  togglePreview={togglePreview}
+                  isPlaying={
+                    song.song.preview_url === activeAudio.preview_url &&
+                    activeAudio.isPlaying
+                  }
+                />
+              </LazyLoad>
             )
           })
         )}
