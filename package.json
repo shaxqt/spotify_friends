@@ -29,9 +29,9 @@
   },
   "scripts": {
     "start": "NODE_ENV=production node server.js",
-    "startDev": "run-p server dev",
+    "dev": "run-p server frontend",
     "server": "nodemon -w server server.js",
-    "dev": "react-scripts start",
+    "frontend": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

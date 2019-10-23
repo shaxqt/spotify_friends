@@ -3,8 +3,16 @@ const UserSession = require('./Models/UserSession')
 const User = require('./Models/User')
 const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
 
-client_id = process.env.CLIENT_ID
-client_secret = process.env.CLIENT_SECRET
+let client_id, client_secret
+
+if (process.env.NODE_ENV === 'production') {
+  client_secret = process.env.CLIENT_SECRET
+  client_id = process.env.CLIENT_ID
+} else {
+  const config = require('./config/config')
+  client_secret = config.client_secret
+  client_id = config.client_id
+}
 
 const deleteUserSessions = async (session, deleteAllSessions = false) => {
   try {
