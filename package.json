@@ -13,6 +13,7 @@
     "mongoose": "^5.7.1",
     "nodemon": "^1.19.2",
     "npm-run-all": "4.1.5",
+    "path": "^0.12.7",
     "querystring": "^0.2.0",
     "react": "^16.9.0",
     "react-alert": "^6.0.0",
@@ -27,8 +28,9 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
-    "start": "run-p server dev",
-    "server": "nodemon -w server server/server.js",
+    "start": "NODE_ENV=production node server.js",
+    "startDev": "run-p server dev",
+    "server": "nodemon -w server server.js",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
