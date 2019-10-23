@@ -19,7 +19,7 @@ npm install
 Rename `server/config/_config.js` to `server/config/config.js` and paste in your Spotify Client-ID and Secret and **save it**.
 *Optional* change the link to MongoDB here, if you dont run it locally at default port 27017.
 
-Go to your [Spotify Application](https://developer.spotify.com/dashboard/applications), click "Edit Settings" and add `http://localhost:3000` the at "Redirect URIs" (don't forget to **scroll down and klick save**).
+Go to your [Spotify Application](https://developer.spotify.com/dashboard/applications), click "Edit Settings" and add `http://localhost:3000` at "Redirect URIs" (don't forget to **scroll down and klick save**).
 
 Now you can run 
 ```
