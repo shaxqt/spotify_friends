@@ -14,7 +14,8 @@ export default function TopSongPage({
   topSongs,
   activeAudio,
   togglePreview,
-  active
+  active,
+  isLoading
 }) {
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, allFriends] = useTopSongs(topSongs, friendIdFilter)
@@ -36,19 +37,24 @@ export default function TopSongPage({
             ></IconStyled>
           </Portal>
         )}
-        {filteredSongs.map(song => {
-          return (
-            <Song
-              song={song}
-              key={song.song.uri}
-              togglePreview={togglePreview}
-              isPlaying={
-                song.song.preview_url === activeAudio.preview_url &&
-                activeAudio.isPlaying
-              }
-            />
-          )
-        })}
+        {isLoading ? (
+          <p>loading... </p>
+        ) : (
+          filteredSongs.map(song => {
+            return (
+              <Song
+                song={song}
+                key={song.song.uri}
+                togglePreview={togglePreview}
+                isPlaying={
+                  song.song.preview_url === activeAudio.preview_url &&
+                  activeAudio.isPlaying
+                }
+              />
+            )
+          })
+        )}
+        <EmptyStyled />
       </GridStyled>
     </Main>
   )
@@ -67,7 +73,6 @@ export default function TopSongPage({
       putRequest('/user/shuffle', { state: true })
       const res = await putRequest('/user/start_playback', body)
       if (res && res.response) {
-        console.log(res.response)
         if (res.response.error) {
           let message = res.response.error.message
           message =
@@ -100,7 +105,6 @@ export default function TopSongPage({
   function useTopSongs(topSongs, friendIdFilter) {
     const [allFriends, setAllFriends] = useState([])
     const [filteredSongs, setFilteredSongs] = useState([])
-
     useEffect(
       _ => {
         let songs = topSongs
@@ -159,9 +163,12 @@ const IconStyled = styled.i`
   align-items: center;
   background-color: #1db954;
   border-radius: 50%;
-  bottom: 50px;
-  right: 6px;
+  bottom: 65px;
+  right: 10px;
   position: fixed;
   font-size: 25px;
   color: white;
+`
+const EmptyStyled = styled.div`
+  height: 50px;
 `

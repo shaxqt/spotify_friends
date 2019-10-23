@@ -15,13 +15,15 @@ const io = require('socket.io')(http, {
 })
 const path = require('path')
 
+const PRODUCTION = process.env.NODE_ENV === 'production'
+PRODUCTION && console.log('Production')
+
 // Serve static files from the React app
 server.use(express.static(path.join(__dirname, 'build')))
 
-const mongoDB =
-  process.env.NODE_ENV === 'production'
-    ? process.env.MONGODB
-    : require('./server/config/config').mongoDB
+const mongoDB = PRODUCTION
+  ? process.env.MONGODB
+  : require('./server/config/config').mongoDB
 mongoose
   .connect(mongoDB, {
     useCreateIndex: true,
@@ -29,7 +31,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('connected to mongoDB'))
+  .then(() => console.log('mongo connected: ' + mongoDB))
   .catch(err => console.log('error connecting to mongoDB', err))
 
 io.sockets.on('connection', socket => {
@@ -67,11 +69,13 @@ server.set('json spaces', 2)
 server.use('/auth', require('./server/routes/auth'))
 server.use('/user', require('./server/routes/user'))
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-server.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/client/build/index.html'))
-})
+if (PRODUCTION) {
+  // The "catchall" handler: for any request that doesn't
+  // match one above, send back React's index.html file.
+  server.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname + '/build/index.html'))
+  })
+}
 
 startCurrSongFetchIntervall()
 startTopSongFetchIntervall()
