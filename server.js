@@ -50,7 +50,7 @@ io.sockets.on('connection', socket => {
   })
 })
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 3333
 
 console.log(`Password generator listening on ${port}`)
 http.listen(port, _ => {
