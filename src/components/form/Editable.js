@@ -96,20 +96,23 @@ const EditableStyled = styled.div`
   border-radius: 20px;
   padding: 10px 20px;
   i {
-    display: inline-block;
-    margin-top: -5px;
-    margin-bottom: -5px;
-    height: 30px;
-    width: 30px;
-    font-size: 30px;
-    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    width: 26px;
+    margin-bottom: -3px;
+    margin-top: -3px;
+    font-size: 26px;
+    margin-left: 10px;
   }
   &:focus-within {
     background-color: #666;
   }
   .icons {
-    margin-top: -5px;
-    margin-bottom: -5px;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
   }
   input {
     display: inline-block;

@@ -17,7 +17,7 @@ export default function TopSongPage({
   active
 }) {
   const [friendIdFilter, setFriendIdFilter] = useState([])
-  const [filteredSongs, allFriends] = useTopSongs(topSongs)
+  const [filteredSongs, allFriends] = useTopSongs(topSongs, friendIdFilter)
   const alert = useAlert()
 
   return (
@@ -97,7 +97,7 @@ export default function TopSongPage({
     }
     setFriendIdFilter(filter)
   }
-  function useTopSongs(topSongs) {
+  function useTopSongs(topSongs, friendIdFilter) {
     const [allFriends, setAllFriends] = useState([])
     const [filteredSongs, setFilteredSongs] = useState([])
 
@@ -120,21 +120,21 @@ export default function TopSongPage({
             }
           }, [])
 
-          let filteredSongs = []
+          let songsIdFilter = []
           if (friendIdFilter.length > 0) {
             for (const song of songs) {
               for (const friend of song.friends) {
                 if (friendIdFilter.includes(friend.id)) {
-                  filteredSongs = [...filteredSongs, song]
+                  songsIdFilter = [...songsIdFilter, song]
                   break
                 }
               }
             }
           } else {
-            filteredSongs = songs
+            songsIdFilter = songs
           }
-          filteredSongs.sort((a, b) => b.song.popularity - a.song.popularity)
-          setFilteredSongs(songs)
+          songsIdFilter.sort((a, b) => b.song.popularity - a.song.popularity)
+          setFilteredSongs(songsIdFilter)
         }
         songs = topSongs
         if (songs) {
