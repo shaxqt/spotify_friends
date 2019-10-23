@@ -2,18 +2,26 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const server = express()
-const { mongoDB } = require('./config/config')
 const mongoose = require('mongoose')
-const { getSessionIfValid } = require('./auth_utils')
+const { getSessionIfValid } = require('./server/auth_utils')
 const {
   startCurrSongFetchIntervall,
   startTopSongFetchIntervall
-} = require('./spotify_utils')
-const clients = require('./clients')
+} = require('./server/spotify_utils')
+const clients = require('./server/clients')
 const http = require('http').createServer(server)
 const io = require('socket.io')(http, {
   pingTimeout: 60000
 })
+const path = require('path')
+
+// Serve static files from the React app
+server.use(express.static(path.join(__dirname, 'build')))
+
+const mongoDB =
+  process.env.NODE_ENV === 'production'
+    ? process.env.MONGODB
+    : require('./server/config/config').mongoDB
 
 mongoose
   .connect(mongoDB, {
@@ -55,8 +63,14 @@ server.use(cors())
 server.use(cookieParser())
 server.set('json spaces', 2)
 
-server.use('/auth', require('./routes/auth'))
-server.use('/user', require('./routes/user'))
+server.use('/auth', require('./server/routes/auth'))
+server.use('/user', require('./server/routes/user'))
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+server.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/client/build/index.html'))
+})
 
 startCurrSongFetchIntervall()
 startTopSongFetchIntervall()

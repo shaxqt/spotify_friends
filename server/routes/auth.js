@@ -1,26 +1,42 @@
 const router = require('express').Router()
 const querystring = require('querystring')
 const { getSessionIfValid, handleUserLogin } = require('../auth_utils')
-const { client_secret, client_id, redirect_uri } = require('../config/config')
 const { postSpotifyRequest } = require('../request_utils')
+
+let client_secret, client_id, redirect_uri
+
+if (process.env.NODE_ENV === 'production') {
+  client_secret = process.env.CLIENT_SECRET
+  client_id = process.env.CLIENT_ID
+  redirect_uri = process.env.REDIRECT_URI
+} else {
+  config = require('../config/config')
+  client_secret = config.client_secret
+  client_id = config.client_id
+  redirect_uri = config.redirect_uri
+}
 
 const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
-  // application requests authorization
-  const scope = `streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
-  res.redirect(
-    'https://accounts.spotify.com/authorize?' +
-      querystring.stringify({
-        response_type: 'code',
-        client_id,
-        scope,
-        redirect_uri,
-        state
-      })
-  )
+  if (client_id && redirect_uri && client_secret) {
+    // application requests authorization
+    const scope = `streaming user-read-private user-read-email user-read-currently-playing user-read-playback-state user-top-read`
+    res.redirect(
+      'https://accounts.spotify.com/authorize?' +
+        querystring.stringify({
+          response_type: 'code',
+          client_id,
+          scope,
+          redirect_uri,
+          state
+        })
+    )
+  } else {
+    res.send('<h1>Sorry</h1><p>Something went wrong</p>')
+  }
 })
 
 router.get('/callback', async function(req, res) {

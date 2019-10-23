@@ -20,13 +20,15 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
-    const session = await UserSession.findOne({ _id: sanitize(token) })
-    if (session) {
-      if (!checkSpotifyToken) {
-        return session
-      } else {
-        validSession = await verifySpotifyToken(session)
-        return validSession != null ? validSession : null
+    if (token) {
+      const session = await UserSession.findOne({ _id: sanitize(token) })
+      if (session) {
+        if (!checkSpotifyToken) {
+          return session
+        } else {
+          validSession = await verifySpotifyToken(session)
+          return validSession != null ? validSession : null
+        }
       }
     }
     return null

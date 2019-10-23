@@ -8,10 +8,8 @@ import io from 'socket.io-client'
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
 
-const backend = process.env.BACKEND || 'http://localhost:3333'
-
 const { spotify_friends_token } = localStorage
-const socket = io(backend, {
+const socket = io('', {
   query: { spotify_friends_token },
   secure: true,
   rejectUnauthorized: false
