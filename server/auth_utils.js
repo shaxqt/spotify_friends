@@ -1,8 +1,10 @@
 const sanitize = require('mongo-sanitize')
 const UserSession = require('./Models/UserSession')
 const User = require('./Models/User')
-const { client_secret, client_id } = require('./config/config')
 const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
+
+client_id = process.env.CLIENT_ID
+client_secret = process.env.CLIENT_SECRET
 
 const deleteUserSessions = async (session, deleteAllSessions = false) => {
   try {

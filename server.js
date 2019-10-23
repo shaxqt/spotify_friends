@@ -15,16 +15,12 @@ const io = require('socket.io')(http, {
 })
 const path = require('path')
 
+console.log('TESTSSSSSSS', process.env.test)
 // Serve static files from the React app
 server.use(express.static(path.join(__dirname, 'build')))
 
-const mongoDB =
-  process.env.NODE_ENV === 'production'
-    ? process.env.MONGODB
-    : require('./server/config/config').mongoDB
-
 mongoose
-  .connect(mongoDB, {
+  .connect(process.env.MONGODB, {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
