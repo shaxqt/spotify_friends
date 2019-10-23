@@ -15,7 +15,7 @@ export default function Song({ song, togglePreview, isPlaying }) {
 
   return (
     <SongStyled>
-      <ImgContainerStyled img={song_image_medium} />
+      <ImgContainerStyled img={song_image_mediump} />
       <TextContentStyled alignContent="space-between">
         <h2>{song_title}</h2>
         <div>
