@@ -7,14 +7,15 @@ export default function Song({ song, togglePreview, isPlaying }) {
   const {
     song_title,
     song_artists,
-    song_image,
+    song_image_small,
+    song_image_medium,
     names,
     preview_url
   } = getTopSongData(song)
 
   return (
     <SongStyled>
-      <ImgContainerStyled img={song_image} />
+      <ImgContainerStyled img={song_image_medium} />
       <TextContentStyled alignContent="space-between">
         <h2>{song_title}</h2>
         <div>

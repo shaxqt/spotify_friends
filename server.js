@@ -22,7 +22,6 @@ const mongoDB =
   process.env.NODE_ENV === 'production'
     ? process.env.MONGODB
     : require('./server/config/config').mongoDB
-
 mongoose
   .connect(mongoDB, {
     useCreateIndex: true,
@@ -54,8 +53,10 @@ io.sockets.on('connection', socket => {
   })
 })
 
-http.listen(3333, _ => {
-  console.log('listening on *:3333')
+const port = process.env.PORT || 3333
+
+http.listen(port, _ => {
+  console.log('listening on *:' + port)
 })
 
 server.use(express.json())

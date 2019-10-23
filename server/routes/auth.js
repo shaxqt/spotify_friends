@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
   client_id = process.env.CLIENT_ID
   redirect_uri = process.env.REDIRECT_URI
 } else {
-  config = require('../config/config')
+  const config = require('../config/config')
   client_secret = config.client_secret
   client_id = config.client_id
   redirect_uri = config.redirect_uri
