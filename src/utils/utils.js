@@ -18,6 +18,7 @@ export function getTopSongData(topSong) {
   let ret = {}
 
   const songData = getSpotifySongItemData(topSong.song)
+  console.log('getTopSongData', songData)
   ret = { ...songData }
   ret.names = topSong.friends
     .map(f => getShownDisplayName(f.display_name))
@@ -84,8 +85,14 @@ function getSpotifySongItemData(item) {
   ret.song_title = item.name
   ret.song_artists = item.artists.map(artist => artist.name).join(', ')
   ret.uri = item.uri
-  if (item.album.images.length > 0) {
+  if (item.album.images.length >= 0) {
     ret.song_image = item.album.images[0].url
+    if (item.album.images.length >= 1) {
+      ret.song_image_medium = item.album.images[1].url
+    }
+    if (item.album.images.length >= 2) {
+      ret.song_image_small = item.album.images[2].url
+    }
   }
   ret.preview_url = item.preview_url
   return ret
