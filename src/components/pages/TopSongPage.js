@@ -23,12 +23,12 @@ export default function TopSongPage({
 
   return (
     <Main>
+      <FriendFilter
+        friends={allFriends}
+        toggleFilter={toggleFilter}
+        activeFilters={friendIdFilter}
+      />
       <GridStyled gap="15px">
-        <FriendFilter
-          friends={allFriends}
-          toggleFilter={toggleFilter}
-          activeFilters={friendIdFilter}
-        />
         {active && (
           <Portal>
             <IconStyled

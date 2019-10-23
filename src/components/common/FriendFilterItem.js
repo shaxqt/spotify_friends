@@ -28,6 +28,7 @@ const FilterItemStyled = styled.div`
   flex-direction: column;
   align-items: center;
   width: 60px;
+  margin-right: 5px;
 `
 
 const FriendNameStyled = styled.div`

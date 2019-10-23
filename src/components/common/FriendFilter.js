@@ -18,8 +18,7 @@ export default function FriendFilter({ friends, activeFilters, toggleFilter }) {
 }
 
 const FriendFilterStyled = styled.section`
-  display: grid;
-  grid-gap: 5px;
-  grid-auto-flow: column;
+  display: flex;
   overflow-x: scroll;
+  margin-bottom: 5px;
 `
