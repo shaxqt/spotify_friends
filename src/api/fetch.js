@@ -24,6 +24,8 @@ function request(method = 'GET', body, url) {
       body: JSON.stringify(body)
     })
       .then(res => res.json())
+      .catch(err => reject(err))
+
       .then(json => resolve(json))
       .catch(err => reject(err))
   })
