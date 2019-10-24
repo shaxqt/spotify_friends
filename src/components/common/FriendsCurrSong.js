@@ -47,13 +47,16 @@ export default function FriendsCurrSong({
             </div>
           </div>
           <div className="bottom__right">
-            <IconStyled
-              isPlaying={
-                preview_url === activeAudio.preview_url && activeAudio.isPlaying
-              }
-              className={'fas fa-music'}
-              onClick={_ => togglePreview(preview_url)}
-            ></IconStyled>
+            {preview_url && (
+              <IconStyled
+                isPlaying={
+                  preview_url === activeAudio.preview_url &&
+                  activeAudio.isPlaying
+                }
+                className={'fas fa-music'}
+                onClick={_ => togglePreview(preview_url)}
+              ></IconStyled>
+            )}
             <h3>{display_name}</h3>
           </div>
         </div>

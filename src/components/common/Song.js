@@ -23,13 +23,13 @@ export default function Song({ song, togglePreview, isPlaying, noImage }) {
           <small>{names}</small>
         </div>
       </TextContentStyled>
-      <IconStyled
-        isPlaying={isPlaying}
-        className={'fas fa-music'}
-        onClick={handleOnClick}
-      >
-        {isPlaying}
-      </IconStyled>
+      {preview_url && (
+        <IconStyled
+          isPlaying={isPlaying}
+          className={'fas fa-music'}
+          onClick={handleOnClick}
+        ></IconStyled>
+      )}
     </SongStyled>
   )
   function handleOnClick(e) {
