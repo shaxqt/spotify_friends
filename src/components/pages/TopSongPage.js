@@ -6,7 +6,9 @@ import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
-import LazyLoad from 'react-lazyload'
+import Lazyload from 'react-lazyload'
+import { forceCheck } from 'react-lazyload'
+import { ScaleLoader } from 'react-spinners'
 
 import { useAlert } from 'react-alert'
 const Portal = ({ children }) =>
@@ -22,6 +24,8 @@ export default function TopSongPage({
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, allFriends] = useTopSongs(topSongs, friendIdFilter)
   const alert = useAlert()
+  const ref = React.createRef()
+  useEffect(_ => forceCheck(), [filteredSongs, active])
   return (
     <Main>
       <FriendFilter
@@ -29,7 +33,7 @@ export default function TopSongPage({
         toggleFilter={toggleFilter}
         activeFilters={friendIdFilter}
       />
-      <GridStyled gap="15px">
+      <GridStyled gap="15px" justifyItems="center" ref={ref}>
         {active && (
           <Portal>
             <IconStyled
@@ -43,33 +47,22 @@ export default function TopSongPage({
         ) : (
           filteredSongs.map(song => {
             return (
-              <LazyLoad
-                overflow={true}
+              <Lazyload
                 key={song.song.uri}
-                once={true}
-                placeholder={
-                  <Song
-                    noImage
-                    song={song}
-                    key={song.song.uri}
-                    togglePreview={togglePreview}
-                    isPlaying={
-                      song.song.preview_url === activeAudio.preview_url &&
-                      activeAudio.isPlaying
-                    }
-                  />
-                }
+                height={80}
+                overflow
+                throttle={200}
+                placeholder={<ScaleLoader css="height: 80px;" />}
               >
                 <Song
                   song={song}
-                  key={song.song.uri}
                   togglePreview={togglePreview}
                   isPlaying={
                     song.song.preview_url === activeAudio.preview_url &&
                     activeAudio.isPlaying
                   }
                 />
-              </LazyLoad>
+              </Lazyload>
             )
           })
         )}
@@ -174,6 +167,7 @@ export default function TopSongPage({
   }
 }
 
+const PlaceholderStyled = styled.div``
 const IconStyled = styled.i`
   width: 50px;
   height: 50px;

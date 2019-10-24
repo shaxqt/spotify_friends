@@ -59,6 +59,7 @@ const TextContentStyled = styled(GridStyled)`
   padding: 5px;
 `
 const SongStyled = styled.section`
+  width: 100%;
   display: grid;
   grid-template-columns: 80px 1fr 50px;
   background-color: #333;
