@@ -18,9 +18,6 @@ const path = require('path')
 const PRODUCTION = process.env.NODE_ENV === 'production'
 PRODUCTION && console.log('Production')
 
-// Serve static files from the React app
-server.use(express.static(path.join(__dirname, 'build')))
-
 const mongoDB = PRODUCTION
   ? process.env.MONGODB
   : require('./server/config/config').mongoDB
@@ -70,6 +67,8 @@ server.use('/auth', require('./server/routes/auth'))
 server.use('/user', require('./server/routes/user'))
 
 if (PRODUCTION) {
+  // Serve static files from the React app
+  server.use(express.static(path.join(__dirname, 'build')))
   // The "catchall" handler: for any request that doesn't
   // match one above, send back React's index.html file.
   server.get('*', (req, res) => {
