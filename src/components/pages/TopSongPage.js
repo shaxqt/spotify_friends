@@ -86,10 +86,8 @@ export default function TopSongPage({
     }
     setFriendIdFilter(filter)
   }
-  function filterSongs(songs, friendIdFilter) {}
 }
 
-const PlaceholderStyled = styled.div``
 const IconStyled = styled.i`
   width: 50px;
   height: 50px;
