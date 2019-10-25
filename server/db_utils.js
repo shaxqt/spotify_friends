@@ -38,7 +38,7 @@ const searchUsersByDisplayName = async (session, query) => {
       }
     }
     return mappedUsers
-  } catch (error) {
+  } catch (err) {
     console.log('getUsers', err)
     return null
   }

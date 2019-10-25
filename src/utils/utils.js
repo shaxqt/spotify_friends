@@ -18,7 +18,6 @@ export function getTopSongData(topSong) {
   let ret = {}
 
   const songData = getSpotifySongItemData(topSong.song)
-  console.log('getTopSongData', songData)
   ret = { ...songData }
   ret.names = topSong.friends
     .map(f => getShownDisplayName(f.display_name))

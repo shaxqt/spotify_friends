@@ -6,6 +6,10 @@ import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
 import GridStyled from '../utils/GridStyled'
 import { putRequest } from '../../api/fetch'
+import Lazyload from 'react-lazyload'
+import { forceCheck } from 'react-lazyload'
+import { ScaleLoader } from 'react-spinners'
+
 import { useAlert } from 'react-alert'
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
@@ -14,20 +18,22 @@ export default function TopSongPage({
   topSongs,
   activeAudio,
   togglePreview,
-  active
+  active,
+  isLoading
 }) {
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [filteredSongs, allFriends] = useTopSongs(topSongs, friendIdFilter)
   const alert = useAlert()
-
+  const ref = React.createRef()
+  useEffect(_ => forceCheck(), [filteredSongs, active])
   return (
     <Main>
-      <GridStyled gap="15px">
-        <FriendFilter
-          friends={allFriends}
-          toggleFilter={toggleFilter}
-          activeFilters={friendIdFilter}
-        />
+      <FriendFilter
+        friends={allFriends}
+        toggleFilter={toggleFilter}
+        activeFilters={friendIdFilter}
+      />
+      <GridStyled gap="15px" justifyItems="center" ref={ref}>
         {active && (
           <Portal>
             <IconStyled
@@ -36,19 +42,31 @@ export default function TopSongPage({
             ></IconStyled>
           </Portal>
         )}
-        {filteredSongs.map(song => {
-          return (
-            <Song
-              song={song}
-              key={song.song.uri}
-              togglePreview={togglePreview}
-              isPlaying={
-                song.song.preview_url === activeAudio.preview_url &&
-                activeAudio.isPlaying
-              }
-            />
-          )
-        })}
+        {isLoading ? (
+          <p>loading... </p>
+        ) : (
+          filteredSongs.map(song => {
+            return (
+              <Lazyload
+                key={song.song.uri}
+                height={80}
+                overflow
+                throttle={200}
+                placeholder={<ScaleLoader css="height: 80px;" />}
+              >
+                <Song
+                  song={song}
+                  togglePreview={togglePreview}
+                  isPlaying={
+                    song.song.preview_url === activeAudio.preview_url &&
+                    activeAudio.isPlaying
+                  }
+                />
+              </Lazyload>
+            )
+          })
+        )}
+        <EmptyStyled />
       </GridStyled>
     </Main>
   )
@@ -67,7 +85,6 @@ export default function TopSongPage({
       putRequest('/user/shuffle', { state: true })
       const res = await putRequest('/user/start_playback', body)
       if (res && res.response) {
-        console.log(res.response)
         if (res.response.error) {
           let message = res.response.error.message
           message =
@@ -100,7 +117,6 @@ export default function TopSongPage({
   function useTopSongs(topSongs, friendIdFilter) {
     const [allFriends, setAllFriends] = useState([])
     const [filteredSongs, setFilteredSongs] = useState([])
-
     useEffect(
       _ => {
         let songs = topSongs
@@ -151,6 +167,7 @@ export default function TopSongPage({
   }
 }
 
+const PlaceholderStyled = styled.div``
 const IconStyled = styled.i`
   width: 50px;
   height: 50px;
@@ -159,9 +176,12 @@ const IconStyled = styled.i`
   align-items: center;
   background-color: #1db954;
   border-radius: 50%;
-  bottom: 50px;
-  right: 6px;
+  bottom: 65px;
+  right: 10px;
   position: fixed;
   font-size: 25px;
   color: white;
+`
+const EmptyStyled = styled.div`
+  height: 50px;
 `

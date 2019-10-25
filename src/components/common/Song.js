@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { getTopSongData } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
 
-export default function Song({ song, togglePreview, isPlaying }) {
+export default function Song({ song, togglePreview, isPlaying, noImage }) {
   const {
     song_title,
     song_artists,
@@ -15,7 +15,7 @@ export default function Song({ song, togglePreview, isPlaying }) {
 
   return (
     <SongStyled>
-      <ImgContainerStyled img={song_image_medium} />
+      {noImage ? <div></div> : <ImgContainerStyled img={song_image_medium} />}
       <TextContentStyled alignContent="space-between">
         <h2>{song_title}</h2>
         <div>
@@ -23,13 +23,13 @@ export default function Song({ song, togglePreview, isPlaying }) {
           <small>{names}</small>
         </div>
       </TextContentStyled>
-      <IconStyled
-        isPlaying={isPlaying}
-        className={'fas fa-music'}
-        onClick={handleOnClick}
-      >
-        {isPlaying}
-      </IconStyled>
+      {preview_url && (
+        <IconStyled
+          isPlaying={isPlaying}
+          className={'fas fa-music'}
+          onClick={handleOnClick}
+        ></IconStyled>
+      )}
     </SongStyled>
   )
   function handleOnClick(e) {
@@ -59,6 +59,7 @@ const TextContentStyled = styled(GridStyled)`
   padding: 5px;
 `
 const SongStyled = styled.section`
+  width: 100%;
   display: grid;
   grid-template-columns: 80px 1fr 50px;
   background-color: #333;

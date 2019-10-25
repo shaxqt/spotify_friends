@@ -17,7 +17,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
   const [topSongs, setTopSongs] = useState([])
-  const [loadingFriends, setLoadingFriends] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [requestCount, setRequestCount] = useState(0)
   const [newSong, setNewSong] = useState({})
   const [activeAudio, setActiveAudio] = useState({
@@ -30,9 +30,12 @@ export default function LoggedInPage({ setIsLoggedIn }) {
   useEffect(
     _ => {
       getFriends().then(friends => {
-        getFriends().then(setFriends)
-        setLoadingFriends(false)
+        setFriends(friends)
+        if (slideIndex === 1 && friends.length <= 0) {
+          setSlideIndex(0)
+        }
         getTopSongs().then(setTopSongs)
+        setIsLoading(false)
       })
       socket.on('update_friends', data => {
         console.log('updating your friends')
@@ -72,7 +75,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         <ContactPage setRequestCount={setRequestCount} />
         <FriendsPage
           friends={friends}
-          isLoading={loadingFriends}
+          isLoading={isLoading}
           activeAudio={activeAudio}
           togglePreview={togglePreview}
         />
@@ -81,6 +84,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
           togglePreview={togglePreview}
           topSongs={topSongs}
           active={slideIndex === 2}
+          isLoading={isLoading}
         ></TopSongPage>
         <SettingsPage setIsLoggedIn={setIsLoggedIn} active={slideIndex === 3} />
       </BindKeyboardSwipeableViews>

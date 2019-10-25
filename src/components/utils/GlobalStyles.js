@@ -20,6 +20,21 @@ const GlobalStyle = createGlobalStyle`
         display: grid;
         grid-auto-rows: auto 45px;
     }
+*::-webkit-scrollbar-track {
+    border-radius: 5px;
+    background-color: #222;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    background-color: #222;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #555;
+  }
 `
 
 export default GlobalStyle

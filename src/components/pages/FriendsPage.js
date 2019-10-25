@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Main from '../utils/Main'
 import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
@@ -22,24 +22,15 @@ export default function FriendsPage({
   )
 
   function renderFriends() {
-    return friends.length > 0 ? (
-      friends.map(friend => (
-        <FriendsCurrSong
-          key={friend.id}
-          friend={friend}
-          onPlay={getHandleOnPlay(friend)}
-          togglePreview={togglePreview}
-          activeAudio={activeAudio}
-        />
-      ))
-    ) : (
-      <p>
-        <span>no friends</span>
-        <span style={{ marginLeft: '5px' }} role="img" aria-label="sad emoji">
-          ☹️
-        </span>
-      </p>
-    )
+    return friends.map(friend => (
+      <FriendsCurrSong
+        key={friend.id}
+        friend={friend}
+        onPlay={getHandleOnPlay(friend)}
+        togglePreview={togglePreview}
+        activeAudio={activeAudio}
+      />
+    ))
   }
   function getHandleOnPlay(friend) {
     return async _ => {
@@ -70,9 +61,9 @@ export default function FriendsPage({
           }
         } else if (friend.currSong['item'] && friend.currSong.item['uri']) {
           // no context -> just play track
-          body.context_uri = friend.currSong.item.uri
+          body.uris = [friend.currSong.item.uri]
         }
-        if (body['context_uri']) {
+        if (body['context_uri'] || body['uris']) {
           const res = await putRequest('/user/start_playback', body)
           if (res && res.response) {
             if (res.response.error) {
