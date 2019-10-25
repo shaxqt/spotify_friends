@@ -7,7 +7,7 @@ import FriendsPage from './FriendsPage'
 import TopSongPage from './TopSongPage'
 import SettingsPage from './SettingsPage'
 import Navigation from '../utils/Navigation'
-import { getFriends, getTopSongs } from '../../api/api'
+import { getFriends } from '../../api/api'
 import { bindKeyboard } from 'react-swipeable-views-utils'
 import SocketContext from '../../context/SocketContext'
 
@@ -16,7 +16,6 @@ const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
 export default function LoggedInPage({ setIsLoggedIn }) {
   const [slideIndex, setSlideIndex] = useState(1)
   const [friends, setFriends] = useState([])
-  const [topSongs, setTopSongs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [requestCount, setRequestCount] = useState(0)
   const [newSong, setNewSong] = useState({})
@@ -34,13 +33,11 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         if (slideIndex === 1 && friends.length <= 0) {
           setSlideIndex(0)
         }
-        getTopSongs().then(setTopSongs)
         setIsLoading(false)
       })
       socket.on('update_friends', data => {
         console.log('updating your friends')
         getFriends().then(setFriends)
-        getTopSongs().then(setTopSongs)
       })
       socket.on('newsong', data => {
         setNewSong(data)
@@ -82,7 +79,6 @@ export default function LoggedInPage({ setIsLoggedIn }) {
         <TopSongPage
           activeAudio={activeAudio}
           togglePreview={togglePreview}
-          topSongs={topSongs}
           active={slideIndex === 2}
           isLoading={isLoading}
         ></TopSongPage>
