@@ -14,13 +14,16 @@ const io = require('socket.io')(http, {
   pingTimeout: 60000
 })
 const path = require('path')
+let config = null
+try {
+  config = require('./server/config/config')
+} catch (err) {
+  console.log('SERVER, no config file')
+}
 
-const PRODUCTION = process.env.NODE_ENV === 'production'
-PRODUCTION && console.log('Production')
-
-const mongoDB = PRODUCTION
-  ? process.env.MONGODB
-  : require('./server/config/config').mongoDB
+const mongoDB = config
+  ? process.env.MONGODB || config['mongoDB']
+  : process.env.MONGODB
 mongoose
   .connect(mongoDB, {
     useCreateIndex: true,
@@ -66,7 +69,8 @@ server.set('json spaces', 2)
 server.use('/auth', require('./server/routes/auth'))
 server.use('/user', require('./server/routes/user'))
 
-if (PRODUCTION) {
+if (process.env.NODE_ENV === 'production') {
+  console.log('Production')
   // Serve static files from the React app
   server.use(express.static(path.join(__dirname, 'build')))
   // The "catchall" handler: for any request that doesn't

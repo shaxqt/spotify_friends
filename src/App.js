@@ -8,12 +8,15 @@ import io from 'socket.io-client'
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
 
-const { spotify_friends_token } = localStorage
-const socket = io('', {
-  query: { spotify_friends_token },
-  secure: true,
-  rejectUnauthorized: false
-})
+let socket
+const spotify_friends_token = localStorage.getItem('spotify_redirect_query')
+if (spotify_friends_token) {
+  socket = io('', {
+    query: { spotify_friends_token },
+    secure: true,
+    rejectUnauthorized: false
+  })
+}
 
 export default function App(props) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
