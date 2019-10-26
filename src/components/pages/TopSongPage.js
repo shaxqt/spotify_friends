@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import Main from '../utils/Main'
 import Song from '../common/Song'
@@ -8,44 +8,71 @@ import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { useShuffle, useTopSongs, useSongFilter } from '../../hooks/TopSongPage'
 import LoadingSpinner from '../utils/LoadingSpinner'
+import FloatingHeader from '../utils/FloatingHeader'
 
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
 
 export default function TopSongPage({ activeAudio, togglePreview }) {
+  const HEADER_HEIGHT = 90
   const [topSongs, allFriends, loadingData] = useTopSongs()
   const [friendIdFilter, setFriendIdFilter] = useState([])
+  const [lastScrollTop, setLastScrollTop] = useState(0)
+  const [lastScrollBottom, setLastScrollBottom] = useState(0)
   const shownSongs = useSongFilter(topSongs, friendIdFilter)
   const shuffleShownSongs = useShuffle(shownSongs)
-  const ref = React.createRef(null)
+  const [showHeader, setShowHeader] = useState(true)
+
+  function onScroll(e) {
+    if (e.scrollOffset === 0) {
+      setShowHeader(true)
+    } else {
+      const DELTA = HEADER_HEIGHT
+      if (e.scrollDirection === 'backward') {
+        if (e.scrollOffset + DELTA < lastScrollTop) {
+          setShowHeader(true)
+        }
+        setLastScrollBottom(e.scrollOffset)
+      } else {
+        if (e.scrollOffset > lastScrollBottom + DELTA) {
+          setShowHeader(false)
+        }
+        setLastScrollTop(e.scrollOffset)
+      }
+    }
+  }
 
   return (
-    <Main ref={ref} noScroll>
+    <Main noScroll>
       {loadingData ? (
         <LoadingSpinner />
       ) : (
         <>
-          <FriendFilter
-            friends={allFriends}
-            toggleFilter={toggleFilter}
-            activeFilters={friendIdFilter}
-          />
-          <AutoSizer>
-            {({ height, width }) => {
-              console.log(height)
-              return (
-                <List
-                  className="List"
-                  height={height}
-                  itemCount={shownSongs.length}
-                  itemSize={80}
-                  width={width}
-                >
-                  {renderRow}
-                </List>
-              )
-            }}
-          </AutoSizer>
+          <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
+            <FriendFilter
+              friends={allFriends}
+              toggleFilter={toggleFilter}
+              activeFilters={friendIdFilter}
+            />
+          </FloatingHeader>
+          <FixedDivStyled marginTop={showHeader ? HEADER_HEIGHT : 0}>
+            <AutoSizer>
+              {({ height, width }) => {
+                return (
+                  <List
+                    onScroll={onScroll}
+                    className="List"
+                    height={height}
+                    itemCount={shownSongs.length}
+                    itemSize={80}
+                    width={width}
+                  >
+                    {renderRow}
+                  </List>
+                )
+              }}
+            </AutoSizer>
+          </FixedDivStyled>
           <Portal>
             <IconStyled
               onClick={shuffleShownSongs}
@@ -89,6 +116,12 @@ export default function TopSongPage({ activeAudio, togglePreview }) {
   }
 }
 
+const FixedDivStyled = styled.div`
+  height: 100%;
+  width: 100%;
+  margin-top: ${({ marginTop }) => marginTop + 'px'};
+  transition: all 0.3s ease-in-out;
+`
 const IconStyled = styled.i`
   width: 50px;
   height: 50px;

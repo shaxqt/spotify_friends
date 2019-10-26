@@ -21,10 +21,6 @@ export default function FriendsPage({ togglePreview, activeAudio }) {
         setFriends(friends)
         setIsLoading(false)
       })
-      socket.on('update_friends', data => {
-        console.log('updating your friends')
-        getFriends().then(setFriends)
-      })
       socket.on('newsong', data => {
         setNewSong(data)
       })
