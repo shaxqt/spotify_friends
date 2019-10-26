@@ -1,118 +1,68 @@
 import React, { useState, useEffect } from 'react'
-import SwipeableViews from 'react-swipeable-views'
-import styled from 'styled-components'
-import GridStyled from '../utils/GridStyled'
 import ContactPage from './ContactPage'
 import FriendsPage from './FriendsPage'
 import TopSongPage from './TopSongPage'
 import SettingsPage from './SettingsPage'
-import Navigation from '../utils/Navigation'
-import { getFriends } from '../../api/api'
-import { bindKeyboard } from 'react-swipeable-views-utils'
-import SocketContext from '../../context/SocketContext'
+import Navigation, { withNavLink } from '../utils/Navigation'
 
-const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews)
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 export default function LoggedInPage({ setIsLoggedIn }) {
-  const [slideIndex, setSlideIndex] = useState(1)
-  const [friends, setFriends] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [requestCount, setRequestCount] = useState(0)
-  const [newSong, setNewSong] = useState({})
   const [activeAudio, setActiveAudio] = useState({
     audio: null,
     preview_url: '',
     isPlaying: false
   })
-  const socket = React.useContext(SocketContext)
-
-  useEffect(
-    _ => {
-      getFriends().then(friends => {
-        setFriends(friends)
-        if (slideIndex === 1 && friends.length <= 0) {
-          setSlideIndex(0)
-        }
-        setIsLoading(false)
-      })
-      socket.on('update_friends', data => {
-        console.log('updating your friends')
-        getFriends().then(setFriends)
-      })
-      socket.on('newsong', data => {
-        setNewSong(data)
-      })
-    },
-    [socket]
-  )
-  useEffect(
-    _ => {
-      if (newSong['userID'] && newSong['currSong']) {
-        const friendToReplace = friends.find(f => f.id === newSong['userID'])
-        if (friendToReplace) {
-          setFriends(
-            friends.map(f =>
-              f === friendToReplace ? { ...f, currSong: newSong.currSong } : f
-            )
-          )
-        }
-      }
-    },
-    [newSong]
-  )
 
   return (
     <>
-      <BindKeyboardSwipeableViews
-        containerStyle={{ maxHeight: '100%' }}
-        resistance
-        onChangeIndex={index => setSlideIndex(index)}
-        index={slideIndex}
-      >
-        <ContactPage setRequestCount={setRequestCount} />
-        <FriendsPage
-          friends={friends}
-          isLoading={isLoading}
-          activeAudio={activeAudio}
-          togglePreview={togglePreview}
-        />
-        <TopSongPage
-          activeAudio={activeAudio}
-          togglePreview={togglePreview}
-          active={slideIndex === 2}
-          isLoading={isLoading}
-        ></TopSongPage>
-        <SettingsPage setIsLoggedIn={setIsLoggedIn} active={slideIndex === 3} />
-      </BindKeyboardSwipeableViews>
+      <BrowserRouter>
+        <Switch>
+          <Route
+            exact
+            path="/contacts"
+            render={() => <ContactPage setRequestCount={setRequestCount} />}
+          />
+          <Route
+            exact
+            path="/top-songs"
+            render={() => (
+              <TopSongPage
+                activeAudio={activeAudio}
+                togglePreview={togglePreview}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/settings"
+            render={() => <SettingsPage setIsLoggedIn={setIsLoggedIn} />}
+          />
 
-      <Navigation slideIndex={slideIndex}>
-        {withNavButtonStyled(0, 'fa fa-search', requestCount)}
-        {withNavButtonStyled(1, 'fa fa-users')}
-        {withNavButtonStyled(2, 'fa fa-headphones')}
-        {withNavButtonStyled(3, 'fa fa-cogs')}
-      </Navigation>
+          <Route
+            exact
+            path="/"
+            render={() => (
+              <FriendsPage
+                activeAudio={activeAudio}
+                togglePreview={togglePreview}
+              />
+            )}
+          />
+        </Switch>
+        <Navigation>
+          {withNavLink('/contacts', 'fa fa-search', requestCount)}
+          {withNavLink('/', 'fa fa-users')}
+          {withNavLink('/top-songs', 'fa fa-headphones')}
+          {withNavLink('/settings', 'fa fa-cogs')}
+        </Navigation>
+      </BrowserRouter>
     </>
   )
-  function withNavButtonStyled(index, btnClass, count) {
-    return (
-      <NavButtonStyled
-        key={index}
-        alignItems="center"
-        activeSlide={index === slideIndex}
-        justifyContent="center"
-        as="button"
-        onClick={() => {
-          setSlideIndex(index)
-        }}
-      >
-        <i className={btnClass}></i>
-        {count > 0 && (
-          <NavButtonInfoStyled>{count > 99 ? '*' : count}</NavButtonInfoStyled>
-        )}
-      </NavButtonStyled>
-    )
-  }
+
   function togglePreview(preview_url) {
+    console.log('TOGGLEPREVIEW', preview_url)
     if (preview_url != null && preview_url !== '') {
       if (activeAudio.preview_url === preview_url) {
         if (activeAudio.isPlaying) {
@@ -133,27 +83,3 @@ export default function LoggedInPage({ setIsLoggedIn }) {
     }
   }
 }
-const NavButtonStyled = styled(GridStyled)`
-  background-color: #222;
-  position: relative;
-  border: none;
-  outline: none;
-  color: ${({ activeSlide }) => (activeSlide ? '#1DB954' : '#555')};
-  font-size: ${({ activeSlide }) => (activeSlide ? '25px' : '22px')};
-  transition: ease-in-out 0.1s;
-`
-const NavButtonInfoStyled = styled.div`
-  color: #fff;
-  font-size: 14px;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: 0;
-  left: 50%;
-  transform: translateX(5px);
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  background-color: #1db954;
-`

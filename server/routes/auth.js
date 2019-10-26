@@ -3,18 +3,22 @@ const querystring = require('querystring')
 const { getSessionIfValid, handleUserLogin } = require('../auth_utils')
 const { postSpotifyRequest } = require('../request_utils')
 
-let client_secret, client_id, redirect_uri
-
-if (process.env.NODE_ENV === 'production') {
-  client_secret = process.env.CLIENT_SECRET
-  client_id = process.env.CLIENT_ID
-  redirect_uri = process.env.REDIRECT_URI
-} else {
-  const config = require('../config/config')
-  client_secret = config.client_secret
-  client_id = config.client_id
-  redirect_uri = config.redirect_uri
+let config = null
+try {
+  config = require('../config/config')
+} catch (err) {
+  console.log('AUTH no config file')
 }
+
+const client_secret = config
+  ? process.env.CLIENT_SECRET || config['client_secret']
+  : process.env.CLIENT_SECRET
+const client_id = config
+  ? process.env.CLIENT_ID || config['client_id']
+  : process.env.CLIENT_ID
+const redirect_uri = config
+  ? process.env.REDIRECT_URI || config['redirect_uri']
+  : process.env.REDIRECT_URI
 
 const stateKey = 'spotify_auth_state'
 router.get('/login', function(req, res) {
