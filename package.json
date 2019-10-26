@@ -34,7 +34,6 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
-    "start_heroku": "NODE_ENV=production node server.js",
     "start": "run-p server frontend",
     "dev": "run-p server frontend",
     "server": "nodemon -w server server.js",

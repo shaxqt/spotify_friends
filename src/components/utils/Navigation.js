@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import GridStyled from './GridStyled'
 import { NavLink } from 'react-router-dom'
 
-export default function Navigtaion({ children }) {
+export default function Navigation({ children }) {
   return (
     <NavStyled autoFlow="column" as="nav">
       {children}
