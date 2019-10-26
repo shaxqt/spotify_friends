@@ -1,7 +1,7 @@
 const { postRequest, deleteRequest } = require('./fetch')
 
-export const getTopSongs = async _ => {
-  const res = await postRequest('/user/top')
+export const getTopSongs = async (time_range = 'short_term') => {
+  const res = await postRequest('/user/top', { type: 'tracks', time_range })
   return res.success ? res.items : null
 }
 export const getCurrentUser = _ => {

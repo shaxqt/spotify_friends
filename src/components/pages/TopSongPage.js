@@ -9,13 +9,14 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { useShuffle, useTopSongs, useSongFilter } from '../../hooks/TopSongPage'
 import LoadingSpinner from '../utils/LoadingSpinner'
 import FloatingHeader from '../utils/FloatingHeader'
-
+import TimeFilter from '../common/TimeFilter'
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
 
 export default function TopSongPage({ activeAudio, togglePreview }) {
-  const HEADER_HEIGHT = 90
-  const [topSongs, allFriends, loadingData] = useTopSongs()
+  const HEADER_HEIGHT = 150
+  const [timeFilter, setTimeFilter] = useState('short_term')
+  const [topSongs, allFriends, loadingData] = useTopSongs(timeFilter)
   const [friendIdFilter, setFriendIdFilter] = useState([])
   const [lastScrollTop, setLastScrollTop] = useState(0)
   const [lastScrollBottom, setLastScrollBottom] = useState(0)
@@ -44,43 +45,42 @@ export default function TopSongPage({ activeAudio, togglePreview }) {
 
   return (
     <Main noScroll>
-      {loadingData ? (
-        <LoadingSpinner />
-      ) : (
-        <>
-          <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
-            <FriendFilter
-              friends={allFriends}
-              toggleFilter={toggleFilter}
-              activeFilters={friendIdFilter}
-            />
-          </FloatingHeader>
-          <FixedDivStyled marginTop={showHeader ? HEADER_HEIGHT : 0}>
-            <AutoSizer>
-              {({ height, width }) => {
-                return (
-                  <List
-                    onScroll={onScroll}
-                    className="List"
-                    height={height}
-                    itemCount={shownSongs.length}
-                    itemSize={80}
-                    width={width}
-                  >
-                    {renderRow}
-                  </List>
-                )
-              }}
-            </AutoSizer>
-          </FixedDivStyled>
-          <Portal>
-            <IconStyled
-              onClick={shuffleShownSongs}
-              className="fa fa-random"
-            ></IconStyled>
-          </Portal>
-        </>
-      )}
+      <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
+        <TimeFilter activeFilter={timeFilter} setFilter={setTimeFilter} />
+        <FriendFilter
+          friends={allFriends}
+          toggleFilter={toggleFilter}
+          activeFilters={friendIdFilter}
+        />
+      </FloatingHeader>
+      <FixedDivStyled marginTop={showHeader ? HEADER_HEIGHT : 0}>
+        {loadingData ? (
+          <LoadingSpinner />
+        ) : (
+          <AutoSizer>
+            {({ height, width }) => {
+              return (
+                <List
+                  onScroll={onScroll}
+                  className="List"
+                  height={height}
+                  itemCount={shownSongs.length}
+                  itemSize={80}
+                  width={width}
+                >
+                  {renderRow}
+                </List>
+              )
+            }}
+          </AutoSizer>
+        )}
+      </FixedDivStyled>
+      <Portal>
+        <IconStyled
+          onClick={shuffleShownSongs}
+          className="fa fa-random"
+        ></IconStyled>
+      </Portal>
     </Main>
   )
 

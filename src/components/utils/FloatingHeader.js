@@ -11,6 +11,7 @@ export default function FloatingHeader({ height, show, children }) {
 
 const HeaderStyled = styled.header`
   position: fixed;
+  overflow-y: hidden;
   height: ${({ height }) => height};
   left: 0;
   right: 0;

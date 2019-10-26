@@ -8,8 +8,18 @@ import io from 'socket.io-client'
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplateStyled from './components/utils/AlertTemplate'
 import LoadingSpinner from './components/utils/LoadingSpinner'
-const spotify_friends_token = localStorage.getItem('spotify_redirect_query')
-const socket = io('', {
+const spotify_friends_token = localStorage.getItem('spotify_friends_token')
+const socketPort = process.env.REACT_APP_SOCKET_PORT || ''
+
+if (spotify_friends_token != null) {
+  console.log(
+    'conntecting socket to: ' +
+      socketPort +
+      ' with token: ' +
+      spotify_friends_token
+  )
+}
+const socket = io(socketPort, {
   query: { spotify_friends_token },
   secure: true,
   rejectUnauthorized: false

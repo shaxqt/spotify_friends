@@ -33,7 +33,7 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
-    if (token != null && token != undefined && typeof token === 'string') {
+    if (token != null && token !== 'null' && token !== 'undefined') {
       token = sanitize(token)
       const session = await UserSession.findOne({ _id: sanitize(token) })
       if (session) {

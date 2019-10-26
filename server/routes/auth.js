@@ -21,7 +21,12 @@ const redirect_uri = config
   : process.env.REDIRECT_URI
 
 const stateKey = 'spotify_auth_state'
+router.get('/yolo', function(req, res) {
+  console.log('JA MOIN')
+})
 router.get('/login', function(req, res) {
+  console.log('TEEEST')
+  console.log('AUTH/LOGIN CALLED', client_id, client_secret, redirect_uri)
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
@@ -47,6 +52,7 @@ router.get('/callback', async function(req, res) {
   try {
     const { code, state, error, token } = req.query
     const storedState = req.cookies ? req.cookies[stateKey] : null
+    console.log('CALLBACK CALLED', code, state, error, token)
     if (token) {
       // check if session is valid
       session = await getSessionIfValid(token, true)

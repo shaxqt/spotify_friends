@@ -76,6 +76,7 @@ if (process.env.NODE_ENV === 'production') {
   // The "catchall" handler: for any request that doesn't
   // match one above, send back React's index.html file.
   server.get('*', (req, res) => {
+    console.log('HI FROM CATCHALL')
     res.sendFile(path.join(__dirname + '/build/index.html'))
   })
 }
