@@ -37,32 +37,29 @@ export function useShuffle(shownSongs) {
     }
   })
 }
-export function useFriendFilter(topSongs, friendIdFilter) {
-  const [shownSongs, setShownSongs] = useState([])
-
-  useEffect(
-    _ => {
-      let filteredSongs = []
-      if (topSongs.length > 0 && friendIdFilter.length > 0) {
-        for (const song of topSongs) {
-          for (const friend of song.friends) {
-            if (friendIdFilter.includes(friend.id)) {
-              filteredSongs = [...filteredSongs, song]
-              break
-            }
-          }
+export function useSongFilter(topSongs, friendIdFilter) {
+  let filteredSongs = []
+  if (
+    Array.isArray(topSongs) &&
+    topSongs.length > 0 &&
+    Array.isArray(friendIdFilter) &&
+    friendIdFilter.length > 0
+  ) {
+    for (const song of topSongs) {
+      for (const friend of song.friends) {
+        if (friendIdFilter.includes(friend.id)) {
+          filteredSongs = [...filteredSongs, song]
+          break
         }
-      } else {
-        filteredSongs = topSongs
       }
-      setShownSongs(filteredSongs)
-    },
-    [topSongs, friendIdFilter]
-  )
-
-  return shownSongs
+    }
+  } else {
+    filteredSongs = topSongs
+  }
+  return filteredSongs
 }
 export function useTopSongs() {
+  const [isLoading, setIsLoading] = useState(true)
   const [allFriends, setAllFriends] = useState([])
   const [topSongs, setTopSongs] = useState([])
 
@@ -93,9 +90,11 @@ export function useTopSongs() {
             setAllFriends(friends)
           }
           setTopSongs(songs)
+          console.log('useTopSongs loading done')
+          setIsLoading(false)
         }
       })
       .catch(err => err)
   }, [])
-  return [topSongs, allFriends]
+  return [topSongs, allFriends, isLoading]
 }

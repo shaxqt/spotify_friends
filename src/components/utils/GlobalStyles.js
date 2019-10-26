@@ -21,17 +21,22 @@ const GlobalStyle = createGlobalStyle`
         grid-auto-rows: auto 45px;
     }
 *::-webkit-scrollbar-track {
+  display: none;
     border-radius: 5px;
     background-color: #222;
   }
 
   *::-webkit-scrollbar {
+  display: none;
+
     width: 10px;
     background-color: #222;
     height: 10px;
   }
 
   *::-webkit-scrollbar-thumb {
+  display: none;
+
     border-radius: 10px;
     background-color: #555;
   }

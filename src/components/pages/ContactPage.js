@@ -8,8 +8,9 @@ import { searchUser, getContactRequests } from '../../api/api'
 import UserSearchResults from '../common/UserSearchResults'
 import ContactRequestList from '../common/ContactRequestList'
 import SocketContext from '../../context/SocketContext'
-
+import LoadingSpinner from '../utils/LoadingSpinner'
 export default function ContactPage({ setRequestCount }) {
+  const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState('')
@@ -39,11 +40,15 @@ export default function ContactPage({ setRequestCount }) {
         <Button text={getButtonText()} />
       </Form>
 
-      <UserSearchResults
-        searchResults={searchResults}
-        onHandleSearchResult={updateSearchResult}
-        query={query}
-      />
+      {isLoading ? (
+        <LoadingSpinner height="200px" />
+      ) : (
+        <UserSearchResults
+          searchResults={searchResults}
+          onHandleSearchResult={updateSearchResult}
+          query={query}
+        />
+      )}
       <ContactRequestList
         contactRequests={contactRequests}
         onHandleContactRequest={onHandleContactRequest}
@@ -59,14 +64,16 @@ export default function ContactPage({ setRequestCount }) {
     return text === '' ? 'search' : 'search "' + text + '"'
   }
   function fetchContacts() {
+    setIsLoading(true)
     getContactRequests()
       .then(requests => {
         setContactRequests(requests)
         searchUser(query)
           .then(setSearchResults)
           .catch(err => err)
+          .finally(err => setIsLoading(false))
       })
-      .catch(err => err)
+      .catch(err => setIsLoading(false))
   }
 
   function updateSearchResult(user, create, wasAccepted = false) {

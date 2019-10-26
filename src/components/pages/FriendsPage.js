@@ -4,20 +4,58 @@ import FriendsCurrSong from '../common/FriendsCurrSong'
 import { putRequest } from '../../api/fetch'
 import GridStyled from '../utils/GridStyled'
 import { useAlert } from 'react-alert'
+import { getFriends } from '../../api/api'
+import SocketContext from '../../context/SocketContext'
+import LoadingSpinner from '../utils/LoadingSpinner'
 
-export default function FriendsPage({
-  friends,
-  isLoading,
-  togglePreview,
-  activeAudio
-}) {
+export default function FriendsPage({ togglePreview, activeAudio }) {
+  const [friends, setFriends] = useState([])
+  const [newSong, setNewSong] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
   const alert = useAlert()
+  const socket = React.useContext(SocketContext)
+
+  useEffect(
+    _ => {
+      getFriends().then(friends => {
+        setFriends(friends)
+        setIsLoading(false)
+      })
+      socket.on('update_friends', data => {
+        console.log('updating your friends')
+        getFriends().then(setFriends)
+      })
+      socket.on('newsong', data => {
+        setNewSong(data)
+      })
+    },
+    [socket]
+  )
+  useEffect(
+    _ => {
+      if (newSong['userID'] && newSong['currSong']) {
+        const friendToReplace = friends.find(f => f.id === newSong['userID'])
+        if (friendToReplace) {
+          setFriends(
+            friends.map(f =>
+              f === friendToReplace ? { ...f, currSong: newSong.currSong } : f
+            )
+          )
+        }
+      }
+    },
+    [newSong]
+  )
 
   return (
     <Main>
-      <GridStyled gap="20px" justifyItems="center">
-        {isLoading ? <p>loading friends...</p> : renderFriends()}
-      </GridStyled>
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <GridStyled gap="20px" justifyItems="center">
+          {renderFriends()}
+        </GridStyled>
+      )}
     </Main>
   )
 

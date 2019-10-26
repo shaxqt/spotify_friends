@@ -6,17 +6,14 @@ import GlobalStyles from './components/utils/GlobalStyles'
 import SocketContext from './context/SocketContext'
 import io from 'socket.io-client'
 import { positions, Provider as AlertProvider } from 'react-alert'
-import AlertTemplate from 'react-alert-template-basic'
-
-let socket
+import AlertTemplateStyled from './components/utils/AlertTemplate'
+import LoadingSpinner from './components/utils/LoadingSpinner'
 const spotify_friends_token = localStorage.getItem('spotify_redirect_query')
-if (spotify_friends_token) {
-  socket = io('', {
-    query: { spotify_friends_token },
-    secure: true,
-    rejectUnauthorized: false
-  })
-}
+const socket = io('', {
+  query: { spotify_friends_token },
+  secure: true,
+  rejectUnauthorized: false
+})
 
 export default function App(props) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -38,13 +35,10 @@ export default function App(props) {
   return (
     <>
       <GlobalStyles />
-      {isLoading ? renderLoadingScreen() : renderMainPage()}
+      {isLoading ? <LoadingSpinner /> : renderMainPage()}
     </>
   )
 
-  function renderLoadingScreen() {
-    return <h3>checking token...</h3>
-  }
   function renderMainPage() {
     return isLoggedIn ? (
       <SocketContext.Provider value={socket}>
@@ -60,29 +54,4 @@ export default function App(props) {
       <LoginPage />
     )
   }
-}
-
-const AlertTemplateStyled = ({ message, options, close }) => {
-  const style = {
-    backgroundColor: '#151515',
-    color: 'white',
-    padding: '10px',
-    textTransform: '',
-    fontSize: '12px',
-    borderRadius: '3px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0px 2px 2px 2px rgba(0, 0, 0, 0.03)',
-    fontFamily: 'inherit',
-    width: '350px'
-  }
-  return (
-    <AlertTemplate
-      style={style}
-      message={message}
-      options={options}
-      close={close}
-    />
-  )
 }

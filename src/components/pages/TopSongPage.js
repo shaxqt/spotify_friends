@@ -1,77 +1,59 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import Main from '../utils/Main'
 import Song from '../common/Song'
 import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
-import GridStyled from '../utils/GridStyled'
-import Lazyload from 'react-lazyload'
-import { forceCheck } from 'react-lazyload'
-import { ScaleLoader } from 'react-spinners'
-import {
-  useFriendFilter,
-  useShuffle,
-  useTopSongs
-} from '../../hooks/TopSongPage'
+import { FixedSizeList as List } from 'react-window'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { useShuffle, useTopSongs, useSongFilter } from '../../hooks/TopSongPage'
+import LoadingSpinner from '../utils/LoadingSpinner'
 
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
 
-export default function TopSongPage({
-  activeAudio,
-  togglePreview,
-  active,
-  isLoading
-}) {
+export default function TopSongPage({ activeAudio, togglePreview }) {
+  const [topSongs, allFriends, loadingData] = useTopSongs()
   const [friendIdFilter, setFriendIdFilter] = useState([])
-  const [topSongs, allFriends] = useTopSongs()
-  const shownSongs = useFriendFilter(topSongs, friendIdFilter)
+  const shownSongs = useSongFilter(topSongs, friendIdFilter)
   const shuffleShownSongs = useShuffle(shownSongs)
-  const ref = React.createRef()
-  useEffect(_ => forceCheck(), [shownSongs, active])
+  const ref = React.createRef(null)
 
   return (
-    <Main>
-      <FriendFilter
-        friends={allFriends}
-        toggleFilter={toggleFilter}
-        activeFilters={friendIdFilter}
-      />
-      <GridStyled gap="15px" justifyItems="center" ref={ref}>
-        {active && (
+    <Main ref={ref} noScroll>
+      {loadingData ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          <FriendFilter
+            friends={allFriends}
+            toggleFilter={toggleFilter}
+            activeFilters={friendIdFilter}
+          />
+          <AutoSizer>
+            {({ height, width }) => {
+              console.log(height)
+              return (
+                <List
+                  className="List"
+                  height={height}
+                  itemCount={shownSongs.length}
+                  itemSize={80}
+                  width={width}
+                >
+                  {renderRow}
+                </List>
+              )
+            }}
+          </AutoSizer>
           <Portal>
             <IconStyled
               onClick={shuffleShownSongs}
               className="fa fa-random"
             ></IconStyled>
           </Portal>
-        )}
-        {isLoading ? (
-          <p>loading... </p>
-        ) : (
-          shownSongs.map(song => {
-            return (
-              <Lazyload
-                key={song.song.uri}
-                height={80}
-                overflow
-                throttle={200}
-                placeholder={<ScaleLoader css="height: 80px;" />}
-              >
-                <Song
-                  song={song}
-                  togglePreview={togglePreview}
-                  isPlaying={
-                    song.song.preview_url === activeAudio.preview_url &&
-                    activeAudio.isPlaying
-                  }
-                />
-              </Lazyload>
-            )
-          })
-        )}
-        <EmptyStyled />
-      </GridStyled>
+        </>
+      )}
     </Main>
   )
 
@@ -85,6 +67,25 @@ export default function TopSongPage({
       filter = [...friendIdFilter]
     }
     setFriendIdFilter(filter)
+  }
+  function renderRow({ index, style }) {
+    if (Array.isArray(shownSongs) && shownSongs.length > index) {
+      return (
+        <div style={style} key={shownSongs[index].preview_url}>
+          <Song
+            song={shownSongs[index]}
+            togglePreview={togglePreview}
+            isPlaying={
+              activeAudio &&
+              activeAudio.preview_url === shownSongs[index].song.preview_url &&
+              activeAudio.isPlaying
+            }
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
   }
 }
 
