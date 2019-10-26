@@ -14,18 +14,9 @@ const io = require('socket.io')(http, {
   pingTimeout: 60000
 })
 const path = require('path')
-let config = null
-try {
-  config = require('./server/config/config')
-} catch (err) {
-  console.log('SERVER, no config file')
-}
 
-const mongoDB = config
-  ? process.env.MONGODB || config['mongoDB']
-  : process.env.MONGODB
 mongoose
-  .connect(mongoDB, {
+  .connect(process.env.REACT_APP_MONGODB, {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
@@ -55,10 +46,10 @@ io.sockets.on('connection', socket => {
   })
 })
 
-const port = process.env.PORT || 3333
+const PORT = process.env.PORT || 3333
 
-http.listen(port, _ => {
-  console.log('listening on *:' + port)
+http.listen(PORT, _ => {
+  console.log('listening on *:' + PORT)
 })
 
 server.use(express.json())
@@ -76,7 +67,6 @@ if (process.env.NODE_ENV === 'production') {
   // The "catchall" handler: for any request that doesn't
   // match one above, send back React's index.html file.
   server.get('*', (req, res) => {
-    console.log('HI FROM CATCHALL')
     res.sendFile(path.join(__dirname + '/build/index.html'))
   })
 }
