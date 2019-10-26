@@ -52,17 +52,21 @@ export default function LoggedInPage({ setIsLoggedIn }) {
           />
         </Switch>
         <Navigation>
-          {withNavLink('/contacts', 'fa fa-search', requestCount)}
-          {withNavLink('/', 'fa fa-users')}
-          {withNavLink('/top-songs', 'fa fa-headphones')}
-          {withNavLink('/settings', 'fa fa-cogs')}
+          {withNavLink(
+            '/contacts',
+            'fa fa-search',
+            'Find Friends',
+            requestCount
+          )}
+          {withNavLink('/', 'fa fa-users', 'Currently Playing')}
+          {withNavLink('/top-songs', 'fa fa-headphones', 'Top Songs')}
+          {withNavLink('/settings', 'fa fa-cogs', 'Settings')}
         </Navigation>
       </BrowserRouter>
     </>
   )
 
   function togglePreview(preview_url) {
-    console.log('TOGGLEPREVIEW', preview_url)
     if (preview_url != null && preview_url !== '') {
       if (activeAudio.preview_url === preview_url) {
         if (activeAudio.isPlaying) {
