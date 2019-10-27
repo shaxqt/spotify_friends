@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, forwardRef } from 'react'
 import ReactDOM from 'react-dom'
 import Main from '../utils/Main'
 import Song from '../common/Song'
@@ -32,6 +32,57 @@ export default function TopSongPage({
   const [lastScrollBottom, setLastScrollBottom] = useState(0)
   const [showHeader, setShowHeader] = useState(true)
 
+  const LIST_GAP = 10
+  const innerElementType = forwardRef(({ style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      style={{
+        ...style,
+        height: `${parseFloat(style.height) + HEADER_HEIGHT * 3}px`
+      }}
+      {...rest}
+    />
+  ))
+  return (
+    <Main noScroll>
+      <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
+        <TimeFilter activeFilter={timeFilter} setFilter={setTimeFilter} />
+        <FriendFilter
+          friends={friends}
+          toggleFilter={toggleFilter}
+          activeFilters={friendIdFilter}
+        />
+      </FloatingHeader>
+      <FixedDivStyled>
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <AutoSizer>
+            {({ height, width }) => {
+              return (
+                <List
+                  overscanCount={1}
+                  onScroll={onScroll}
+                  className="List"
+                  height={height}
+                  itemCount={shownSongs.length}
+                  itemSize={80 + LIST_GAP}
+                  width={width}
+                  innerElementType={innerElementType}
+                >
+                  {renderSong}
+                </List>
+              )
+            }}
+          </AutoSizer>
+        )}
+      </FixedDivStyled>
+      <Portal>
+        <IconStyled onClick={playSongs} className="fa fa-random"></IconStyled>
+      </Portal>
+    </Main>
+  )
+
   function onScroll(e) {
     if (e.scrollOffset === 0) {
       setShowHeader(true)
@@ -50,45 +101,6 @@ export default function TopSongPage({
       }
     }
   }
-
-  return (
-    <Main noScroll>
-      <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
-        <TimeFilter activeFilter={timeFilter} setFilter={setTimeFilter} />
-        <FriendFilter
-          friends={friends}
-          toggleFilter={toggleFilter}
-          activeFilters={friendIdFilter}
-        />
-      </FloatingHeader>
-      <FixedDivStyled marginTop={showHeader ? HEADER_HEIGHT : 0}>
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : (
-          <AutoSizer>
-            {({ height, width }) => {
-              return (
-                <List
-                  onScroll={onScroll}
-                  className="List"
-                  height={height}
-                  itemCount={shownSongs.length}
-                  itemSize={80}
-                  width={width}
-                >
-                  {renderSong}
-                </List>
-              )
-            }}
-          </AutoSizer>
-        )}
-      </FixedDivStyled>
-      <Portal>
-        <IconStyled onClick={playSongs} className="fa fa-random"></IconStyled>
-      </Portal>
-    </Main>
-  )
-
   function toggleFilter(userid) {
     const i = friendIdFilter.indexOf(userid)
     let filter = []
@@ -100,10 +112,18 @@ export default function TopSongPage({
     }
     setFriendIdFilter(filter)
   }
+
   function renderSong({ index, style }) {
     if (Array.isArray(shownSongs) && shownSongs.length > index) {
       return (
-        <div style={style} key={shownSongs[index].preview_url}>
+        <div
+          style={{
+            ...style,
+            paddingTop: LIST_GAP,
+            top: `${parseFloat(style.top) + HEADER_HEIGHT}px`
+          }}
+          key={shownSongs[index].song.uri}
+        >
           <Song
             song={shownSongs[index]}
             onPlay={playSongs}
@@ -141,7 +161,4 @@ const IconStyled = styled.i`
   position: fixed;
   font-size: 25px;
   color: white;
-`
-const EmptyStyled = styled.div`
-  height: 50px;
 `
