@@ -101,10 +101,9 @@ const ContentStyled = styled.div`
       align-items: center;
     }
     &__right {
-    display: grid;
-    grid-gap: 5px;
-    justify-items: end;
-}
+      display: grid;
+      grid-gap: 5px;
+      justify-items: end;
     }
   }
 

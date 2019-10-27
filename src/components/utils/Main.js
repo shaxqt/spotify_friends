@@ -24,6 +24,9 @@ const MainStyled = styled.main`
 const MainContainer = styled.section`
   width: 100%;
   max-width: 450px;
+  @media (min-width: 768px) {
+    max-width: 600px;
+  }
   min-width: 250px;
   margin: 0 auto;
   padding: ${({ noScroll }) => (noScroll ? '0 20px' : '20px')};
