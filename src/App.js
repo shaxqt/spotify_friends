@@ -9,7 +9,7 @@ import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplateStyled from './components/utils/AlertTemplate'
 import LoadingSpinner from './components/utils/LoadingSpinner'
 const spotify_friends_token = localStorage.getItem('spotify_friends_token')
-const socketPort = process.env.REACT_APP_SOCKET_PORT || ''
+const socketPort = process.env.REACT_APP_BACKEND || ''
 
 if (spotify_friends_token != null) {
   console.log(

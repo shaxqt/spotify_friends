@@ -3,12 +3,15 @@ const querystring = require('querystring')
 const { getSessionIfValid, handleUserLogin } = require('../auth_utils')
 const { postSpotifyRequest } = require('../request_utils')
 
-const client_secret = process.env.REACT_APP_CLIENT_SECRET
-const client_id = process.env.REACT_APP_CLIENT_ID
-const redirect_uri = process.env.REACT_APP_REDIRECT_URI
+const client_secret = process.env.CLIENT_SECRET
+const client_id = process.env.CLIENT_ID
+const redirect_uri = process.env.REDIRECT_URI + '/'
+const stateKey = 'spotify_auth_state'
 
 router.get('/login', function(req, res) {
-  const stateKey = 'spotify_auth_state'
+  console.log(
+    'login called, redirecting to spotify, coming back at ' + redirect_uri
+  )
   const state = generateRandomString(16)
   res.cookie(stateKey, state)
 
@@ -34,7 +37,6 @@ router.get('/callback', async function(req, res) {
   try {
     const { code, state, error, token } = req.query
     const storedState = req.cookies ? req.cookies[stateKey] : null
-    console.log('CALLBACK CALLED', code, state, error, token)
     if (token) {
       // check if session is valid
       session = await getSessionIfValid(token, true)

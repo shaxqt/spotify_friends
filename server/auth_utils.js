@@ -3,8 +3,8 @@ const UserSession = require('./Models/UserSession')
 const User = require('./Models/User')
 const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
 
-const client_secret = process.env.REACT_APP_CLIENT_SECRET
-const client_id = process.env.REACT_APP_CLIENT_ID
+const client_secret = process.env.CLIENT_SECRET
+const client_id = process.env.CLIENT_ID
 
 const deleteUserSessions = async (session, deleteAllSessions = false) => {
   try {

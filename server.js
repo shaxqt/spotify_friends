@@ -1,3 +1,4 @@
+console.log(require('dotenv').config())
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -16,13 +17,13 @@ const io = require('socket.io')(http, {
 const path = require('path')
 
 mongoose
-  .connect(process.env.REACT_APP_MONGODB, {
+  .connect(process.env.MONGODB, {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('mongo connected: ' + mongoDB))
+  .then(() => console.log('mongo connected'))
   .catch(err => console.log('error connecting to mongoDB', err))
 
 io.sockets.on('connection', socket => {
@@ -46,12 +47,6 @@ io.sockets.on('connection', socket => {
   })
 })
 
-const PORT = process.env.PORT || 3333
-
-http.listen(PORT, _ => {
-  console.log('listening on *:' + PORT)
-})
-
 server.use(express.json())
 server.use(cors())
 server.use(cookieParser())
@@ -70,6 +65,11 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname + '/build/index.html'))
   })
 }
+
+const PORT = process.env.PORT || 3333
+http.listen(PORT, _ => {
+  console.log('listening on *:' + PORT)
+})
 
 startCurrSongFetchIntervall()
 startTopSongFetchIntervall()
