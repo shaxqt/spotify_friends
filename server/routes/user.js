@@ -16,7 +16,7 @@ const clients = require('../clients')
 
 router.put('/shuffle', function(req, res) {
   withValidSession(req, res, async session => {
-    await putSpotifyRequest(
+    const test = await putSpotifyRequest(
       session.spotify_access_token,
       '/v1/me/player/shuffle?state=' + !!req.body.state
     )

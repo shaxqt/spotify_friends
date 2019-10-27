@@ -21,13 +21,14 @@ export default function useSongFilter(topSongs, friendIdFilter) {
   } else {
     filteredSongs = topSongs
   }
-  const shuffleSongs = async () => {
+  const playSongs = async (start_uri = 'random') => {
     if (filteredSongs.length > 0) {
-      const start_uri =
-        filteredSongs[
-          Math.floor(Math.random() * Math.floor(filteredSongs.length))
-        ].song.uri
-
+      if (start_uri === 'random') {
+        start_uri =
+          filteredSongs[
+            Math.floor(Math.random() * Math.floor(filteredSongs.length))
+          ].song.uri
+      }
       const body = {
         offset: { uri: start_uri },
         uris: filteredSongs.map(song => song.song.uri)
@@ -53,5 +54,5 @@ export default function useSongFilter(topSongs, friendIdFilter) {
     }
   }
 
-  return [filteredSongs, shuffleSongs]
+  return [filteredSongs, playSongs]
 }

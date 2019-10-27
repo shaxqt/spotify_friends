@@ -24,7 +24,7 @@ export default function TopSongPage({
 }) {
   const HEADER_HEIGHT = 150
   const [friendIdFilter, setFriendIdFilter] = useState([])
-  const [shownSongs, shuffleShownSongs] = useSongFilter(
+  const [shownSongs, playSongs] = useSongFilter(
     topSongs[timeFilter],
     friendIdFilter
   )
@@ -76,7 +76,7 @@ export default function TopSongPage({
                   itemSize={80}
                   width={width}
                 >
-                  {renderRow}
+                  {renderSong}
                 </List>
               )
             }}
@@ -84,10 +84,7 @@ export default function TopSongPage({
         )}
       </FixedDivStyled>
       <Portal>
-        <IconStyled
-          onClick={shuffleShownSongs}
-          className="fa fa-random"
-        ></IconStyled>
+        <IconStyled onClick={playSongs} className="fa fa-random"></IconStyled>
       </Portal>
     </Main>
   )
@@ -103,12 +100,13 @@ export default function TopSongPage({
     }
     setFriendIdFilter(filter)
   }
-  function renderRow({ index, style }) {
+  function renderSong({ index, style }) {
     if (Array.isArray(shownSongs) && shownSongs.length > index) {
       return (
         <div style={style} key={shownSongs[index].preview_url}>
           <Song
             song={shownSongs[index]}
+            onPlay={playSongs}
             togglePreview={togglePreview}
             isPlaying={
               activeAudio &&

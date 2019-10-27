@@ -3,18 +3,25 @@ import styled from 'styled-components'
 import { getTopSongData } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
 
-export default function Song({ song, togglePreview, isPlaying, noImage }) {
+export default function Song({
+  song,
+  togglePreview,
+  isPlaying,
+  noImage,
+  onPlay
+}) {
   const {
     song_title,
     song_artists,
     song_image_small,
     song_image_medium,
     names,
-    preview_url
+    preview_url,
+    uri
   } = getTopSongData(song)
 
   return (
-    <SongStyled>
+    <SongStyled onClick={handleOnPlay}>
       {noImage ? <div></div> : <ImgContainerStyled img={song_image_medium} />}
       <TextContentStyled alignContent="space-between">
         <h2>{song_title}</h2>
@@ -27,14 +34,18 @@ export default function Song({ song, togglePreview, isPlaying, noImage }) {
         <IconStyled
           isPlaying={isPlaying}
           className={'fas fa-music'}
-          onClick={handleOnClick}
+          onClick={handleOnPreview}
         ></IconStyled>
       )}
     </SongStyled>
   )
-  function handleOnClick(e) {
+  function handleOnPreview(e) {
     e.preventDefault()
     togglePreview(preview_url)
+  }
+  function handleOnPlay(e) {
+    e.preventDefault()
+    onPlay(uri)
   }
 }
 const IconStyled = styled.i`
