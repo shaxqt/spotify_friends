@@ -20,5 +20,5 @@ export default function FriendFilter({ friends, activeFilters, toggleFilter }) {
 const FriendFilterStyled = styled.section`
   display: flex;
   overflow-x: scroll;
-  margin-bottom: 5px;
+  padding: 10px 20px;
 `

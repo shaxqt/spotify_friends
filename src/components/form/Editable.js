@@ -25,35 +25,25 @@ export default function Editable({
 }) {
   const [localValue, setLocalValue] = useState(value)
   const [isEditMode, setIsEditMode] = useState(false)
-  const textInput = useRef()
 
-  useEffect(
-    _ => {
-      if (isEditMode) {
-        textInput.current.focus()
-        textInput.current.select()
-      } else {
-        textInput.current.setSelectionRange(0, 0)
-      }
-    },
-    [isEditMode]
-  )
   useEffect(_ => setIsEditMode(false), [isEditable])
   return (
     <form onSubmit={handleSubmit}>
       <LabelStyled>
         {label}
         <EditableStyled isEditMode={isEditMode}>
-          <input
-            maxLength={maxLength}
-            spellCheck="false"
-            readOnly={!isEditMode}
-            ref={textInput}
-            type={type}
-            value={isEditMode ? localValue : value}
-            onChange={handleInputChange}
-            onBlur={_ => value === localValue && setIsEditMode(false)}
-          />
+          {isEditMode ? (
+            <input
+              maxLength={maxLength}
+              type={type}
+              value={localValue}
+              onChange={e => setLocalValue(e.target.value)}
+              onBlur={e => localValue === value && setIsEditMode(false)}
+            />
+          ) : (
+            <input readOnly type={type} value={value} spellCheck="false" />
+          )}
+
           {isEditMode ? (
             <div className="icons">
               {localValue !== value && (
@@ -73,10 +63,8 @@ export default function Editable({
       </LabelStyled>
     </form>
   )
-  function handleInputChange(event) {
-    setLocalValue(event.target.value)
-  }
   function handleSubmit(event) {
+    console.log('handle submit')
     event.preventDefault()
     setIsEditMode(false)
     onSubmit(localValue)

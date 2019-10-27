@@ -3,19 +3,8 @@ const UserSession = require('./Models/UserSession')
 const User = require('./Models/User')
 const { getSpotifyRequest, postSpotifyRequest } = require('./request_utils')
 
-let config = null
-try {
-  config = require('./config/config')
-} catch (err) {
-  console.log('AUTH_UTILS no config file')
-}
-
-const client_secret = config
-  ? process.env.CLIENT_SECRET || config['client_secret']
-  : process.env.CLIENT_SECRET
-const client_id = config
-  ? process.env.CLIENT_ID || config['client_id']
-  : process.env.CLIENT_ID
+const client_secret = process.env.CLIENT_SECRET
+const client_id = process.env.CLIENT_ID
 
 const deleteUserSessions = async (session, deleteAllSessions = false) => {
   try {
@@ -33,7 +22,7 @@ const deleteUserSessions = async (session, deleteAllSessions = false) => {
 }
 const getSessionIfValid = async (token, checkSpotifyToken = false) => {
   try {
-    if (token != null && token != undefined && typeof token === 'string') {
+    if (token != null && token !== 'null' && token !== 'undefined') {
       token = sanitize(token)
       const session = await UserSession.findOne({ _id: sanitize(token) })
       if (session) {

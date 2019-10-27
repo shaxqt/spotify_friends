@@ -9,7 +9,11 @@ const LoginPage = props => {
       <Form paddingTop="200px">
         <Button
           onClick={() => {
-            window.location.pathname = '/auth/login'
+            if (process.env.REACT_APP_BACKEND) {
+              window.location = process.env.REACT_APP_BACKEND + '/auth/login'
+            } else {
+              window.location.pathname = '/auth/login'
+            }
           }}
           text="login"
         />

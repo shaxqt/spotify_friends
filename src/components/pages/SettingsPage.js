@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import Editable from '../form/Editable'
-import { getCurrentUser, updateUserSettings, logout } from '../../api/api'
+import { logout } from '../../api/api'
 import Main from '../utils/Main'
 import GridStyled from '../utils/GridStyled'
 import Checkbox from '../form/Checkbox'
 import Modal from '../utils/Modal'
 import Button from '../form/Button'
-
-export default function SettingsPage({ active, setIsLoggedIn }) {
-  const [currentUser, setCurrentUser] = useState(null)
+export default function SettingsPage({
+  currentUser,
+  updateDisplayName,
+  updateUserImagePublic,
+  active,
+  setIsLoggedIn
+}) {
   const [showModal, setShowModal] = useState(false)
-
-  useEffect(_ => {
-    getCurrentUser().then(setCurrentUser)
-  }, [])
 
   return (
     <Main>
@@ -26,14 +26,14 @@ export default function SettingsPage({ active, setIsLoggedIn }) {
               maxLength="25"
               label="display name"
               value={currentUser.display_name}
-              onSubmit={onSubmitDisplayName}
+              onSubmit={updateDisplayName}
               isEditable={active}
             />
             <Checkbox
               label="Show profile picture"
               info="This could make it easier for your friends to find you. Your friends can always see your picture"
               value={currentUser.isUserImagePublic}
-              onChange={onChangeIsUserImagePublic}
+              onChange={updateUserImagePublic}
             />
 
             <small>
@@ -88,34 +88,10 @@ export default function SettingsPage({ active, setIsLoggedIn }) {
     setShowModal(!showModal)
   }
 
-  async function onChangeIsUserImagePublic(isUserImagePublic) {
-    try {
-      if (isUserImagePublic !== currentUser.isUserImagePublic) {
-        const res = await updateUserSettings({ isUserImagePublic })
-        if (res.success) {
-          setCurrentUser(res.item)
-        }
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
-  async function onSubmitDisplayName(display_name) {
-    try {
-      if (display_name !== currentUser.display_name) {
-        const res = await updateUserSettings({ display_name })
-        if (res.success) {
-          setCurrentUser(res.item)
-        }
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
   function renderImage() {
     if (
       currentUser &&
+      currentUser['images'] &&
       currentUser.images.length > 0 &&
       currentUser.images[0].url !== ''
     ) {

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 const Main = ({ bgColor, children, noScroll }) => {
   return (
-    <MainStyled bgColor={bgColor}>
+    <MainStyled noScroll={noScroll} bgColor={bgColor}>
       <MainContainer noScroll={noScroll}>{children}</MainContainer>
     </MainStyled>
   )
@@ -26,7 +26,7 @@ const MainContainer = styled.section`
   max-width: 450px;
   min-width: 250px;
   margin: 0 auto;
-  padding: 20px;
+  padding: ${({ noScroll }) => (noScroll ? '0 20px' : '20px')};
   overflow-y: ${({ noScroll }) => (noScroll ? 'hidden' : 'scroll')};
   height: 100%;
 `
