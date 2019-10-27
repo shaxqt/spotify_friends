@@ -6,22 +6,30 @@ import styled from 'styled-components'
 import FriendFilter from '../common/FriendFilter'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { useShuffle, useTopSongs, useSongFilter } from '../../hooks/TopSongPage'
+import useSongFilter from '../../hooks/useSongFilter'
 import LoadingSpinner from '../utils/LoadingSpinner'
 import FloatingHeader from '../utils/FloatingHeader'
 import TimeFilter from '../common/TimeFilter'
 const Portal = ({ children }) =>
   ReactDOM.createPortal(<>{children}</>, document.body)
 
-export default function TopSongPage({ activeAudio, togglePreview }) {
+export default function TopSongPage({
+  topSongs,
+  timeFilter,
+  setTimeFilter,
+  isLoading,
+  friends,
+  activeAudio,
+  togglePreview
+}) {
   const HEADER_HEIGHT = 150
-  const [timeFilter, setTimeFilter] = useState('short_term')
-  const [topSongs, allFriends, loadingData] = useTopSongs(timeFilter)
   const [friendIdFilter, setFriendIdFilter] = useState([])
+  const [shownSongs, shuffleShownSongs] = useSongFilter(
+    topSongs[timeFilter],
+    friendIdFilter
+  )
   const [lastScrollTop, setLastScrollTop] = useState(0)
   const [lastScrollBottom, setLastScrollBottom] = useState(0)
-  const shownSongs = useSongFilter(topSongs, friendIdFilter)
-  const shuffleShownSongs = useShuffle(shownSongs)
   const [showHeader, setShowHeader] = useState(true)
 
   function onScroll(e) {
@@ -48,13 +56,13 @@ export default function TopSongPage({ activeAudio, togglePreview }) {
       <FloatingHeader height={HEADER_HEIGHT + 'px'} show={showHeader}>
         <TimeFilter activeFilter={timeFilter} setFilter={setTimeFilter} />
         <FriendFilter
-          friends={allFriends}
+          friends={friends}
           toggleFilter={toggleFilter}
           activeFilters={friendIdFilter}
         />
       </FloatingHeader>
       <FixedDivStyled marginTop={showHeader ? HEADER_HEIGHT : 0}>
-        {loadingData ? (
+        {isLoading ? (
           <LoadingSpinner />
         ) : (
           <AutoSizer>
