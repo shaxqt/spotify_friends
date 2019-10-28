@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 [Heroku](herokuapp.spotify.com) (spotify account needed)
 
-## Run this Project locally
+## Run this Project
 
 ### Requirements
 
@@ -27,10 +27,12 @@ cd spotify_friends
 npm install
 ```
 
-Rename `server/config/_config.js` to `server/config/config.js` and paste in your Spotify Client-ID and Secret and **save it**.
+Rename `_.env.local`to `.env.local`. This value is used for the Websocket connection and the redirect to `/auth/login` route, since react-proxy seems to only work for fetches.
+
+Rename `_.env` to `.env` and paste in your Spotify Client-ID and Secret and **save it**.
 _Optional_ change the link to MongoDB here, if you dont run it locally at default port 27017.
 
-Go to your [Spotify Application](https://developer.spotify.com/dashboard/applications), click "Edit Settings" and add `http://localhost:3000` at "Redirect URIs" (don't forget to **scroll down and klick save**).
+Go to your [Spotify Application](https://developer.spotify.com/dashboard/applications), click "Edit Settings" and add `http://localhost:3000` at "Redirect URIs". This url has to match the REDIRECT_URI in the `.env` file. (don't forget to **scroll down and klick save**).
 
 Now you can run
 
@@ -40,3 +42,23 @@ npm run dev
 
 Visit your browser at [http://localhost:3000](http://localhost:3000) (should open automatically).
 The page will reload if you make edits.<br>
+
+#### Changes for setup in production
+
+You need to change the REDIRECT_URI to your hostname and also add it to your [Spotify Application](https://developer.spotify.com/dashboard/applications)
+
+After that run
+
+```
+npm run build
+```
+
+Now you can run the server only, it will deliver the static html files from the build folder
+
+```
+node run server.js
+```
+
+##### Heroku
+
+Heroku will use the procfile in this Project. So you can simply push this project. _But_ you need to setup the enviroment variables manually.
