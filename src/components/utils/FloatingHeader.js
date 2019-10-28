@@ -10,6 +10,9 @@ export default function FloatingHeader({ height, show, children }) {
 }
 
 const HeaderStyled = styled.header`
+  z-index: 100;
+  background-color: #222;
+  border-bottom: 1px solid #111;
   position: fixed;
   overflow-y: hidden;
   height: ${({ height }) => height};

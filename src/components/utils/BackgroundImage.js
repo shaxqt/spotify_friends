@@ -22,7 +22,11 @@ const ContentStyled = styled.div`
   left: 0;
 `
 const FriendsCurrSongStyled = styled.section`
-  height: ${({ height }) => (height ? height : '450px')};
+  height: 450px;
+  @media (min-width: 768px) {
+    height: 600px;
+  }
+  ${({ height }) => height && 'height: ' + height + ';'};
   width: 100%;
   position: relative;
 `

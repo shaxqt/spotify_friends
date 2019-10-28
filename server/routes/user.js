@@ -20,6 +20,7 @@ router.put('/shuffle', function(req, res) {
       session.spotify_access_token,
       '/v1/me/player/shuffle?state=' + !!req.body.state
     )
+    res.send({ success: true, message: 'command sent' })
   })
 })
 router.post('/top', function(req, res) {

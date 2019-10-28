@@ -96,7 +96,7 @@ const getTops = async options => {
     let topOfFriend = await getTop({ ...options, userID: friend.id })
     if (Array.isArray(topOfFriend)) {
       topOfFriend = topOfFriend.map(top => ({
-        song: top,
+        item: top,
         friend
       }))
       tops = [...tops, ...topOfFriend]
@@ -106,7 +106,7 @@ const getTops = async options => {
   let ownTops = await getTop({ ...options, userID: session.userID })
   if (Array.isArray(ownTops)) {
     ownTops = ownTops.map(top => ({
-      song: top,
+      item: top,
       friend: {
         display_name: user.display_name,
         id: user.id,
@@ -143,7 +143,7 @@ const getTop = async ({
           // request new current song and save to db
           const res = await getSpotifyRequest(
             validSession.spotify_access_token,
-            '/v1/me/top/' + type + '?time_range=' + time_range
+            '/v1/me/top/' + type + '?time_range=' + time_range + '&limit=50'
           )
           if (res && res.items) {
             if (top == null) {
@@ -153,8 +153,13 @@ const getTop = async ({
               top.userID = userID
             }
 
+            console.log('TOP', res.items)
             top.lastFetched = Date.now()
-            top.items = res.items.map(songItem => cleanUpSongItem(songItem))
+
+            top.items =
+              type === 'tracks'
+                ? res.items.map(songItem => cleanUpSongItem(songItem))
+                : res.items
             top = await top.save()
           }
         }

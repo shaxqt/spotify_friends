@@ -64,7 +64,6 @@ export default function Editable({
     </form>
   )
   function handleSubmit(event) {
-    console.log('handle submit')
     event.preventDefault()
     setIsEditMode(false)
     onSubmit(localValue)

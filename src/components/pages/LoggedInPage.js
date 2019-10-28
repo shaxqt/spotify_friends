@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ContactPage from './ContactPage'
 import FriendsPage from './FriendsPage'
-import TopSongPage from './TopSongPage'
+import TopPage from './TopPage'
 import SettingsPage from './SettingsPage'
 import Navigation, { withNavLink } from '../utils/Navigation'
 import useActiveAudio from '../../hooks/useActiveAudio'
@@ -10,8 +10,11 @@ import LoadingSpinner from '../utils/LoadingSpinner'
 import useCurrentUser from '../../hooks/useCurrentUser'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import useTopSongs from '../../hooks/useTopSongs'
+import useTopArtists from '../../hooks/useTopArtists'
 
 export default function LoggedInPage({ setIsLoggedIn }) {
+  const [timeFilter, setTimeFilter] = useState('short_term')
+  const [typeFilter, setTypeFilter] = useState('songs')
   const [requestCount, setRequestCount] = useState(0)
   const [activeAudio, togglePreview] = useActiveAudio()
   const [friends, playFriendsSong, loadingFriends] = useFriends()
@@ -21,8 +24,8 @@ export default function LoggedInPage({ setIsLoggedIn }) {
     updateUserImagePublic,
     loadingCurrentUser
   ] = useCurrentUser()
-  const [timeFilter, setTimeFilter] = useState('short_term')
   const [topSongs, loadingTopSongs] = useTopSongs(timeFilter)
+  const [topArtists, loadingTopArtists] = useTopArtists(timeFilter)
 
   return (
     <>
@@ -38,13 +41,18 @@ export default function LoggedInPage({ setIsLoggedIn }) {
             />
             <Route
               exact
-              path="/top-songs"
+              path="/top"
               render={() => (
-                <TopSongPage
-                  setTimeFilter={setTimeFilter}
-                  topSongs={topSongs}
-                  isLoading={loadingTopSongs}
+                <TopPage
+                  topArtists={topArtists}
                   timeFilter={timeFilter}
+                  setTimeFilter={setTimeFilter}
+                  typeFilter={typeFilter}
+                  setTypeFilter={setTypeFilter}
+                  topSongs={topSongs}
+                  isLoading={
+                    typeFilter === 'songs' ? loadingTopSongs : loadingTopArtists
+                  }
                   friends={[
                     { ...currentUser, display_name: 'you' },
                     ...friends
@@ -88,7 +96,7 @@ export default function LoggedInPage({ setIsLoggedIn }) {
               requestCount
             )}
             {withNavLink('/', 'fa fa-users', 'Currently Playing')}
-            {withNavLink('/top-songs', 'fa fa-headphones', 'Top Songs')}
+            {withNavLink('/top', 'fa fa-headphones', 'Top Songs')}
             {withNavLink('/settings', 'fa fa-cogs', 'Settings')}
           </Navigation>
         </BrowserRouter>
