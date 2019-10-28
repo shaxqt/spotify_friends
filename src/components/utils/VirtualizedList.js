@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react'
+import React, { useState, forwardRef, useEffect } from 'react'
 
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -13,37 +13,28 @@ export default function VirtualizedList({
 }) {
   const [lastScrollTop, setLastScrollTop] = useState(0)
   const [lastScrollBottom, setLastScrollBottom] = useState(0)
+  const [bodyHeight, setBodyHeight] = useState(0)
 
-  const innerElementType = forwardRef(({ style, ...rest }, ref) => (
-    <div
-      ref={ref}
-      style={{
-        ...style,
-        height: `${parseFloat(style.height) + HEADER_HEIGHT * 3}px`
-      }}
-      {...rest}
-    />
-  ))
+  useEffect(() => {
+    setBodyHeight(window.innerHeight)
+    window.onresize = () => {
+      setBodyHeight(window.innerHeight)
+    }
+    return () => (window.onresize = null)
+  }, [])
 
   return (
-    <AutoSizer>
-      {({ height, width }) => {
-        return (
-          <List
-            overscanCount={1}
-            onScroll={onScroll}
-            className="List"
-            height={height}
-            itemCount={list.length}
-            itemSize={ITEM_HEIGHT + LIST_GAP}
-            width={width}
-            innerElementType={innerElementType}
-          >
-            {renderItem}
-          </List>
-        )
-      }}
-    </AutoSizer>
+    <List
+      style={{ top: `-${ITEM_HEIGHT + HEADER_HEIGHT}px` }}
+      overscanCount={1}
+      onScroll={onScroll}
+      className="List"
+      height={bodyHeight + ITEM_HEIGHT + HEADER_HEIGHT}
+      itemCount={list.length}
+      itemSize={ITEM_HEIGHT + LIST_GAP}
+    >
+      {renderItem}
+    </List>
   )
   function renderItem({ index, style }) {
     if (Array.isArray(list) && list.length > index && list[index].item) {
@@ -52,7 +43,7 @@ export default function VirtualizedList({
           style={{
             ...style,
             paddingTop: LIST_GAP,
-            top: `${parseFloat(style.top) + HEADER_HEIGHT}px`
+            top: `${parseFloat(style.top) + HEADER_HEIGHT + ITEM_HEIGHT}px`
           }}
           key={list[index].item['uri']}
         >
