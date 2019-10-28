@@ -14,10 +14,46 @@ export function findReplace(array, item, replace) {
   ]
   return newResult
 }
+export function getTopArtistData(topSong) {
+  let ret = {}
+  const artistData = getSpotifyArtistItemData(topSong.item)
+  ret = { ...artistData }
+  ret.names = topSong.friends
+    .map(f => getShownDisplayName(f.display_name))
+    .join(', ')
+
+  return ret
+}
+function getSpotifyArtistItemData(artist) {
+  let data = {}
+  data.name = artist['name'] || ''
+  data.uri = artist['uri'] || ''
+  data.genres =
+    artist['genres'] && Array.isArray(artist.genres)
+      ? artist.genres.join(', ')
+      : ''
+  data.image = ''
+  if (
+    artist['images'] &&
+    Array.isArray(artist.images) &&
+    artist.images.length >= 1
+  ) {
+    let optImage
+    for (const image of artist.images) {
+      if (image.height > 100) {
+        optImage = image
+        break
+      } else if (optImage && image.height > optImage.height) {
+        optImage = image
+      }
+    }
+    data.image = optImage ? optImage.url : ''
+  }
+  return data
+}
 export function getTopSongData(topSong) {
   let ret = {}
-
-  const songData = getSpotifySongItemData(topSong.song)
+  const songData = getSpotifySongItemData(topSong.item)
   ret = { ...songData }
   ret.names = topSong.friends
     .map(f => getShownDisplayName(f.display_name))
@@ -84,12 +120,12 @@ function getSpotifySongItemData(item) {
   ret.song_title = item.name
   ret.song_artists = item.artists.map(artist => artist.name).join(', ')
   ret.uri = item.uri
-  if (item.album.images.length >= 0) {
+  if (item.album.images.length >= 1) {
     ret.song_image = item.album.images[0].url
-    if (item.album.images.length >= 1) {
+    if (item.album.images.length >= 2) {
       ret.song_image_medium = item.album.images[1].url
     }
-    if (item.album.images.length >= 2) {
+    if (item.album.images.length >= 3) {
       ret.song_image_small = item.album.images[2].url
     }
   }

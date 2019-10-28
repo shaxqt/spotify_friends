@@ -1,48 +1,29 @@
 import React from 'react'
 import styled from 'styled-components'
-import { getTopSongData } from '../../utils/utils'
+import { getTopArtistData } from '../../utils/utils'
 import GridStyled from '../utils/GridStyled'
 
-export default function Song({
-  top,
-  togglePreview,
-  isPlaying,
-  noImage,
-  onPlay
-}) {
-  const {
-    song_title,
-    song_artists,
-    song_image_small,
-    song_image_medium,
-    names,
-    preview_url,
-    uri
-  } = getTopSongData(top)
-
+export default function Song({ top, onPlay }) {
+  const { image, name, genres, names, uri } = getTopArtistData(top)
   return (
-    <SongStyled>
-      {noImage ? <div></div> : <ImgContainerStyled img={song_image_medium} />}
-      <TextContentStyled onClick={handleOnPlay} alignContent="space-between">
-        <h2>{song_title}</h2>
+    <ArtistStyled>
+      {image ? <ImgContainerStyled img={image} /> : <div></div>}
+      <TextContentStyled alignContent="space-between">
+        <h2>{name}</h2>
         <div>
-          <div>{song_artists}</div>
+          <div>{genres}</div>
           <small>{names}</small>
         </div>
       </TextContentStyled>
-      {preview_url && (
+      {uri && (
         <IconStyled
-          isPlaying={isPlaying}
-          className={'fas fa-music'}
-          onClick={handleOnPreview}
+          className={'fas fa-play-circle'}
+          onClick={handleOnPlay}
         ></IconStyled>
       )}
-    </SongStyled>
+    </ArtistStyled>
   )
-  function handleOnPreview(e) {
-    e.preventDefault()
-    togglePreview(preview_url)
-  }
+
   function handleOnPlay(e) {
     e.preventDefault()
     onPlay(uri)
@@ -50,12 +31,13 @@ export default function Song({
 }
 const IconStyled = styled.i`
   height: 80px;
-  color: ${({ isPlaying }) => (isPlaying ? '#1db954' : '#777')};
   font-size: 30px;
+  color: #1db954;
   display: flex;
   align-items: center;
   justify-content: center;
 `
+
 const ImgContainerStyled = styled.div`
   height: 80px;
   overflow: hidden;
@@ -67,8 +49,9 @@ const ImgContainerStyled = styled.div`
 const TextContentStyled = styled(GridStyled)`
   height: 80px;
   padding: 5px;
+  font-size: 12px;
 `
-const SongStyled = styled.section`
+const ArtistStyled = styled.section`
   width: 100%;
   display: grid;
   grid-template-columns: 80px 1fr 50px;

@@ -4,6 +4,10 @@ export const getTopSongs = async (time_range = 'short_term') => {
   const res = await postRequest('/user/top', { type: 'tracks', time_range })
   return res.success ? res.items : null
 }
+export const getTopArtists = async (time_range = 'short_term') => {
+  const res = await postRequest('/user/top', { type: 'artists', time_range })
+  return res.success ? res.items : null
+}
 export const getCurrentUser = _ => {
   return new Promise(async (resolve, reject) => {
     const res = await postRequest('/user/get_me')
