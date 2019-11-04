@@ -3,6 +3,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Demo
 
 [Heroku](shaxqt.herokuapp.com) (spotify account needed)
+
 ![spotify_friends_preview](https://media.giphy.com/media/VcvtxVNzGVhmzjmDbD/giphy.gif)
 ## Run this Project
 
@@ -59,6 +60,5 @@ Now you can run the server only, it will deliver the static html files from the 
 node run server.js
 ```
 
-##### Heroku
-
-Heroku will use the procfile in this Project. So you can simply push this project. _But_ you need to setup the enviroment variables manually.
+##### Deploy on Heroku
+Simply push this project to heroku, there is a procfile which heroku will use. _But_ you need to setup the enviroment variables manually.
