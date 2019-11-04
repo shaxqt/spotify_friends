@@ -2,7 +2,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Demo
 
-[Heroku](shaxqt.herokuapp.com) (spotify account needed)
+[Heroku](www.shaxqt.herokuapp.com) (spotify account needed)
 
 ![spotify_friends_preview](https://media.giphy.com/media/VcvtxVNzGVhmzjmDbD/giphy.gif)
 ## Run this Project
